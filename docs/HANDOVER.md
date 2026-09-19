@@ -1,6 +1,6 @@
 # SettledSolo handover
 
-**Last updated:** 19 September 2026 (production hardening phase; PR #34 merged, PR #35 in review)
+**Last updated:** 19 September 2026 (production hardening phase; PRs #34–#35 merged)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `b58f6450f2e0b4d82649b8c3101867a9cbc3027e`
 
@@ -8,9 +8,8 @@ This is the current-state handover for another agent or contributor picking up S
 
 ## Executive status
 
-Reviewed main: `b58f645` (PR #34 merged, CI green). PR #35 is the current focused
-hardening change: reproducible builds via a pinned Node version and `npm ci`, plus a dedicated
-`docs/HARDENING-ROADMAP.md`. The active development phase is now **production hardening**:
+PRs #34 and #35 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+changes, while fast verification continues broadly. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
 The physical-device and qualified behaviour-professional release gates still apply and remain open.
 
@@ -510,18 +509,18 @@ Do not use training outcomes as an efficacy claim.
 Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 
 1. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ Done: PR #34.
-2. Finish PR #35: pin the build Node version, use lockfile-strict `npm ci`, and establish the
-   hardening roadmap.
-3. Split the large E2E spec into focused files and retain the same behavioural coverage.
-4. Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
+2. ~~Pin the build Node version, use lockfile-strict `npm ci`, and establish the hardening roadmap.~~ Done: PR #35.
+3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run for relevant changes.~~ Done: PR #36.
+4. Split the large E2E spec into focused files and retain the same behavioural coverage.
+5. Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
    plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.
-5. Harden local storage/concurrency and browser-level account conflict recovery.
-6. Complete PWA update-safety and the real iOS/Android/desktop device gates.
-7. In parallel, configure verified email delivery and activate **preview accounts only**; then
+6. Harden local storage/concurrency and browser-level account conflict recovery.
+7. Complete PWA update-safety and the real iOS/Android/desktop device gates.
+8. In parallel, configure verified email delivery and activate **preview accounts only**; then
    prove real OTP and two-device sync/recovery before production.
-8. Clear the qualified behaviour-professional review and public-beta contact/privacy/assets gates.
-9. Activate production accounts only after the hardening, preview and release evidence is recorded.
-10. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
+9. Clear the qualified behaviour-professional review and public-beta contact/privacy/assets gates.
+10. Activate production accounts only after the hardening, preview and release evidence is recorded.
+11. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
 
 ## Known documentation debt
 
