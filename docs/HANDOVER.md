@@ -1,17 +1,16 @@
 # SettledSolo handover
 
-**Last updated:** 19 September 2026 (account activation tooling)
+**Last updated:** 19 September 2026 (post-merge: accounts tooling, storage recovery, roadmap item 5)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `e13f5d4280a5cb9655016341cc506f76e7f373bd`
+**Reviewed main:** `18aa3baed7f2ea9ae5a1487a66ee17e2b6720535`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-Reviewed main: `e13f5d4` (PR #28 merged, CI green). PR #27 storage recovery is a separate
-open PR, still based on `8cf04d9`. The user has explicitly prioritised **optional accounts
-and sync**, ahead of the remaining physical-device/behaviour-quality work. Those release
-gates still apply.
+Reviewed main: `18aa3ba`. There are no open pull requests. PRs #27, #29, #30, #31 and #32
+all merged on 19 September 2026. The physical-device and professional-review release gates
+still apply and remain open.
 
 Accounts and sync are **merged and deployed to the preview Worker, but not activated**. The
 merged implementation covers Better Auth email OTP, optional account UI, explicit guest-log
@@ -19,7 +18,7 @@ import, local outbox, revision-based incremental sync, recoverable conflicts, cl
 export/deletion and isolated account deployment tooling. Guest training remains usable offline.
 
 The current phase is **activation**, and the remaining work is provisioning and configuration
-rather than implementation. Verified on `e13f5d4`:
+rather than implementation. Verified on `18aa3ba`:
 
 - the preview Worker at `https://settledsolo-web-preview.jasonrprickett.workers.dev` runs the
   merged account code with `ACCOUNTS_ENABLED="false"`;
@@ -38,13 +37,17 @@ cannot be activated. Nothing else stands between the current state and preview a
 Re-run **Provision isolated account database** to reprint a database ID: it is idempotent and
 reuses an existing database, so the UUIDs are deliberately not recorded in this repository.
 
+Separately, `docs/SA-QUALITY-ROADMAP.md` **items 1-5 are now complete**, including all three of
+item 5's sub-items. The behaviour-quality thread has no queued work; what remains there is the
+qualified behaviour-professional review gate, not implementation.
+
 See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activation runbook,
 and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
 provider evidence.
 
 ## What changed most recently
 
-### Persistent-difficulty referral — current branch
+### PR #32 — Persistent-difficulty referral — merged
 
 `docs/SA-QUALITY-ROADMAP.md` item 5's last sub-item, which completes items 1-5 of that roadmap.
 
@@ -439,6 +442,12 @@ The normal Playwright suite then runs against:
 PR #26 also adds `npm run test:pwa`, which builds the production bundle and generated service worker. Both mobile profiles prove service-worker control; Chromium additionally verifies the full offline relaunch/save/reconnect cycle. Playwright WebKit's offline+reload emulation currently fails inside the engine itself, so real iOS Airplane Mode remains a physical-device gate.
 
 Do not treat WebKit emulation as evidence of installed iPhone PWA lifecycle behaviour.
+
+**Known gap:** `npm run verify` does not typecheck `app-v2/e2e`, because `app-v2/tsconfig.json`
+does not include it. A syntactically broken spec file therefore passes `verify` and only fails
+later, in the Playwright stage. This bit three consecutive merges on 19 September 2026, where
+resolving a conflict at the end of `core-flow.spec.ts` dropped a test's closing brace each time.
+Adding an `e2e` typecheck would turn that class of breakage into an immediate failure.
 
 ## Real-device release gates still open
 
