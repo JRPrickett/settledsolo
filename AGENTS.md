@@ -19,6 +19,7 @@ Older planning documents may contain completed or superseded steps. Never assume
 - `worker/` — Cloudflare Worker serving the modern static build and applying security/caching/noindex rules.
 - `wrangler.app.jsonc` — production Worker configuration (`settledsolo-web`).
 - `wrangler.preview.jsonc` — preview Worker configuration (`settledsolo-web-preview`).
+- `migrations/accounts/` and `scripts/account*` — account D1 migrations and the provisioning, preflight, deployment and endpoint-verification tooling. See `docs/ACCOUNTS-DEPLOYMENT.md`.
 - `cloudflare-worker/` — separate privacy-limited analytics event Worker/database.
 - root `js/`, `css/`, `tests/`, legacy PWA files — retained for regression and migration compatibility. Do not remove or casually rewrite them.
 - `docs/` — product, evidence, release, account/sync and handover documentation.

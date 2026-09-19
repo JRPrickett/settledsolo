@@ -2,10 +2,12 @@
 
 Date: 18 September 2026
 
-## Current work — PR #28
+## Current work — account activation
 
 The user explicitly prioritised optional accounts and sync on 19 September 2026. PR #28
-implements that next step behind deployment configuration. It is not activated or deployed.
+implemented that behind deployment configuration and is now **merged** as `e13f5d4`. The code is
+deployed to the preview Worker with accounts disabled; no account D1 database exists yet and no
+account variables or secrets are configured. The current phase is provisioning and configuration.
 Use `HANDOVER.md`, `ACCOUNTS-DEPLOYMENT.md` and `ACCOUNTS-REVIEW.md` for the current state.
 The earlier numbered plan below is historical scope; guided onboarding and PR #26 hardening
 are already merged. Physical-device and professional-review release gates remain open.

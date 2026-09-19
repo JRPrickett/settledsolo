@@ -151,6 +151,17 @@ jobs:
           print(f"Cloudflare token verification: {result.get('status', 'active')}.")
           PY
 
+      - name: Check account configuration
+        shell: bash
+        run: |
+          # pipefail matters: tee would otherwise hide a failed preflight.
+          set -euo pipefail
+          {
+            echo '```'
+            node scripts/accounts-preflight.mjs preview
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Install dependencies
         run: npm install --ignore-scripts
 
@@ -160,6 +171,17 @@ jobs:
       - name: Deploy preview Worker
         if: steps.cloudflare.outputs.configured == 'true'
         run: node scripts/deploy-app.mjs preview
+
+      - name: Verify deployed account endpoints
+        if: steps.cloudflare.outputs.configured == 'true'
+        env:
+          VERIFY_ORIGIN: ${{ vars.ACCOUNTS_VERIFY_ORIGIN || vars.AUTH_ORIGIN }}
+        run: |
+          if [ -z "$VERIFY_ORIGIN" ]; then
+            echo "::notice::Endpoint verification skipped because neither ACCOUNTS_VERIFY_ORIGIN nor AUTH_ORIGIN is set."
+            exit 0
+          fi
+          node scripts/accounts-verify.mjs "$VERIFY_ORIGIN"
 
       - name: Preview deployment not configured
         if: steps.cloudflare.outputs.configured != 'true'

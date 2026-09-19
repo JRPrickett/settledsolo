@@ -86,7 +86,10 @@ export function History({
                         ? "Some concern"
                         : "Distressed"}
                   </span>
-                  {(session.tags.length > 0 || session.stopReason || session.note) && (
+                  {(session.tags.length > 0 ||
+                    session.signals.length > 0 ||
+                    session.stopReason ||
+                    session.note) && (
                     <div className="history-detail">
                       {session.tags.map((tag) => (
                         <span className="history-chip" key={tag}>

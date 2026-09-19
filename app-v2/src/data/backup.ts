@@ -7,18 +7,17 @@ import type {
   SessionTag,
   TrainingSession
 } from "../domain/types";
+import {
+  PRE_PROTOCOL_FINDINGS,
+  PRE_PROTOCOL_OBSERVATION_VERSION
+} from "../domain/preProtocolObservation";
 import { readLegacyAppData } from "./legacyImport";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
+// Derived rather than duplicated: a new signal is accepted by restore automatically.
+import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 
 const outcomes: Outcome[] = ["relaxed", "concern", "distressed"];
-const signals: ObservedSignal[] = [
-  "exit-watching",
-  "pacing",
-  "panting",
-  "whining",
-  "barking-howling",
-  "unable-to-settle"
-];
+
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -48,6 +47,26 @@ function cleanOnboarding(value: unknown): AppData["onboarding"] {
   };
 }
 
+function cleanPreProtocol(
+  value: unknown
+): AppData["preProtocolObservation"] {
+  if (!isRecord(value) || value.version !== PRE_PROTOCOL_OBSERVATION_VERSION)
+    return undefined;
+  if (value.outcome !== "observed" && value.outcome !== "skipped")
+    return undefined;
+
+  const findings = Array.isArray(value.findings) ? value.findings : [];
+  return {
+    version: PRE_PROTOCOL_OBSERVATION_VERSION,
+    outcome: value.outcome,
+    findings:
+      value.outcome === "observed"
+        ? PRE_PROTOCOL_FINDINGS.filter((finding) => findings.includes(finding))
+        : [],
+    completedAt: Math.max(0, finiteNumber(value.completedAt, Date.now()))
+  };
+}
+
 function cleanOutcome(value: unknown): Outcome {
   return outcomes.includes(value as Outcome)
     ? (value as Outcome)
@@ -58,7 +77,7 @@ function cleanSignals(value: unknown): ObservedSignal[] {
   if (!Array.isArray(value)) return [];
   return [...new Set(
     value.filter((item): item is ObservedSignal =>
-      signals.includes(item as ObservedSignal)
+      OBSERVED_SIGNAL_VALUES.includes(item as ObservedSignal)
     )
   )];
 }
@@ -208,6 +227,7 @@ export function sanitiseImportedAppData(value: unknown): AppData {
   return {
     dogName: String(value.dogName || "").trim().slice(0, 40),
     onboarding: cleanOnboarding(value.onboarding),
+    preProtocolObservation: cleanPreProtocol(value.preProtocolObservation),
     activeScenarioId,
     scenarios,
     dailyCap:

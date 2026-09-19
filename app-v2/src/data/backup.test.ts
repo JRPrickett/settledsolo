@@ -2,6 +2,66 @@ import { describe, expect, it } from "vitest";
 import { backupSummary, parseBackupText } from "./backup";
 
 describe("backup restore", () => {
+  const envelope = (appData: unknown) =>
+    JSON.stringify({
+      schemaVersion: 1,
+      exportedAt: "2026-09-18T00:00:00.000Z",
+      appData: {
+        dogName: "Mabel",
+        activeScenarioId: "training",
+        scenarios: [
+          { id: "training", label: "Separation training", startSeconds: 5, sessions: [] }
+        ],
+        ...(appData as object)
+      }
+    });
+
+  it("preserves a recorded pre-protocol observation", () => {
+    const data = parseBackupText(
+      envelope({
+        preProtocolObservation: {
+          version: 1,
+          outcome: "observed",
+          findings: ["reacted-to-noises", "not-a-finding"],
+          completedAt: 99
+        }
+      })
+    );
+
+    expect(data.preProtocolObservation).toEqual({
+      version: 1,
+      outcome: "observed",
+      findings: ["reacted-to-noises"],
+      completedAt: 99
+    });
+  });
+
+  it("keeps a skipped observation skipped, without findings", () => {
+    const data = parseBackupText(
+      envelope({
+        preProtocolObservation: {
+          version: 1,
+          outcome: "skipped",
+          findings: ["reacted-to-noises"],
+          completedAt: 5
+        }
+      })
+    );
+
+    expect(data.preProtocolObservation?.outcome).toBe("skipped");
+    expect(data.preProtocolObservation?.findings).toEqual([]);
+  });
+
+  it("drops an unknown observation version rather than trusting it", () => {
+    const data = parseBackupText(
+      envelope({
+        preProtocolObservation: { version: 99, outcome: "observed", findings: [] }
+      })
+    );
+
+    expect(data.preProtocolObservation).toBeUndefined();
+  });
+
   it("accepts the production backup envelope", () => {
     const data = parseBackupText(JSON.stringify({
       schemaVersion: 1,
@@ -45,6 +105,38 @@ describe("backup restore", () => {
       completedAt: 12345
     });
     expect(data.scenarios[0].sessions[0].signals).toEqual(["pacing"]);
+    expect(
+      parseBackupText(
+        JSON.stringify({
+          schemaVersion: 1,
+          appData: {
+            dogName: "Mabel",
+            activeScenarioId: "training",
+            scenarios: [
+              {
+                id: "training",
+                label: "Separation training",
+                startSeconds: 5,
+                sessions: [
+                  {
+                    id: "s2",
+                    at: 1,
+                    targetSeconds: 10,
+                    actualSeconds: 10,
+                    outcome: "concern",
+                    stoppedEarly: false,
+                    signals: ["food-refusal", "invalid"],
+                    tags: [],
+                    stopReason: "",
+                    note: ""
+                  }
+                ]
+              }
+            ]
+          }
+        })
+      ).scenarios[0].sessions[0].signals
+    ).toEqual(["food-refusal"]);
     expect(data.scenarios[0].sessions[0].tags).toEqual(["after-a-walk"]);
     expect(data.scenarios[0].sessions[0].stopReason).toBe("doorbell rang");
     expect(data.scenarios[0].warmupCount).toBe(1);
