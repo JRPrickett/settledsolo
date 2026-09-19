@@ -30,7 +30,7 @@ export function History({
       <section className="page-heading">
         <p className="kicker">History</p>
         <h1>Your training record.</h1>
-        <p>Private on this device for now. Account backup comes later.</p>
+        <p>Stored locally on this device. If you connect an account, your training data can also sync between your devices.</p>
       </section>
 
       {adding ? (
