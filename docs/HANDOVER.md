@@ -44,7 +44,28 @@ provider evidence.
 
 ## What changed most recently
 
-### Account activation tooling — current branch
+### PR #27 — Preserve fallback training data during storage recovery — open
+
+A user who trains while IndexedDB is unavailable saves setup, history and an active session
+into the localStorage fallback. When IndexedDB later became available with an empty database,
+startup seeded it from legacy data and silently ignored that saved progress.
+
+Now:
+
+- an absent IndexedDB app record is promoted from existing fallback data rather than from
+  legacy migration data;
+- a valid fallback active-session checkpoint is recovered with its original timer/review state;
+- an expired or invalid checkpoint is cleared instead of resurrected;
+- browser regressions cover history/ID preservation, running-session recovery, save/reload and
+  expired-checkpoint rejection.
+
+This handles an empty primary store. It deliberately does **not** reconcile two already-divergent
+populated stores, or concurrent tabs. Guest/local use and training recommendations are unchanged.
+
+This branch predates PR #28, so it carries a merge of `main`. Account sync wiring added to
+`repository.ts` by PR #28 is preserved alongside the recovery change.
+
+### PR #29 — Account activation tooling — merged
 
 Activation was a multi-step configuration dance with no way to check it except by deploying.
 This adds the missing checks without changing any account or sync behaviour:

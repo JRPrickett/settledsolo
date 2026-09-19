@@ -31,6 +31,15 @@ trainer, veterinary behaviourist or vet.
 8. **Free core.** The core training plan, timer, history and basic progress view should
    remain genuinely useful for free.
 
+## Current delivery status (19 September 2026)
+
+The modern app, Cloudflare Worker configuration, guided onboarding and the first automated
+release-hardening pass are merged through PR #26, and optional accounts and local-first sync
+through PR #28. The phase lists below describe the product scope, not a claim that each entry
+is still unimplemented. Use `HANDOVER.md` and `NEXT-PHASE.md` for the current sequence.
+Accounts are merged but not activated: no verified email sender is configured yet.
+Physical-device and qualified behavioural-review gates remain open.
+
 ## Production phases
 
 ### Phase 0 — foundation
@@ -58,7 +67,7 @@ trainer, veterinary behaviourist or vet.
 - Get qualified behaviour-professional review of training wording/heuristics.
 - Complete formal name/trademark checks and domain connection.
 - Finish public-site beta essentials: feedback route, real product screenshots, social image and final privacy/terms wording.
-- Merge the modern PWA only after those release gates are recorded.
+- The modern PWA is already merged; clear and record remaining release gates before broad public beta.
 - Deploy the modern app as `settledsolo-web` without overwriting the separate analytics/events Worker.
 
 ### Phase 2 — free accounts and sync
