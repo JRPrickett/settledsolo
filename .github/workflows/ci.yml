@@ -67,9 +67,27 @@ jobs:
           if [ "$needed" != "true" ] && [ -s /tmp/changed-files.txt ]; then
             echo "Changed files:"
             cat /tmp/changed-files.txt
-            if grep -Eq '^(app-v2/|package\.json$|package-lock\.json$|\.node-version$)' /tmp/changed-files.txt; then
-              needed=true
-            fi
+
+            while IFS= read -r file; do
+              case "$file" in
+                package.json|package-lock.json|.node-version|app-v2/e2e/*|app-v2/public/*|app-v2/index.html|app-v2/vite.config.ts|app-v2/playwright*.ts)
+                  needed=true
+                  break
+                  ;;
+                app-v2/src/*)
+                  # Fast Vitest-only changes should not download two browser engines.
+                  # Source/runtime changes still receive the browser gate.
+                  case "$file" in
+                    *.test.ts|*.test.tsx|*.spec.ts|*.spec.tsx)
+                      ;;
+                    *)
+                      needed=true
+                      break
+                      ;;
+                  esac
+                  ;;
+              esac
+            done < /tmp/changed-files.txt
           fi
 
           echo "Browser checks needed: $needed"
