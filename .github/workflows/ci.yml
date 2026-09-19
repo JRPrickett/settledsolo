@@ -22,10 +22,10 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .node-version
 
       - name: Install dependencies
-        run: npm install --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Verify legacy and modern apps
         run: npm run verify
@@ -40,10 +40,10 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .node-version
 
       - name: Install dependencies
-        run: npm install --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium webkit
