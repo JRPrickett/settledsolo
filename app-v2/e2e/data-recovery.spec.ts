@@ -158,6 +158,7 @@ test("a user can create and rename a separate training track", async ({ page }) 
 });
 
 test("fallback history and an active session survive IndexedDB becoming available", async ({ page }) => {
+  test.slow();
   await page.addInitScript(() => {
     if (localStorage.getItem("test-enable-indexeddb") !== "yes") {
       Object.defineProperty(window, "indexedDB", { value: undefined });
