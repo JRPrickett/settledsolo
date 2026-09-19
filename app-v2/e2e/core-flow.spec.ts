@@ -670,3 +670,57 @@ test("food refusal can be recorded as an observed signal and reaches history", a
   await page.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("Refused food or treats")).toBeVisible();
 });
+
+test("persistent difficulty without progress suggests involving a vet, without prescribing", async ({ page }) => {
+  await completeSetup(page, 5);
+  await page.getByRole("button", { name: "More" }).click();
+
+  // Ten sessions, difficulty persisting and the target never moving on.
+  const outcomes = [
+    "distressed", "concern", "distressed", "concern", "relaxed",
+    "concern", "distressed", "relaxed", "concern", "concern"
+  ];
+  const backup = {
+    schemaVersion: 1,
+    exportedAt: "2026-09-18T00:00:00.000Z",
+    appData: {
+      dogName: "Ruby",
+      activeScenarioId: "training",
+      scenarios: [{
+        id: "training",
+        label: "Home alone",
+        startSeconds: 30,
+        sessions: outcomes.map((outcome, index) => ({
+          id: `stalled-${index}`,
+          at: Date.UTC(2026, 8, 1 + index, 12, 0, 0),
+          targetSeconds: 30,
+          actualSeconds: 30,
+          outcome,
+          stoppedEarly: false,
+          signals: [],
+          tags: [],
+          stopReason: "",
+          note: ""
+        }))
+      }]
+    }
+  };
+
+  await page.getByLabel("Choose backup file").setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup))
+  });
+  await page.getByRole("button", { name: "Restore this backup" }).click();
+
+  await expect(page.getByRole("heading", { name: "You & Ruby" })).toBeVisible();
+  await expect(page.getByText("Worth involving a vet at this point.")).toBeVisible();
+  await expect(page.getByText(/veterinary behaviourist/)).toBeVisible();
+
+  // It suggests a conversation, never a treatment, and never blames the owner.
+  await expect(page.getByText(/talk through whether medication/)).toBeVisible();
+  await expect(page.getByText(/isn't a sign you have done anything wrong/)).toBeVisible();
+
+  // It supersedes the generic support card rather than stacking with it.
+  await expect(page.getByText(/Certified Separation Anxiety Trainer/)).toBeHidden();
+});

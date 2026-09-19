@@ -212,3 +212,82 @@ describe("buildPracticeDepartures", () => {
     expect(seedOne).toEqual([...seedZero.slice(1), seedZero[0]]);
   });
 });
+
+describe("persistent-difficulty referral", () => {
+  /** Ten sessions with a fixed target, so progress is stalled by construction. */
+  function stalled(outcomes: TrainingSession["outcome"][]): TrainingSession[] {
+    return outcomes.map((outcome) =>
+      session({ outcome, targetSeconds: 30, actualSeconds: 30 })
+    );
+  }
+
+  const persistent: TrainingSession["outcome"][] = [
+    "distressed",
+    "concern",
+    "distressed",
+    "concern",
+    "relaxed",
+    "concern",
+    "distressed",
+    "relaxed",
+    "concern",
+    "concern"
+  ];
+
+  it("is not raised before there is enough history to judge", () => {
+    expect(
+      recommendNext(stalled(persistent).slice(0, 9), 30).referralSuggested
+    ).toBe(false);
+  });
+
+  it("is raised once difficulty persists without progress", () => {
+    expect(recommendNext(stalled(persistent), 30).referralSuggested).toBe(true);
+  });
+
+  it("is not raised on a bad patch that the plan is still moving past", () => {
+    const progressing = stalled(persistent).map((item, index) =>
+      // The target climbs across the window, so training is still working.
+      ({ ...item, targetSeconds: 10 + index * 5 })
+    );
+    expect(recommendNext(progressing, 10).referralSuggested).toBe(false);
+  });
+
+  it("is not raised when difficulty is mild, however long it lasts", () => {
+    const mild = stalled([
+      "concern",
+      "relaxed",
+      "concern",
+      "relaxed",
+      "concern",
+      "relaxed",
+      "concern",
+      "relaxed",
+      "concern",
+      "relaxed"
+    ]);
+    expect(recommendNext(mild, 30).referralSuggested).toBe(false);
+  });
+
+  it("sets a higher bar than the existing support flag", () => {
+    const recentlyHard = stalled([
+      "relaxed",
+      "relaxed",
+      "relaxed",
+      "relaxed",
+      "relaxed",
+      "relaxed",
+      "relaxed",
+      "distressed",
+      "distressed",
+      "concern"
+    ]);
+    const recommendation = recommendNext(recentlyHard, 30);
+    expect(recommendation.supportFlag).toBe(true);
+    expect(recommendation.referralSuggested).toBe(false);
+  });
+
+  it("never raises difficulty when it fires", () => {
+    const recommendation = recommendNext(stalled(persistent), 30);
+    expect(recommendation.direction).not.toBe("increase");
+  });
+});

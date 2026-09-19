@@ -220,6 +220,14 @@ The production recommendation engine follows these principles:
    Several concern/distress ratings in a short window surface a recommendation to reduce
    difficulty and consider professional support.
 
+   There is a second, higher tier: when difficulty persists across a longer window *and* the
+   plan has not moved on, the app suggests involving a vet or veterinary behaviourist, who can
+   assess whether something medical is contributing and discuss whether medication alongside
+   training would help. The app never recommends, prescribes or implies a medication — it only
+   names who is qualified to have that conversation. Of the credentials above, only a
+   veterinary behaviourist can prescribe or manage medication, which is why that tier names a
+   vet rather than a separation-anxiety trainer.
+
 8. **Duration is not the only outcome**
    The app can optionally record observed signs such as pacing, panting, exit-watching, whining,
    barking/howling, inability to settle and refusal of food or treats.
@@ -232,6 +240,17 @@ The production recommendation engine follows these principles:
 
 9. **Explain every recommendation**
    The UI must show why a target was held, increased or reduced.
+
+## Product heuristic: the referral threshold
+
+The referral tier fires when, across the last ten sessions, at least three were distressed, at
+least six were not relaxed, and the current target is no higher than it was at the start of
+that window.
+
+The window length and those counts are a **conservative SettledSolo product heuristic**, not a
+clinical threshold. No source establishes a number of difficult sessions after which veterinary
+input is indicated. What the heuristic encodes is only the uncontroversial part: a pattern that
+training alone is not shifting is a reasonable point to widen the circle of help.
 
 ## Product heuristics: current step sizes
 

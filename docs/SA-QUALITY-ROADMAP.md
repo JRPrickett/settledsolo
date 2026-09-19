@@ -72,9 +72,16 @@ saying so plainly in product copy (landing/terms), not new billing engineering.
   A camera is suggested but explicitly optional, the step never blocks training, and the
   guidance names alternative explanations without diagnosing or prescribing. A confinement
   observation points at the free-roam comparison tags from item 3.
-- A non-prescriptive medication-referral nudge ("ask your vet or a DACVB about medication as
+- ~~A non-prescriptive medication-referral nudge ("ask your vet or a DACVB about medication as
   an adjunct") after repeated stalled/distressed sessions — mirrors real referral norms
-  without prescribing anything.
+  without prescribing anything.~~ **Done.** A second support tier above the existing one, fired
+  only by persistent difficulty that the plan is not moving past. It names a vet or veterinary
+  behaviourist as the people qualified to discuss medication as an adjunct, and never
+  recommends, prescribes or implies one. In-app copy says "veterinary behaviourist" rather than
+  DACVB, matching the rest of the product; the evidence base explains the credential.
+
+With that, **all three of item 5's sub-items are complete**, and items 1-5 of this roadmap are
+shipped.
 
 ## Explicitly not doing right now
 

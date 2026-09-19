@@ -5366,3 +5366,17 @@ a:focus-visible {
   font-size: 12px;
   line-height: 1.5;
 }
+
+.referral-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.referral-card p {
+  margin: 0 0 8px;
+  line-height: 1.55;
+}
+
+.referral-card p:last-child {
+  margin-bottom: 0;
+}

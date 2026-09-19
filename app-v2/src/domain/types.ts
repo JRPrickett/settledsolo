@@ -77,6 +77,8 @@ export interface Recommendation {
   supportFlag: boolean;
   /** Recent sessions are difficult enough that skipping training entirely today is the better call. */
   restDayRecommended: boolean;
+  /** Difficulty has persisted without progress for long enough to suggest involving a vet or veterinary behaviourist. */
+  referralSuggested: boolean;
 }
 
 export interface AppData {

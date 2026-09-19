@@ -44,7 +44,30 @@ provider evidence.
 
 ## What changed most recently
 
-### Food/treat refusal signal — current branch
+### Persistent-difficulty referral — current branch
+
+`docs/SA-QUALITY-ROADMAP.md` item 5's last sub-item, which completes items 1-5 of that roadmap.
+
+The app already softened the plan and suggested a separation-anxiety specialist after a bad
+patch. It had nothing for the case where difficulty persists and training alone is not shifting
+it — the point at which real referral norms involve a vet.
+
+- A second support tier above the existing one, deliberately harder to trigger: across the last
+  ten sessions, at least three distressed, at least six not relaxed, and the current target no
+  higher than at the start of the window. A bad week still gets the existing specialist
+  suggestion, not this.
+- It names a vet or veterinary behaviourist as the people qualified to assess whether something
+  medical is contributing and to discuss medication alongside training. It never recommends,
+  prescribes or implies a medication, and does not diagnose.
+- Copy says "veterinary behaviourist" rather than DACVB, matching the rest of the product; the
+  evidence base explains the credential and why this tier names a vet rather than a trainer.
+- It supersedes the generic support card rather than stacking with it, and never raises
+  difficulty — covered by tests.
+- The window and counts are a **product heuristic, not a clinical threshold**; the evidence base
+  says so explicitly, since no source establishes a number of difficult sessions after which
+  veterinary input is indicated.
+
+### PR #31 — Food/treat refusal signal — merged
 
 `docs/SA-QUALITY-ROADMAP.md` item 5's first sub-item. A dog declining food it would normally
 take is a practitioner-recognised sign of being above threshold, and the app recorded six

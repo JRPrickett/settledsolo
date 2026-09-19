@@ -212,11 +212,31 @@ export function Today({
             <p>{planReason}</p>
           </div>
 
-          {recommendation.supportFlag && !showRestDayCard && (
-            <div className="support-card">
-              Several recent sessions showed concern. Make things easier and consider
-              checking in with an accredited separation anxiety specialist (such as a
-              Certified Separation Anxiety Trainer) before pushing duration.
+          {recommendation.supportFlag &&
+            !showRestDayCard &&
+            !recommendation.referralSuggested && (
+              <div className="support-card">
+                Several recent sessions showed concern. Make things easier and consider
+                checking in with an accredited separation anxiety specialist (such as a
+                Certified Separation Anxiety Trainer) before pushing duration.
+              </div>
+            )}
+
+          {recommendation.referralSuggested && (
+            <div className="support-card referral-card">
+              <strong>Worth involving a vet at this point.</strong>
+              <p>
+                Training has been difficult for a while now without moving forward.
+                Your vet, or a veterinary behaviourist, can check whether something
+                medical is contributing and talk through whether medication alongside
+                training would help in {data.dogName}&apos;s case.
+              </p>
+              <p>
+                SettledSolo can&apos;t make that assessment, and it isn&apos;t a sign
+                you have done anything wrong — persistent cases often need more than
+                training on its own. Keep logging sessions either way; the record is
+                useful to bring to an appointment.
+              </p>
             </div>
           )}
 

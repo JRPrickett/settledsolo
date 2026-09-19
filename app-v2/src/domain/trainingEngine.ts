@@ -49,6 +49,31 @@ function needsSupport(sessions: TrainingSession[]): boolean {
   return distressed >= 2 || difficult >= 3;
 }
 
+/** Sessions examined for a persistent, non-progressing pattern. */
+const REFERRAL_WINDOW = 10;
+
+/**
+ * A deliberately higher bar than {@link needsSupport}: a longer window, more
+ * distress within it, and no net progress across it. A bad week should soften
+ * the plan and suggest a specialist, which already happens; only a sustained
+ * pattern that training alone is not shifting should raise a wider referral.
+ *
+ * The exact window and counts are a conservative SettledSolo product heuristic,
+ * not a clinical threshold. Nothing here diagnoses, and the app never
+ * recommends medication — it only suggests who is qualified to discuss it.
+ */
+function referralSuggested(sessions: TrainingSession[]): boolean {
+  if (sessions.length < REFERRAL_WINDOW) return false;
+
+  const window = sessions.slice(-REFERRAL_WINDOW);
+  const difficult = window.filter((session) => session.outcome !== "relaxed").length;
+  const distressed = window.filter((session) => session.outcome === "distressed").length;
+  if (distressed < 3 || difficult < 6) return false;
+
+  // Stalled: the plan is no further on than it was at the start of the window.
+  return window[window.length - 1].targetSeconds <= window[0].targetSeconds;
+}
+
 export function recommendNext(
   sessions: TrainingSession[],
   configuredStartSeconds: number
@@ -62,12 +87,14 @@ export function recommendNext(
       reason:
         "Start with a duration you have already seen your dog manage comfortably. This is a starting point, not a test of their limit.",
       supportFlag: false,
-      restDayRecommended: false
+      restDayRecommended: false,
+      referralSuggested: false
     };
   }
 
   const last = sessions[sessions.length - 1];
   const supportFlag = needsSupport(sessions);
+  const referral = referralSuggested(sessions);
   /**
    * A single distressed session already softens the next target. When that
    * distress lands on top of a broader recent pattern of difficulty, the
@@ -98,7 +125,8 @@ export function recommendNext(
         ? "Clear distress appeared before the target, so the next plan stays below the point where difficulty was observed."
         : "The last session showed clear distress, so the next plan returns to a known comfortable starting point.",
       supportFlag,
-      restDayRecommended
+      restDayRecommended,
+      referralSuggested: referral
     };
   }
 
@@ -122,7 +150,8 @@ export function recommendNext(
         ? "Concern appeared before the target, so the next plan stays below the point where it was observed."
         : "There was some concern last time, so the next plan is easier rather than asking for another increase.",
       supportFlag,
-      restDayRecommended
+      restDayRecommended,
+      referralSuggested: referral
     };
   }
 
@@ -133,7 +162,8 @@ export function recommendNext(
       reason:
         "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
       supportFlag,
-      restDayRecommended
+      restDayRecommended,
+      referralSuggested: referral
     };
   }
 
@@ -145,7 +175,8 @@ export function recommendNext(
       reason:
         "One relaxed session is useful evidence. Repeat this duration once before making it harder.",
       supportFlag,
-      restDayRecommended
+      restDayRecommended,
+      referralSuggested: referral
     };
   }
 
@@ -155,7 +186,8 @@ export function recommendNext(
     direction: "increase",
     reason: `Recent sessions were relaxed, so the next plan adds a small ${increment}-second step.`,
     supportFlag,
-    restDayRecommended
+    restDayRecommended,
+    referralSuggested: referral
   };
 }
 
