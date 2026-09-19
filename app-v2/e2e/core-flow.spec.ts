@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { AppData } from "../src/domain/types";
 
 async function expectNoSub16pxFormControls(
   page: import("@playwright/test").Page
@@ -513,4 +514,84 @@ test("a user can create and rename a separate training track", async ({ page }) 
   await page.getByRole("button", { name: "Today" }).click();
   await expect(page.getByText("Weekday school run")).toBeVisible();
   await expect(page.getByText("9s")).toBeVisible();
+});
+
+test("fallback history and an active session survive IndexedDB becoming available", async ({ page }) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem("test-enable-indexeddb") !== "yes") {
+      Object.defineProperty(window, "indexedDB", { value: undefined });
+    }
+  });
+  await completeSetup(page, 1);
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.getByRole("button", { name: "I'm back" }).click();
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await page.getByRole("button", { name: "Save session" }).click();
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await expect.poll(() => page.evaluate(() => {
+    const raw = localStorage.getItem("dog-training-app.active.fallback.v1");
+    return raw ? JSON.parse(raw).state.phase : null;
+  })).toBe("running");
+  const before = await page.evaluate(() => ({
+    data: JSON.parse(localStorage.getItem("dog-training-app.fallback.v1")!),
+    active: JSON.parse(localStorage.getItem("dog-training-app.active.fallback.v1")!)
+  }));
+  await page.evaluate(() => localStorage.setItem("test-enable-indexeddb", "yes"));
+  await page.reload();
+  await expect(page.getByRole("button", { name: "I'm back" })).toBeVisible();
+  const recovered = await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("dog-training-app", 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    try {
+      return await new Promise<AppData>((resolve, reject) => {
+        const request = db.transaction("records").objectStore("records").get("app-data");
+        request.onsuccess = () => resolve(request.result.value);
+        request.onerror = () => reject(request.error);
+      });
+    } finally { db.close(); }
+  });
+  expect(recovered).toEqual(before.data);
+  const restoredStart = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("dog-training-app.active.fallback.v1")!).state.startedAt
+  );
+  expect(restoredStart).toBe(before.active.state.startedAt);
+  await page.getByRole("button", { name: "I'm back" }).click();
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await page.getByRole("button", { name: "Save session" }).click();
+  await page.reload();
+  await page.getByRole("button", { name: "History" }).click();
+  await expect(page.getByText("Relaxed", { exact: true })).toHaveCount(2);
+});
+
+test("storage recovery does not resurrect an expired fallback session", async ({ page }) => {
+  await page.addInitScript(() => {
+    if (localStorage.getItem("test-enable-indexeddb") !== "yes") {
+      Object.defineProperty(window, "indexedDB", { value: undefined });
+    }
+  });
+  await completeSetup(page, 1);
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await expect.poll(() => page.evaluate(() => {
+    const raw = localStorage.getItem("dog-training-app.active.fallback.v1");
+    return raw ? JSON.parse(raw).state.phase : null;
+  })).toBe("running");
+  // Leave the app before changing the persisted checkpoint so live effects cannot refresh it.
+  await page.goto("/");
+  await page.evaluate(() => {
+    const key = "dog-training-app.active.fallback.v1";
+    const active = JSON.parse(localStorage.getItem(key)!);
+    active.savedAt = Date.now() - 13 * 60 * 60 * 1000;
+    localStorage.setItem(key, JSON.stringify(active));
+    localStorage.setItem("test-enable-indexeddb", "yes");
+  });
+  await page.goto("/app/");
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "I'm back" })).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("dog-training-app.active.fallback.v1"))).toBeNull();
 });

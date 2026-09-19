@@ -7,7 +7,10 @@ import type {
   StartingPath,
   TrainingSession
 } from "../domain/types";
-import type { PersistedLiveSession } from "../session/sessionPersistence";
+import {
+  isRestorableLiveSession,
+  type PersistedLiveSession
+} from "../session/sessionPersistence";
 import { activeScenario, freshAppData, replaceScenario } from "./appData";
 import { LEGACY_KEY, readLegacyAppData } from "./legacyImport";
 
@@ -491,7 +494,9 @@ function createLocalRepository(): AppRepository {
           const existing = await getRecord<AppData>(APP_KEY);
           if (existing) return normaliseAppData(existing);
 
-          const migrated = normaliseAppData(legacy);
+          // A previous visit may have used localStorage while IndexedDB was unavailable.
+          // The fallback already resolves modern saved data before legacy migration.
+          const migrated = normaliseAppData(await fallback.loadAppData());
           await putRecord(APP_KEY, migrated);
           await fallback.saveAppData(migrated);
           return migrated;
@@ -654,12 +659,22 @@ function createLocalRepository(): AppRepository {
       await activeMutation;
       return safely(
         async () => {
-          const active = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
-          if (!active) return null;
+          let active = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
+          if (!active) {
+            const savedFallback = await fallback.loadActiveSession();
+            if (!isRestorableLiveSession(savedFallback)) {
+              await fallback.clearActiveSession();
+              return null;
+            }
+            // Preserve the original timestamps and review state across storage recovery.
+            active = savedFallback;
+            await putRecord(ACTIVE_KEY, active);
+          }
 
           const age = Date.now() - active.savedAt;
           if (age > 12 * 60 * 60 * 1000) {
             await deleteRecord(ACTIVE_KEY);
+            await fallback.clearActiveSession();
             return null;
           }
 
