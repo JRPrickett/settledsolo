@@ -2,7 +2,7 @@
 
 **Date:** 19 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#36 complete the first CI-hardening tranche  
+**Status:** PRs #34–#36 merged; E2E suite split in review  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -29,7 +29,7 @@ New product features should wait unless they directly close a release blocker fo
 - Add a dedicated TypeScript check for Playwright E2E specs so malformed browser tests fail in the fast verification job. Done in PR #34.
 - Pin the Node version in `.node-version` and make GitHub workflows consume that file. Cloudflare Workers Builds also supports `.node-version`, so direct builds and GitHub builds can use the same runtime.
 - Use `npm ci --ignore-scripts` in CI and deploy workflows rather than `npm install`, so a stale or inconsistent lockfile fails immediately.
-- Split the large `core-flow.spec.ts` into focused specs (onboarding, session lifecycle, history/data, behaviour guidance, install/public) to reduce merge-conflict risk.
+- Split the large `core-flow.spec.ts` into focused specs (onboarding, session lifecycle, history/data, behaviour guidance, install/public) to reduce merge-conflict risk. **In review.**
 - Keep the expensive Chromium/WebKit/PWA job targeted: run it on browser-impacting PRs, on browser-impacting direct pushes to `main`, and on explicit manual full-CI runs. Do not repeat it on the `main` merge push after the same PR already passed.
 - Browser-impacting paths are `app-v2/**`, `package.json`, `package-lock.json` and `.node-version`. Worker-only, docs, deployment-workflow and roadmap changes stay on fast verification unless they also touch those paths.
 - Upload Playwright traces/screenshots on browser-test failure, not only account review screenshots.
@@ -134,7 +134,7 @@ Do not use training outcomes as an efficacy claim.
 1. ~~Finish and merge PR #34 (E2E typecheck).~~ Done.
 2. ~~Finish PR #35: reproducible builds with pinned Node + `npm ci`.~~ Done.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
-4. Split E2E specs to reduce conflict risk.
+4. Split E2E specs to reduce conflict risk. **In review.**
 5. Add the missing critical-flow browser journeys from H2.
 6. Run the storage/concurrency pass from H3.
 7. Complete PWA/device lifecycle gates.
