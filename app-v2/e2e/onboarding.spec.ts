@@ -30,6 +30,8 @@ async function expectNoSub16pxFormControls(
       .filter((control) => control.fontSize < 16)
   );
 
+  expect(tooSmall).toEqual([]);
+}
 
 test("mobile form controls remain at least 16px to prevent iOS focus zoom", async ({ page }) => {
   await page.goto("/app/");
