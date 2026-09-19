@@ -1,4 +1,6 @@
-node_modules/
+# No trailing slash: also ignores a stray symlink named node_modules,
+# which a directory-only pattern would let through.
+node_modules
 dist-v2/
 playwright-report/
 test-results/
