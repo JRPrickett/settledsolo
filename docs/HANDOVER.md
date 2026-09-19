@@ -2,15 +2,16 @@
 
 **Last updated:** 19 September 2026 (post-merge: accounts tooling, storage recovery, roadmap item 5)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `18aa3baed7f2ea9ae5a1487a66ee17e2b6720535`
+**Reviewed main:** `2408a10cc0843556d1cd0705bd9505a036820f7c`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-Reviewed main: `18aa3ba`. There are no open pull requests. PRs #27, #29, #30, #31 and #32
-all merged on 19 September 2026. The physical-device and professional-review release gates
-still apply and remain open.
+Reviewed main: `2408a10` (PR #33 merged). PR #34 is the current focused CI-hardening change:
+it adds a dedicated typecheck for the Playwright/E2E TypeScript before browser jobs run. PRs
+#27 and #29–#33 are merged. The physical-device and professional-review release gates still
+apply and remain open.
 
 Accounts and sync are **merged and deployed to the preview Worker, but not activated**. The
 merged implementation covers Better Auth email OTP, optional account UI, explicit guest-log
@@ -18,7 +19,7 @@ import, local outbox, revision-based incremental sync, recoverable conflicts, cl
 export/deletion and isolated account deployment tooling. Guest training remains usable offline.
 
 The current phase is **activation**, and the remaining work is provisioning and configuration
-rather than implementation. Verified on `18aa3ba`:
+rather than implementation. Verified on `2408a10`:
 
 - the preview Worker at `https://settledsolo-web-preview.jasonrprickett.workers.dev` runs the
   merged account code with `ACCOUNTS_ENABLED="false"`;
@@ -443,11 +444,11 @@ PR #26 also adds `npm run test:pwa`, which builds the production bundle and gene
 
 Do not treat WebKit emulation as evidence of installed iPhone PWA lifecycle behaviour.
 
-**Known gap:** `npm run verify` does not typecheck `app-v2/e2e`, because `app-v2/tsconfig.json`
-does not include it. A syntactically broken spec file therefore passes `verify` and only fails
-later, in the Playwright stage. This bit three consecutive merges on 19 September 2026, where
-resolving a conflict at the end of `core-flow.spec.ts` dropped a test's closing brace each time.
-Adding an `e2e` typecheck would turn that class of breakage into an immediate failure.
+**PR #34 closes the E2E typecheck gap:** `npm run verify` now runs a dedicated
+`app-v2/tsconfig.e2e.json` check covering the Playwright E2E spec files.
+A malformed or type-invalid browser spec therefore fails in the fast verification job before
+browser installation and execution. This specifically prevents the class of merge-conflict
+breakage that escaped `verify` three times on 19 September 2026.
 
 ## Real-device release gates still open
 
@@ -473,17 +474,14 @@ Android installed-PWA testing is still largely open.
 
 Desktop sanity checks are still open.
 
-## Remaining behaviour-quality work
+## Behaviour-quality roadmap status
 
-`docs/SA-QUALITY-ROADMAP.md` says items 1–4 are complete.
+`docs/SA-QUALITY-ROADMAP.md` items 1–5 are complete. There is no queued implementation
+work in that roadmap. The remaining behaviour-related release requirement is a qualified
+behaviour-professional review of the wording and heuristics already implemented.
 
-The smaller remaining item 5 includes:
-
-- food/treat refusal as an optional seventh observed signal;
-- a one-time "record the dog alone" pre-protocol observation step;
-- a non-prescriptive vet/medication-adjacent support nudge after repeated stalled/distressed sessions.
-
-These should be treated as separate, reviewable changes and remain evidence-aware.
+Any new behaviour feature should start from fresh evidence/research rather than treating the
+completed roadmap as an open backlog.
 
 ## Public-beta/release work still outstanding
 
@@ -502,16 +500,16 @@ Do not use training outcomes as an efficacy claim.
 ## Recommended next sequence
 
 1. ~~Finish account-branch CI/review and merge the independently reviewed changes.~~ Done: PR #28.
-2. ~~Provision isolated D1 databases~~ Done: both exist and are empty. Configuring verified
-   email delivery and the remaining secrets is **the current blocking step** — it needs an
-   email provider account with a verified sender, which cannot be created from an agent
-   workspace. Then follow the activation order in `ACCOUNTS-DEPLOYMENT.md`, checking progress
-   with **Verify account configuration**.
-3. Activate preview only, then verify real OTP delivery and two-device sync/recovery.
-4. Complete remaining physical-device and professional behavioural-review gates.
-5. Finish smaller behaviour-quality and public-beta contact/privacy/assets work.
-6. Activate production accounts only after preview evidence and release requirements are recorded.
-7. Add user-count/admin metrics and optional passkeys after the baseline is stable.
+2. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ PR #34.
+3. Configure verified email delivery and the remaining account variables/secrets. Both isolated
+   D1 databases already exist and are empty; email-provider sender verification is the current
+   external blocker. Follow `ACCOUNTS-DEPLOYMENT.md` and use **Verify account configuration**.
+4. Activate preview only, then verify real OTP delivery and two-device sync/recovery.
+5. Complete the remaining physical-device and qualified behaviour-professional review gates.
+6. Finish public-beta essentials: feedback/contact, final privacy/account wording, real product
+   screenshots/social metadata, and formal brand/domain readiness.
+7. Activate production accounts only after preview evidence and release requirements are recorded.
+8. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
 
 ## Known documentation debt
 
