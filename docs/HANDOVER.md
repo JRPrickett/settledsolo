@@ -2,16 +2,15 @@
 
 **Last updated:** 19 September 2026 (production hardening phase; PRs #34–#35 merged)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `73e7799b1fd56130912aa0e26d979e5c3bebc6c7`
+**Reviewed main:** `5382dc09746d4479400d1f9aa3c7333c525db65d`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#37 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+PRs #34–#38 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
-`core-flow.spec.ts` into focused specs without changing the 23 existing journeys. The current
-hardening branch bundles the next critical-flow coverage so it needs only one browser-CI run. The active development phase is **production hardening**:
+`core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
 The physical-device and qualified behaviour-professional release gates still apply and remain open.
 
@@ -21,7 +20,7 @@ import, local outbox, revision-based incremental sync, recoverable conflicts, cl
 export/deletion and isolated account deployment tooling. Guest training remains usable offline.
 
 Account activation remains a parallel gated track: its remaining work is provisioning and
-configuration rather than implementation. Verified on `73e7799`:
+configuration rather than implementation. Verified on `5382dc0`:
 
 - the preview Worker at `https://settledsolo-web-preview.jasonrprickett.workers.dev` runs the
   merged account code with `ACCOUNTS_ENABLED="false"`;
@@ -514,9 +513,9 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 2. ~~Pin the build Node version, use lockfile-strict `npm ci`, and establish the hardening roadmap.~~ Done: PR #35.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run for relevant changes.~~ Done: PR #36.
 4. ~~Split the large E2E spec into focused files and retain the same behavioural coverage.~~ Done: PR #37.
-5. Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
-   plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows. **In review as one bundled PR.**
-6. Harden local storage/concurrency and browser-level account conflict recovery.
+5. ~~Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
+   plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.~~ Done: PR #38.
+6. Harden local storage/concurrency and browser-level account conflict recovery. Prefer fast unit/integration coverage where browser behaviour is not material.
 7. Complete PWA update-safety and the real iOS/Android/desktop device gates.
 8. In parallel, configure verified email delivery and activate **preview accounts only**; then
    prove real OTP and two-device sync/recovery before production.
