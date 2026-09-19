@@ -2,7 +2,7 @@
 
 **Date:** 19 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#35 merged; browser-CI budgeting in review  
+**Status:** PRs #34–#36 complete the first CI-hardening tranche  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -133,7 +133,7 @@ Do not use training outcomes as an efficacy claim.
 
 1. ~~Finish and merge PR #34 (E2E typecheck).~~ Done.
 2. ~~Finish PR #35: reproducible builds with pinned Node + `npm ci`.~~ Done.
-3. Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.
+3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
 4. Split E2E specs to reduce conflict risk.
 5. Add the missing critical-flow browser journeys from H2.
 6. Run the storage/concurrency pass from H3.
