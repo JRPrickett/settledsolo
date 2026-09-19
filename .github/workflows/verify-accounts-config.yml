@@ -1,0 +1,49 @@
+name: Verify account configuration
+
+# Reports whether an environment is ready to activate accounts, without
+# deploying, applying D1 migrations or uploading secrets.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Account environment to check
+        required: true
+        type: choice
+        options: [preview, production]
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}
+    env:
+      ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
+      ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
+      ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
+      AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
+      AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      ACCOUNT_TARGET: ${{ inputs.target }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Report account configuration
+        shell: bash
+        run: |
+          # pipefail matters: tee would otherwise hide a failed preflight.
+          set -euo pipefail
+          {
+            echo '```'
+            node scripts/accounts-preflight.mjs "$ACCOUNT_TARGET"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
