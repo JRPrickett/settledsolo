@@ -445,7 +445,7 @@ PR #26 also adds `npm run test:pwa`, which builds the production bundle and gene
 Do not treat WebKit emulation as evidence of installed iPhone PWA lifecycle behaviour.
 
 **PR #34 closes the E2E typecheck gap:** `npm run verify` now runs a dedicated
-`app-v2/tsconfig.e2e.json` check covering the Playwright specs and both Playwright configs.
+`app-v2/tsconfig.e2e.json` check covering the Playwright E2E spec files.
 A malformed or type-invalid browser spec therefore fails in the fast verification job before
 browser installation and execution. This specifically prevents the class of merge-conflict
 breakage that escaped `verify` three times on 19 September 2026.
