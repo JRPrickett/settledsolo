@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -15,9 +17,63 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      browser-needed: ${{ steps.browser-impact.outputs.needed }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Decide whether browser checks are needed
+        id: browser-impact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          needed=false
+          : > /tmp/changed-files.txt
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "Manual CI run: browser checks requested."
+            needed=true
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            gh api --paginate "repos/$REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" \
+              --jq '.[].filename' > /tmp/changed-files.txt
+          elif [ "$EVENT_NAME" = "push" ]; then
+            # A merge to main has already been tested as a PR. Avoid paying for
+            # the same browser suite twice. Direct pushes still get browser
+            # coverage when they touch browser-impacting files.
+            associated_prs="$(gh api "repos/$REPOSITORY/commits/$CURRENT_SHA/pulls" --jq 'length')"
+            if [ "$associated_prs" -gt 0 ]; then
+              echo "Main push is associated with a PR; browser checks already ran before merge."
+              echo "needed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            if [ -z "$BEFORE_SHA" ] || [[ "$BEFORE_SHA" =~ ^0+$ ]]; then
+              echo "Cannot determine a direct-push base commit; running browser checks safely."
+              needed=true
+            else
+              gh api "repos/$REPOSITORY/compare/$BEFORE_SHA...$CURRENT_SHA" \
+                --jq '.files[].filename' > /tmp/changed-files.txt
+            fi
+          fi
+
+          if [ "$needed" != "true" ] && [ -s /tmp/changed-files.txt ]; then
+            echo "Changed files:"
+            cat /tmp/changed-files.txt
+            if grep -Eq '^(app-v2/|package\.json$|package-lock\.json$|\.node-version$)' /tmp/changed-files.txt; then
+              needed=true
+            fi
+          fi
+
+          echo "Browser checks needed: $needed"
+          echo "needed=$needed" >> "$GITHUB_OUTPUT"
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -32,6 +88,7 @@ jobs:
 
   browser:
     needs: test
+    if: needs.test.outputs.browser-needed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -45,7 +102,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Install Chromium
+      - name: Install Chromium and WebKit
         run: npx playwright install --with-deps chromium webkit
 
       - name: Run mobile browser journeys
