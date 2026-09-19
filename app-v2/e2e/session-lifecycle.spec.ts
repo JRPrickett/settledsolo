@@ -153,3 +153,70 @@ test("a running session remains usable after the browser goes offline", async ({
   await page.getByRole("button", { name: "Save session" }).click();
   await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
 });
+
+test("returning early while relaxed makes the next plan easier without treating it as failure", async ({ page }) => {
+  await completeSetup(page, 5);
+  await page.getByRole("button", { name: "More" }).click();
+
+  const backup = {
+    schemaVersion: 1,
+    exportedAt: "2026-09-18T00:00:00.000Z",
+    appData: {
+      dogName: "Mabel",
+      activeScenarioId: "training",
+      scenarios: [{
+        id: "training",
+        label: "Home alone",
+        startSeconds: 5,
+        sessions: [
+          {
+            id: "relaxed-1",
+            at: Date.UTC(2026, 8, 10, 12, 0, 0),
+            targetSeconds: 5,
+            actualSeconds: 5,
+            outcome: "relaxed",
+            stoppedEarly: false,
+            signals: [],
+            tags: [],
+            stopReason: "",
+            note: ""
+          },
+          {
+            id: "relaxed-2",
+            at: Date.UTC(2026, 8, 11, 12, 0, 0),
+            targetSeconds: 5,
+            actualSeconds: 5,
+            outcome: "relaxed",
+            stoppedEarly: false,
+            signals: [],
+            tags: [],
+            stopReason: "",
+            note: ""
+          }
+        ]
+      }]
+    }
+  };
+
+  await page.getByLabel("Choose backup file").setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup))
+  });
+  await page.getByRole("button", { name: "Restore this backup" }).click();
+
+  await expect(page.getByText("6s").first()).toBeVisible();
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.waitForTimeout(1_100);
+  await page.getByRole("button", { name: "I'm back" }).click();
+
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await page.getByRole("button", { name: "Save session" }).click();
+
+  await expect(page.getByText("5s").first()).toBeVisible();
+  await expect(page.getByText("Repeat", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(/returned early while things were still relaxed/)
+  ).toBeVisible();
+});
