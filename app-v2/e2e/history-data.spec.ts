@@ -38,6 +38,7 @@ test("history supports add, edit and confirmed delete without leaving stale reco
     page.getByText("Your first completed session will appear here.")
   ).toBeVisible();
   await page.reload();
+  await page.getByRole("button", { name: "History" }).click();
   await expect(
     page.getByText("Your first completed session will appear here.")
   ).toBeVisible();
