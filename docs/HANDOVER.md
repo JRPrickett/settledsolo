@@ -1,25 +1,26 @@
 # SettledSolo handover
 
-**Last updated:** 19 September 2026 (post-merge: accounts tooling, storage recovery, roadmap item 5)
+**Last updated:** 19 September 2026 (production hardening phase; PR #34 merged, PR #35 in review)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `2408a10cc0843556d1cd0705bd9505a036820f7c`
+**Reviewed main:** `b58f6450f2e0b4d82649b8c3101867a9cbc3027e`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-Reviewed main: `2408a10` (PR #33 merged). PR #34 is the current focused CI-hardening change:
-it adds a dedicated typecheck for the Playwright/E2E TypeScript before browser jobs run. PRs
-#27 and #29–#33 are merged. The physical-device and professional-review release gates still
-apply and remain open.
+Reviewed main: `b58f645` (PR #34 merged, CI green). PR #35 is the current focused
+hardening change: reproducible builds via a pinned Node version and `npm ci`, plus a dedicated
+`docs/HARDENING-ROADMAP.md`. The active development phase is now **production hardening**:
+reliability, recovery, security and flow correctness before discretionary feature work.
+The physical-device and qualified behaviour-professional release gates still apply and remain open.
 
 Accounts and sync are **merged and deployed to the preview Worker, but not activated**. The
 merged implementation covers Better Auth email OTP, optional account UI, explicit guest-log
 import, local outbox, revision-based incremental sync, recoverable conflicts, cloud
 export/deletion and isolated account deployment tooling. Guest training remains usable offline.
 
-The current phase is **activation**, and the remaining work is provisioning and configuration
-rather than implementation. Verified on `2408a10`:
+Account activation remains a parallel gated track: its remaining work is provisioning and
+configuration rather than implementation. Verified on `b58f645`:
 
 - the preview Worker at `https://settledsolo-web-preview.jasonrprickett.workers.dev` runs the
   merged account code with `ACCOUNTS_ENABLED="false"`;
@@ -47,6 +48,13 @@ and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-
 provider evidence.
 
 ## What changed most recently
+
+### PR #34 — E2E TypeScript gate — merged
+
+The browser specs are now typechecked during `npm run verify`, before Playwright browsers are
+installed or launched. This closes the gap that allowed malformed merge-conflict resolutions in
+`core-flow.spec.ts` to pass the fast verification stage. Final CI passed the fast verification,
+Chromium/WebKit mobile journeys and production-PWA gate.
 
 ### PR #32 — Persistent-difficulty referral — merged
 
@@ -444,7 +452,7 @@ PR #26 also adds `npm run test:pwa`, which builds the production bundle and gene
 
 Do not treat WebKit emulation as evidence of installed iPhone PWA lifecycle behaviour.
 
-**PR #34 closes the E2E typecheck gap:** `npm run verify` now runs a dedicated
+**PR #34 closed the E2E typecheck gap:** `npm run verify` now runs a dedicated
 `app-v2/tsconfig.e2e.json` check covering the Playwright E2E spec files.
 A malformed or type-invalid browser spec therefore fails in the fast verification job before
 browser installation and execution. This specifically prevents the class of merge-conflict
@@ -499,17 +507,21 @@ Do not use training outcomes as an efficacy claim.
 
 ## Recommended next sequence
 
-1. ~~Finish account-branch CI/review and merge the independently reviewed changes.~~ Done: PR #28.
-2. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ PR #34.
-3. Configure verified email delivery and the remaining account variables/secrets. Both isolated
-   D1 databases already exist and are empty; email-provider sender verification is the current
-   external blocker. Follow `ACCOUNTS-DEPLOYMENT.md` and use **Verify account configuration**.
-4. Activate preview only, then verify real OTP delivery and two-device sync/recovery.
-5. Complete the remaining physical-device and qualified behaviour-professional review gates.
-6. Finish public-beta essentials: feedback/contact, final privacy/account wording, real product
-   screenshots/social metadata, and formal brand/domain readiness.
-7. Activate production accounts only after preview evidence and release requirements are recorded.
-8. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
+Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
+
+1. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ Done: PR #34.
+2. Finish PR #35: pin the build Node version, use lockfile-strict `npm ci`, and establish the
+   hardening roadmap.
+3. Split the large E2E spec into focused files and retain the same behavioural coverage.
+4. Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
+   plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.
+5. Harden local storage/concurrency and browser-level account conflict recovery.
+6. Complete PWA update-safety and the real iOS/Android/desktop device gates.
+7. In parallel, configure verified email delivery and activate **preview accounts only**; then
+   prove real OTP and two-device sync/recovery before production.
+8. Clear the qualified behaviour-professional review and public-beta contact/privacy/assets gates.
+9. Activate production accounts only after the hardening, preview and release evidence is recorded.
+10. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
 
 ## Known documentation debt
 
@@ -521,7 +533,7 @@ In particular:
 - `docs/PRODUCT-PLAN.md` still describes some modern-app cutover work as future even though the current Cloudflare build uses `app-v2`.
 - `README.md` contains long legacy development-history sections that are useful context but are not the best source for today's priority.
 
-Use this handover as current status and update the older roadmap docs opportunistically when touching the relevant area.
+Use this handover for current status and `docs/HARDENING-ROADMAP.md` for the active implementation sequence. Update the older roadmap docs opportunistically when touching the relevant area.
 
 ## How the next agent should begin
 
