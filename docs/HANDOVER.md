@@ -9,7 +9,8 @@ This is the current-state handover for another agent or contributor picking up S
 ## Executive status
 
 PRs #34 and #35 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
-changes, while fast verification continues broadly. The active development phase is **production hardening**:
+changes, while fast verification continues broadly. The current hardening branch splits the
+727-line `core-flow.spec.ts` into focused specs without changing the 23 existing journeys. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
 The physical-device and qualified behaviour-professional release gates still apply and remain open.
 
@@ -511,7 +512,7 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 1. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ Done: PR #34.
 2. ~~Pin the build Node version, use lockfile-strict `npm ci`, and establish the hardening roadmap.~~ Done: PR #35.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run for relevant changes.~~ Done: PR #36.
-4. Split the large E2E spec into focused files and retain the same behavioural coverage.
+4. Split the large E2E spec into focused files and retain the same behavioural coverage. **In review.**
 5. Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
    plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.
 6. Harden local storage/concurrency and browser-level account conflict recovery.
