@@ -2,13 +2,13 @@
 
 **Last updated:** 19 September 2026 (production hardening phase; PRs #34–#35 merged)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `5382dc09746d4479400d1f9aa3c7333c525db65d`
+**Reviewed main:** `59a3c495cb19f7f3d8ff05294526ece6f32d1294`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#38 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+PRs #34–#39 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
 `core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
@@ -515,7 +515,7 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 4. ~~Split the large E2E spec into focused files and retain the same behavioural coverage.~~ Done: PR #37.
 5. ~~Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
    plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.~~ Done: PR #38.
-6. Harden local storage/concurrency and browser-level account conflict recovery. Prefer fast unit/integration coverage where browser behaviour is not material.
+6. Harden local storage/concurrency and browser-level account conflict recovery. Prefer fast unit/integration coverage where browser behaviour is not material. **Repository concurrency/recovery tests in review.**
 7. Complete PWA update-safety and the real iOS/Android/desktop device gates.
 8. In parallel, configure verified email delivery and activate **preview accounts only**; then
    prove real OTP and two-device sync/recovery before production.

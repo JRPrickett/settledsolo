@@ -2,7 +2,7 @@
 
 **Date:** 19 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#38 merged; storage/concurrency hardening next  
+**Status:** PRs #34–#39 merged; repository concurrency/recovery tests in review  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -61,12 +61,12 @@ Already protected: reload recovery, fallback-to-IndexedDB promotion, expired-che
 Still harden:
 
 - define and test the policy for multiple tabs/windows using the same local log;
-- prove rapid repeated add/edit/delete actions cannot overwrite newer local data;
-- exercise corrupted or partially valid stored data and confirm safe normalisation/fallback;
-- exercise storage-write failure where feasible and surface a useful recovery/backup message;
-- verify backup restore never imports authentication/sync ownership from another account;
+- prove rapid repeated add/edit/delete actions cannot overwrite newer local data; **repository serialization tests in review.**
+- exercise corrupted or partially valid stored data and confirm safe normalisation/fallback; **corrupted local snapshot test in review.**
+- exercise storage-write failure where feasible and surface a useful recovery/backup message; **storage degradation behaviour test in review; user-facing message still to assess.**
+- verify backup restore never imports authentication/sync ownership from another account; **repository ownership-isolation test in review.**
 - add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests;
-- prove sign-out, local reset and cloud deletion remain three distinct operations.
+- prove sign-out, local reset and cloud deletion remain three distinct operations. **repository semantics test in review.**
 
 **Exit:** interruption, concurrency or malformed local state cannot silently discard a completed session.
 
@@ -136,7 +136,7 @@ Do not use training outcomes as an efficacy claim.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
 4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
 5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
-6. Run the storage/concurrency pass from H3.
+6. Run the storage/concurrency pass from H3. **Repository-level fast tests in review.**
 7. Complete PWA/device lifecycle gates.
 8. Activate accounts on **preview only** and run the real two-device/security checks.
 9. Clear qualified behaviour-professional review and public-beta essentials.
