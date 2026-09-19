@@ -7,7 +7,17 @@ import type {
   StartingPath,
   TrainingSession
 } from "../domain/types";
-import type { PersistedLiveSession } from "../session/sessionPersistence";
+import {
+  isRestorableLiveSession,
+  type PersistedLiveSession
+} from "../session/sessionPersistence";
+import {
+  PRE_PROTOCOL_FINDINGS,
+  PRE_PROTOCOL_OBSERVATION_VERSION,
+  recordObservation,
+  type PreProtocolFinding,
+  type PreProtocolOutcome
+} from "../domain/preProtocolObservation";
 import { activeScenario, freshAppData, replaceScenario } from "./appData";
 import { LEGACY_KEY, readLegacyAppData } from "./legacyImport";
 
@@ -55,6 +65,10 @@ export interface AppRepository {
     shuffleWarmups?: boolean
   ): Promise<AppData>;
   updateDailyCap(cap: number): Promise<AppData>;
+  recordPreProtocolObservation(
+    outcome: PreProtocolOutcome,
+    findings: PreProtocolFinding[]
+  ): Promise<AppData>;
   loadActiveSession(): Promise<PersistedLiveSession | null>;
   saveActiveSession(session: PersistedLiveSession): Promise<void>;
   clearActiveSession(): Promise<void>;
@@ -185,6 +199,26 @@ function normaliseOnboarding(data: AppData): AppData["onboarding"] {
   };
 }
 
+function normalisePreProtocol(data: AppData): AppData["preProtocolObservation"] {
+  const observation = data.preProtocolObservation;
+  if (!observation || observation.version !== PRE_PROTOCOL_OBSERVATION_VERSION)
+    return undefined;
+  if (observation.outcome !== "observed" && observation.outcome !== "skipped")
+    return undefined;
+
+  return {
+    version: PRE_PROTOCOL_OBSERVATION_VERSION,
+    outcome: observation.outcome,
+    findings:
+      observation.outcome === "observed"
+        ? PRE_PROTOCOL_FINDINGS.filter((finding) =>
+            (observation.findings ?? []).includes(finding)
+          )
+        : [],
+    completedAt: Math.max(0, Number(observation.completedAt) || Date.now())
+  };
+}
+
 function normaliseAppData(data: AppData): AppData {
   const scenarios =
     Array.isArray(data.scenarios) && data.scenarios.length
@@ -204,6 +238,7 @@ function normaliseAppData(data: AppData): AppData {
     sync: data.sync,
     dogName: String(data.dogName || "").slice(0, 40),
     onboarding: normaliseOnboarding(data),
+    preProtocolObservation: normalisePreProtocol(data),
     activeScenarioId: scenarios.some(
       (scenario) => scenario.id === requestedActive
     )
@@ -407,6 +442,14 @@ function fallbackRepository(initial: AppData): AppRepository {
       persistData();
       return data;
     },
+    async recordPreProtocolObservation(outcome, findings) {
+      data = normaliseAppData({
+        ...data,
+        preProtocolObservation: recordObservation(outcome, findings)
+      });
+      persistData();
+      return data;
+    },
     async loadActiveSession() {
       return active;
     },
@@ -491,7 +534,9 @@ function createLocalRepository(): AppRepository {
           const existing = await getRecord<AppData>(APP_KEY);
           if (existing) return normaliseAppData(existing);
 
-          const migrated = normaliseAppData(legacy);
+          // A previous visit may have used localStorage while IndexedDB was unavailable.
+          // The fallback already resolves modern saved data before legacy migration.
+          const migrated = normaliseAppData(await fallback.loadAppData());
           await putRecord(APP_KEY, migrated);
           await fallback.saveAppData(migrated);
           return migrated;
@@ -650,16 +695,36 @@ function createLocalRepository(): AppRepository {
       return next;
     },
 
+    async recordPreProtocolObservation(outcome, findings) {
+      const data = await repository.loadAppData();
+      const next = normaliseAppData({
+        ...data,
+        preProtocolObservation: recordObservation(outcome, findings)
+      });
+      await repository.saveAppData(next);
+      return next;
+    },
+
     async loadActiveSession() {
       await activeMutation;
       return safely(
         async () => {
-          const active = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
-          if (!active) return null;
+          let active = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
+          if (!active) {
+            const savedFallback = await fallback.loadActiveSession();
+            if (!isRestorableLiveSession(savedFallback)) {
+              await fallback.clearActiveSession();
+              return null;
+            }
+            // Preserve the original timestamps and review state across storage recovery.
+            active = savedFallback;
+            await putRecord(ACTIVE_KEY, active);
+          }
 
           const age = Date.now() - active.savedAt;
           if (age > 12 * 60 * 60 * 1000) {
             await deleteRecord(ACTIVE_KEY);
+            await fallback.clearActiveSession();
             return null;
           }
 
@@ -751,7 +816,7 @@ export function createAppRepository(): SyncedRepository {
     }),
     resolveConflict: (key: string, choice: "local" | "cloud") => serial(async () => save(resolveConflict(await local.loadAppData(), key, choice)))
   } as SyncedRepository;
-  const mutations = ["saveSetup", "appendSession", "updateSession", "deleteSession", "appendDepartureCueSession", "setActiveScenario", "createScenario", "updateScenario", "updateDailyCap"] as const;
+  const mutations = ["saveSetup", "appendSession", "updateSession", "deleteSession", "appendDepartureCueSession", "setActiveScenario", "createScenario", "updateScenario", "updateDailyCap", "recordPreProtocolObservation"] as const;
   for (const method of mutations) {
     // Serialize local read/modify/write operations together with remote merges.
     Object.assign(repository, { [method]: (...args: unknown[]) => serial(async () => {

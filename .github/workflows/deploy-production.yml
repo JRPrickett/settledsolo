@@ -42,6 +42,17 @@ jobs:
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN"; exit 1; }
           test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing CLOUDFLARE_ACCOUNT_ID"; exit 1; }
 
+      - name: Check account configuration
+        shell: bash
+        run: |
+          # pipefail matters: tee would otherwise hide a failed preflight.
+          set -euo pipefail
+          {
+            echo '```'
+            node scripts/accounts-preflight.mjs production
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Install dependencies
         run: npm install --ignore-scripts
 
@@ -50,3 +61,13 @@ jobs:
 
       - name: Deploy production Worker
         run: node scripts/deploy-app.mjs production
+
+      - name: Verify deployed account endpoints
+        env:
+          VERIFY_ORIGIN: ${{ vars.ACCOUNTS_VERIFY_ORIGIN || vars.AUTH_ORIGIN }}
+        run: |
+          if [ -z "$VERIFY_ORIGIN" ]; then
+            echo "::notice::Endpoint verification skipped because neither ACCOUNTS_VERIFY_ORIGIN nor AUTH_ORIGIN is set."
+            exit 0
+          fi
+          node scripts/accounts-verify.mjs "$VERIFY_ORIGIN"

@@ -9,14 +9,17 @@
     "test:v2": "vitest run --config app-v2/vite.config.ts",
     "test": "npm run test:legacy && npm run test:v2 && npm run test:accounts",
     "check": "node --check js/app.js && node --check js/analytics.js && node --check cloudflare-worker/src/index.js && tsc -p app-v2/tsconfig.json --noEmit && tsc -p worker/tsconfig.json && npm test",
-    "verify": "npm run check && npm run build:v2 && npm run check:worker",
+    "verify": "npm run check && npm run build:v2 && npm run check:worker && npm run check:worker:accounts",
     "test:e2e": "playwright test --config app-v2/playwright.config.ts",
     "test:pwa": "playwright test --config app-v2/playwright.pwa.config.ts",
     "preview:cloudflare": "npm run build:v2 && wrangler dev --config wrangler.app.jsonc",
     "deploy:cloudflare": "npm run build:v2 && node scripts/deploy-app.mjs production",
     "deploy:preview": "npm run build:v2 && node scripts/deploy-app.mjs preview",
     "check:worker": "wrangler deploy --dry-run --config wrangler.app.jsonc",
-    "test:accounts": "node --test scripts/account-config.test.mjs && vitest run --config worker/vitest.config.ts"
+    "test:accounts": "node --test scripts/account-config.test.mjs scripts/accounts-tooling.test.mjs && vitest run --config worker/vitest.config.ts",
+    "accounts:preflight": "node scripts/accounts-preflight.mjs",
+    "accounts:verify": "node scripts/accounts-verify.mjs",
+    "check:worker:accounts": "node scripts/check-accounts-worker.mjs"
   },
   "dependencies": {
     "@fontsource/fraunces": "5.3.0",

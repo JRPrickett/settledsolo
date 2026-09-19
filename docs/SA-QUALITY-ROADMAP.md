@@ -65,9 +65,13 @@ saying so plainly in product copy (landing/terms), not new billing engineering.
   **Done.** Added as "Refused food or treats", optional like the other six, and recorded through
   the live session, the manual session form, history, progress insights, backup/restore and
   sync. Sourced to CSAT practitioner practice in the evidence base, not to a controlled study.
-- A one-time "record the dog alone" pre-protocol step before starting duration training
+- ~~A one-time "record the dog alone" pre-protocol step before starting duration training
   (Bain 2025), to help rule out confinement anxiety/noise phobia/incomplete housetraining
-  being mistaken for separation anxiety.
+  being mistaken for separation anxiety.~~ **Done.** Offered on Today before the first timed
+  departure of a track, never twice, and never while a cue-first plan has no departure in it.
+  A camera is suggested but explicitly optional, the step never blocks training, and the
+  guidance names alternative explanations without diagnosing or prescribing. A confinement
+  observation points at the free-roam comparison tags from item 3.
 - A non-prescriptive medication-referral nudge ("ask your vet or a DACVB about medication as
   an adjunct") after repeated stalled/distressed sessions — mirrors real referral norms
   without prescribing anything.

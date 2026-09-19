@@ -152,6 +152,13 @@ peer-reviewed sources higher in this document. It's the source for one product-r
 before starting a structured protocol, video-recording the dog alone once can help rule out
 confinement anxiety or incomplete housetraining being mistaken for separation anxiety.
 
+SettledSolo implements this as a one-time observation step offered before a track's first
+timed departure. Two parts of it are **product choices, not clinical rules**: the timing
+(before the first timed departure, and never while a cue-first plan still excludes departures)
+and the specific list of things the owner is asked to look for. Bain supports the rule-out
+itself, not those choices. A camera is suggested and never required — listening from another
+room is offered as an equally valid alternative — and the step never blocks training.
+
 ## First-run routing and starting assessment
 
 The first-run flow should identify the least difficult useful starting point without asking an
