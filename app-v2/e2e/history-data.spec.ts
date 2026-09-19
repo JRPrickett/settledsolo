@@ -97,6 +97,6 @@ test("downloaded backup can restore the exact earlier local state", async ({ pag
   await page.getByRole("button", { name: "Restore this backup" }).click();
 
   await page.getByRole("button", { name: "More" }).click();
-  await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Home alone");
+  await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Separation training");
   await expect(page.getByText("Changed after backup")).toHaveCount(0);
 });
