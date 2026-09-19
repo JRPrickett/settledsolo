@@ -2,7 +2,7 @@
 
 **Date:** 19 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#37 merged; critical-flow coverage in review  
+**Status:** PRs #34–#38 merged; storage/concurrency hardening next  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -31,7 +31,7 @@ New product features should wait unless they directly close a release blocker fo
 - Use `npm ci --ignore-scripts` in CI and deploy workflows rather than `npm install`, so a stale or inconsistent lockfile fails immediately.
 - Split the large `core-flow.spec.ts` into focused specs (onboarding, session lifecycle, history/data, behaviour guidance, install/public) to reduce merge-conflict risk. **Done: PR #37.**
 - Keep the expensive Chromium/WebKit/PWA job targeted: run it on browser-impacting PRs, on browser-impacting direct pushes to `main`, and on explicit manual full-CI runs. Do not repeat it on the `main` merge push after the same PR already passed.
-- Browser-impacting paths are `app-v2/**`, `package.json`, `package-lock.json` and `.node-version`. Worker-only, docs, deployment-workflow and roadmap changes stay on fast verification unless they also touch those paths.
+- Browser-impacting paths include runtime/frontend/PWA files, E2E specs, root dependency manifests and `.node-version`. Unit-test-only changes under `app-v2/src/**` stay on fast Vitest/type/build verification and do not download browsers.
 - Upload Playwright traces/screenshots on browser-test failure, not only account review screenshots.
 - Keep production deployment manual and preview deployment gated by the same fast verification commands as CI.
 
@@ -41,14 +41,14 @@ New product features should wait unless they directly close a release blocker fo
 
 Add browser-level proof for flows that exist in the product but are not yet covered end to end.
 
-- Manual history add, edit and delete. **In review.**
-- Explicit early return from a timed departure, save, and resulting next-plan behaviour. **In review.**
-- Progress screen after a mixture of relaxed / concern / distressed sessions. **In review.**
-- Backup **export + restore round-trip**, not restore alone. **In review.**
-- Track/scenario settings: duration entry, minutes/seconds handling, warm-up count, shuffle and rest settings. **In review.**
+- Manual history add, edit and delete. **Done: PR #38.**
+- Explicit early return from a timed departure, save, and resulting next-plan behaviour. **Done: PR #38.**
+- Progress screen after a mixture of relaxed / concern / distressed sessions. **Done: PR #38.**
+- Backup **export + restore round-trip**, not restore alone. **Done: PR #38.**
+- Track/scenario settings: duration entry, minutes/seconds handling, warm-up count, shuffle and rest settings. **Done: PR #38.**
 - Navigation after save/recovery so a completed session cannot reappear as active.
 - Error-boundary fallback and successful reload/recovery.
-- Account-aware copy: local-only users and connected users must not be told contradictory things about backup/sync. **History copy fixed in current branch.**
+- Account-aware copy: local-only users and connected users must not be told contradictory things about backup/sync. **History copy fixed in PR #38.**
 
 **Exit:** every primary screen and every destructive/data-changing action has at least one realistic browser journey.
 
@@ -135,7 +135,7 @@ Do not use training outcomes as an efficacy claim.
 2. ~~Finish PR #35: reproducible builds with pinned Node + `npm ci`.~~ Done.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
 4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
-5. Add the missing critical-flow browser journeys from H2. **In review as one bundled PR to limit browser CI runs.**
+5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
 6. Run the storage/concurrency pass from H3.
 7. Complete PWA/device lifecycle gates.
 8. Activate accounts on **preview only** and run the real two-device/security checks.
