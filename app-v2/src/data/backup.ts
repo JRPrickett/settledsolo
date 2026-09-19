@@ -7,6 +7,10 @@ import type {
   SessionTag,
   TrainingSession
 } from "../domain/types";
+import {
+  PRE_PROTOCOL_FINDINGS,
+  PRE_PROTOCOL_OBSERVATION_VERSION
+} from "../domain/preProtocolObservation";
 import { readLegacyAppData } from "./legacyImport";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 
@@ -44,6 +48,26 @@ function cleanOnboarding(value: unknown): AppData["onboarding"] {
   return {
     version: 2,
     startingPath,
+    completedAt: Math.max(0, finiteNumber(value.completedAt, Date.now()))
+  };
+}
+
+function cleanPreProtocol(
+  value: unknown
+): AppData["preProtocolObservation"] {
+  if (!isRecord(value) || value.version !== PRE_PROTOCOL_OBSERVATION_VERSION)
+    return undefined;
+  if (value.outcome !== "observed" && value.outcome !== "skipped")
+    return undefined;
+
+  const findings = Array.isArray(value.findings) ? value.findings : [];
+  return {
+    version: PRE_PROTOCOL_OBSERVATION_VERSION,
+    outcome: value.outcome,
+    findings:
+      value.outcome === "observed"
+        ? PRE_PROTOCOL_FINDINGS.filter((finding) => findings.includes(finding))
+        : [],
     completedAt: Math.max(0, finiteNumber(value.completedAt, Date.now()))
   };
 }
@@ -208,6 +232,7 @@ export function sanitiseImportedAppData(value: unknown): AppData {
   return {
     dogName: String(value.dogName || "").trim().slice(0, 40),
     onboarding: cleanOnboarding(value.onboarding),
+    preProtocolObservation: cleanPreProtocol(value.preProtocolObservation),
     activeScenarioId,
     scenarios,
     dailyCap:

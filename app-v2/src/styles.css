@@ -5328,3 +5328,41 @@ a:focus-visible {
 .account-panel details { min-width: 0; }
 .account-panel summary { cursor: pointer; padding-block: 10px; }
 .account-panel [role="alert"] { color: var(--rose); }
+
+.pre-protocol-card .setup-options {
+  margin-top: 14px;
+}
+
+.pre-protocol-card .setup-choice strong {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.pre-protocol-notes {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.pre-protocol-notes li {
+  padding: 14px;
+  border-radius: 15px;
+  background: rgba(138,174,144,.10);
+  border: 1px solid rgba(138,174,144,.22);
+}
+
+.pre-protocol-notes strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.pre-protocol-notes span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}

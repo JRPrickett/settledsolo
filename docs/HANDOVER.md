@@ -44,7 +44,28 @@ provider evidence.
 
 ## What changed most recently
 
-### PR #27 — Preserve fallback training data during storage recovery — open
+### Pre-protocol observation step — current branch
+
+`docs/SA-QUALITY-ROADMAP.md` item 5's "record the dog alone" sub-item, from Bain (2025).
+Confinement anxiety, noise sensitivity and incomplete housetraining can all look like
+separation-related distress; one observation before training starts separates them cheaply.
+
+- Offered on Today before a track's first timed departure, once only, and recorded whether the
+  owner does it or skips it so it is never asked twice.
+- Not offered while a cue-first plan still excludes real departures — asking those owners to
+  leave would contradict the plan they were just given.
+- Never blocks training: the start button stays available beside it.
+- A camera is suggested but explicitly optional; listening from another room is offered as an
+  equally valid alternative.
+- Findings map to non-diagnostic guidance that names alternative explanations and, for a
+  confinement observation, points at the existing free-roam comparison tags.
+- Persisted as a versioned record on `AppData`, normalised on load, carried through
+  backup/restore, and included in the synced mutation set.
+
+The timing and the findings list are **product choices, not clinical rules**; the evidence base
+records that distinction.
+
+### PR #27 — Preserve fallback training data during storage recovery — merged
 
 A user who trains while IndexedDB is unavailable saves setup, history and an active session
 into the localStorage fallback. When IndexedDB later became available with an empty database,

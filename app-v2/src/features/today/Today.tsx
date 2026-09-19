@@ -13,6 +13,11 @@ import {
   recommendCueLevel
 } from "../../domain/departureCues";
 import { effectiveDailyCap, isDailyCapReached, sessionsToday } from "../../domain/dailyCap";
+import {
+  shouldOfferPreProtocolObservation,
+  type PreProtocolFinding
+} from "../../domain/preProtocolObservation";
+import { PreProtocolObservationCard } from "./PreProtocolObservationCard";
 import { AccountNotice } from "../../components/AccountNotice";
 import { MilestoneBanner } from "../progress/MilestoneBanner";
 import type { Achievement, EarnedMilestone } from "../../domain/milestones";
@@ -24,7 +29,8 @@ export function Today({
   onDismissCelebration,
   onStart,
   onOpenCuePractice,
-  onOpenAccount
+  onOpenAccount,
+  onRecordObservation
 }: {
   data: AppData;
   storageMode: StorageMode;
@@ -33,6 +39,10 @@ export function Today({
   onStart: (target: number) => void;
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
+  onRecordObservation: (
+    outcome: "observed" | "skipped",
+    findings: PreProtocolFinding[]
+  ) => void;
 }) {
   const scenario = activeScenario(data);
   const recommendation = useMemo(
@@ -62,6 +72,11 @@ export function Today({
   const firstMicroObservation =
     data.onboarding?.startingPath === "micro-departure" &&
     scenario.sessions.length === 0;
+  const offerObservation = shouldOfferPreProtocolObservation(
+    data,
+    scenario,
+    !cuePracticeOnly
+  );
   const showRestDayCard =
     recommendation.restDayRecommended && !capReached && !restDayOverride;
   const planReason = firstMicroObservation
@@ -80,6 +95,14 @@ export function Today({
 
       {celebration && (celebration.milestones.length > 0 || celebration.achievements.length > 0) && (
         <MilestoneBanner celebration={celebration} onDismiss={onDismissCelebration} />
+      )}
+
+      {offerObservation && (
+        <PreProtocolObservationCard
+          dogName={data.dogName}
+          onRecord={(findings) => onRecordObservation("observed", findings)}
+          onSkip={() => onRecordObservation("skipped", [])}
+        />
       )}
 
       {cuePracticeOnly ? (

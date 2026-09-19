@@ -182,6 +182,12 @@ export default function App() {
               setRestoredState(undefined);
               setLiveTarget(target);
             }}
+            onRecordObservation={async (outcome, findings) => {
+              setData(
+                await repository.recordPreProtocolObservation(outcome, findings)
+              );
+              setStorageMode(repository.storageMode());
+            }}
             onOpenCuePractice={async () => {
               account.pauseForTraining();
               setData(await repository.loadAppData());

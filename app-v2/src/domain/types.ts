@@ -84,6 +84,8 @@ export interface AppData {
   dogName: string;
   /** Versioned first-run routing. Existing users may not have this field. */
   onboarding?: OnboardingProfile;
+  /** Versioned one-time observation before duration training. Existing users may not have this field. */
+  preProtocolObservation?: import("./preProtocolObservation").PreProtocolObservation;
   activeScenarioId: string;
   scenarios: Scenario[];
   /** Main departures allowed per day, counted across every scenario. Defaults to 2 when unset. */
