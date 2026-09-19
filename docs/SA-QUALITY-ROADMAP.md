@@ -61,7 +61,10 @@ saying so plainly in product copy (landing/terms), not new billing engineering.
 
 **Source:** CSAT practitioner practice.
 
-- Food/treat refusal as a 7th optional observed signal (distinct from the existing six).
+- ~~Food/treat refusal as a 7th optional observed signal (distinct from the existing six).~~
+  **Done.** Added as "Refused food or treats", optional like the other six, and recorded through
+  the live session, the manual session form, history, progress insights, backup/restore and
+  sync. Sourced to CSAT practitioner practice in the evidence base, not to a controlled study.
 - ~~A one-time "record the dog alone" pre-protocol step before starting duration training
   (Bain 2025), to help rule out confinement anxiety/noise phobia/incomplete housetraining
   being mistaken for separation anxiety.~~ **Done.** Offered on Today before the first timed

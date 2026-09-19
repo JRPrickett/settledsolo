@@ -44,7 +44,30 @@ provider evidence.
 
 ## What changed most recently
 
-### Pre-protocol observation step — current branch
+### Food/treat refusal signal — current branch
+
+`docs/SA-QUALITY-ROADMAP.md` item 5's first sub-item. A dog declining food it would normally
+take is a practitioner-recognised sign of being above threshold, and the app recorded six
+observed signs without it.
+
+- Added as "Refused food or treats", optional like the other six, and appearing automatically
+  in the live session, the manual session form, history chips and progress insights because
+  those all derive from the shared signal list.
+- Signal labels are now a `Record<ObservedSignal, string>`, so adding a signal to the union
+  without a label is a compile error instead of a raw value leaking into the UI.
+- Backup restore and the sync protocol now derive their allowlists from that same list rather
+  than duplicating it. The sync schema had both a hardcoded six-value enum and a hardcoded
+  `.max(6)` cap, either of which would have silently rejected a session carrying the new
+  signal; both are now derived.
+- Sourced to CSAT practitioner practice in the evidence base, explicitly not to a controlled
+  study, and only meaningful when food was actually offered.
+
+Adding the browser journey exposed a **pre-existing bug on `main`**: the history detail row
+rendered only when a session had tags, a stop reason or a note, and never checked signals. A
+session recorded with observed signs and nothing else therefore never displayed them, which
+defeats the purpose of recording them. Fixed here and covered by the new journey.
+
+### PR #30 — Pre-protocol observation step — merged
 
 `docs/SA-QUALITY-ROADMAP.md` item 5's "record the dog alone" sub-item, from Bain (2025).
 Confinement anxiety, noise sensitivity and incomplete housetraining can all look like

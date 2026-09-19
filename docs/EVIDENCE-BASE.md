@@ -222,7 +222,13 @@ The production recommendation engine follows these principles:
 
 8. **Duration is not the only outcome**
    The app can optionally record observed signs such as pacing, panting, exit-watching, whining,
-   barking/howling and inability to settle.
+   barking/howling, inability to settle and refusal of food or treats.
+
+   Food/treat refusal comes from **CSAT practitioner practice**, not from a controlled study:
+   a dog declining food it would normally take is widely treated as a sign of being above
+   threshold. It sits at the same tier as the other practitioner-sourced items here. It is also
+   only meaningful when food was actually offered, so it stays optional like every other signal
+   and is never required to complete a session.
 
 9. **Explain every recommendation**
    The UI must show why a target was held, increased or reduced.

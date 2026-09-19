@@ -105,6 +105,38 @@ describe("backup restore", () => {
       completedAt: 12345
     });
     expect(data.scenarios[0].sessions[0].signals).toEqual(["pacing"]);
+    expect(
+      parseBackupText(
+        JSON.stringify({
+          schemaVersion: 1,
+          appData: {
+            dogName: "Mabel",
+            activeScenarioId: "training",
+            scenarios: [
+              {
+                id: "training",
+                label: "Separation training",
+                startSeconds: 5,
+                sessions: [
+                  {
+                    id: "s2",
+                    at: 1,
+                    targetSeconds: 10,
+                    actualSeconds: 10,
+                    outcome: "concern",
+                    stoppedEarly: false,
+                    signals: ["food-refusal", "invalid"],
+                    tags: [],
+                    stopReason: "",
+                    note: ""
+                  }
+                ]
+              }
+            ]
+          }
+        })
+      ).scenarios[0].sessions[0].signals
+    ).toEqual(["food-refusal"]);
     expect(data.scenarios[0].sessions[0].tags).toEqual(["after-a-walk"]);
     expect(data.scenarios[0].sessions[0].stopReason).toBe("doorbell rang");
     expect(data.scenarios[0].warmupCount).toBe(1);

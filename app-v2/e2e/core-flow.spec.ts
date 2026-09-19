@@ -648,3 +648,25 @@ test("a cue-first plan is not asked to leave the dog alone to observe", async ({
     page.getByRole("heading", { name: "Watch Mabel alone once" })
   ).toBeHidden();
 });
+
+test("food refusal can be recorded as an observed signal and reaches history", async ({ page }) => {
+  await completeSetup(page, 1);
+
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await expect(page.getByText("Today's main departure")).toBeVisible();
+
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.waitForTimeout(1_100);
+  await page.getByRole("button", { name: "I'm back" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "How was Mabel while you were away?" })
+  ).toBeVisible();
+  // The signal list only appears once a non-relaxed outcome is chosen.
+  await page.getByRole("button", { name: /Some concern/ }).click();
+  await page.getByRole("button", { name: "Refused food or treats" }).click();
+  await page.getByRole("button", { name: "Save session" }).click();
+
+  await page.getByRole("button", { name: "History" }).click();
+  await expect(page.getByText("Refused food or treats")).toBeVisible();
+});

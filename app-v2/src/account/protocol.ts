@@ -1,13 +1,17 @@
 import { z } from "zod";
 import type {
   AppData,
+  ObservedSignal,
   Scenario,
   TrainingSession,
   DepartureCueSession,
 } from "../domain/types";
+import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 const id = z.string().min(1).max(100);
 const seconds = z.number().int().min(0).max(86400);
 const outcome = z.enum(["relaxed", "concern", "distressed"]);
+// Derived from the domain list so a new observed signal cannot be rejected here.
+const signalValues = OBSERVED_SIGNAL_VALUES as [ObservedSignal, ...ObservedSignal[]];
 const profile = z
   .object({
     kind: z.literal("profile"),
@@ -51,17 +55,8 @@ const session = z
     outcome,
     stoppedEarly: z.boolean(),
     signals: z
-      .array(
-        z.enum([
-          "exit-watching",
-          "pacing",
-          "panting",
-          "whining",
-          "barking-howling",
-          "unable-to-settle",
-        ]),
-      )
-      .max(6),
+      .array(z.enum(signalValues))
+      .max(signalValues.length),
     tags: z
       .array(
         z.enum([

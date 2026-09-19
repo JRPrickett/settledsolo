@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { connect, reconcile, applyReply, resolveConflict } from "./syncState";
-import { flatten, type SyncReply } from "./protocol";
+import { flatten, valueSchema, type SyncReply } from "./protocol";
 import type { AppData, TrainingSession } from "../domain/types";
+import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 const session = (id: string, note = ""): TrainingSession => ({
   id,
   at: 100,
@@ -14,6 +15,30 @@ const session = (id: string, note = ""): TrainingSession => ({
   stopReason: "",
   note,
 });
+describe("sync accepts every observed signal", () => {
+  it("does not reject a session carrying all of them", () => {
+    const parsed = valueSchema.safeParse({
+      kind: "session",
+      scenarioId: "training",
+      ...session("all-signals"),
+      signals: OBSERVED_SIGNAL_VALUES,
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("still rejects a signal it does not know", () => {
+    const parsed = valueSchema.safeParse({
+      kind: "session",
+      scenarioId: "training",
+      ...session("bad-signal"),
+      signals: ["not-a-signal"],
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
 const guest = (): AppData => ({
   dogName: "Mabel",
   activeScenarioId: "training",

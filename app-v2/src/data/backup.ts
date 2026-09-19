@@ -13,16 +13,11 @@ import {
 } from "../domain/preProtocolObservation";
 import { readLegacyAppData } from "./legacyImport";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
+// Derived rather than duplicated: a new signal is accepted by restore automatically.
+import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 
 const outcomes: Outcome[] = ["relaxed", "concern", "distressed"];
-const signals: ObservedSignal[] = [
-  "exit-watching",
-  "pacing",
-  "panting",
-  "whining",
-  "barking-howling",
-  "unable-to-settle"
-];
+
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -82,7 +77,7 @@ function cleanSignals(value: unknown): ObservedSignal[] {
   if (!Array.isArray(value)) return [];
   return [...new Set(
     value.filter((item): item is ObservedSignal =>
-      signals.includes(item as ObservedSignal)
+      OBSERVED_SIGNAL_VALUES.includes(item as ObservedSignal)
     )
   )];
 }

@@ -14,7 +14,8 @@ export type ObservedSignal =
   | "panting"
   | "whining"
   | "barking-howling"
-  | "unable-to-settle";
+  | "unable-to-settle"
+  | "food-refusal";
 
 export type SessionTag =
   | "morning"
