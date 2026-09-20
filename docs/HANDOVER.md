@@ -74,10 +74,11 @@ The replacement keeps the actual training state unchanged and timestamp-derived:
 - failure to configure, subscribe, schedule or deliver push never blocks starting, returning from
   or saving a local session.
 
-The code fails closed until stable `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` Worker secrets
-are configured for preview/production. Use `npm run push:keys` and
-`docs/PUSH-ALERTS-SETUP.md`. Real installed-iPhone delivery/cancellation and duplicate-sound
-behaviour remain a physical-device release gate; do not treat automated WebKit as proof.
+The deploy path now provisions a stable VAPID key pair automatically the first time either key
+is missing, while preserving existing keys on normal deployments. `npm run push:keys` remains a
+manual recovery utility; see `docs/PUSH-ALERTS-SETUP.md`. Real installed-iPhone
+ delivery/cancellation and duplicate-sound behaviour remain a physical-device release gate; do
+not treat automated WebKit as proof.
 
 ## What changed most recently
 
