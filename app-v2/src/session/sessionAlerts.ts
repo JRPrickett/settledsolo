@@ -4,48 +4,15 @@ export type NotificationPermissionState =
 
 export interface AlertCapabilities {
   notifications: NotificationPermissionState;
-  mediaSession: boolean;
+  push: boolean;
   wakeLock: boolean;
 }
 
-export interface SessionNotificationOptions {
-  requireInteraction?: boolean;
-}
-
-let keeper: HTMLAudioElement | null = null;
 let audioContext: AudioContext | null = null;
 let wakeLock: WakeLockSentinel | null = null;
+let fallbackClientId: string | null = null;
 
-function makeSilentWav(): string {
-  const sampleRate = 8000;
-  const seconds = 2;
-  const samples = sampleRate * seconds;
-  const bytes = new Uint8Array(44 + samples * 2);
-  const view = new DataView(bytes.buffer);
-  const write = (offset: number, text: string) => {
-    for (let i = 0; i < text.length; i += 1) {
-      bytes[offset + i] = text.charCodeAt(i);
-    }
-  };
-
-  write(0, "RIFF");
-  view.setUint32(4, 36 + samples * 2, true);
-  write(8, "WAVE");
-  write(12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * 2, true);
-  view.setUint16(32, 2, true);
-  view.setUint16(34, 16, true);
-  write(36, "data");
-  view.setUint32(40, samples * 2, true);
-
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return `data:audio/wav;base64,${btoa(binary)}`;
-}
+const PUSH_CLIENT_ID_KEY = "settledsolo-push-client-v1";
 
 function context(): AudioContext | null {
   const Ctor =
@@ -107,13 +74,21 @@ export function playTargetReachedChime() {
   tone(1320, 0.36, 0.76, 0.06);
 }
 
+function pushSupported(): boolean {
+  return (
+    "serviceWorker" in navigator &&
+    "PushManager" in window &&
+    typeof fetch === "function"
+  );
+}
+
 export function alertCapabilities(): AlertCapabilities {
   return {
     notifications:
       typeof Notification === "undefined"
         ? "unsupported"
         : Notification.permission,
-    mediaSession: "mediaSession" in navigator,
+    push: pushSupported(),
     wakeLock: "wakeLock" in navigator
   };
 }
@@ -126,39 +101,6 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
     return await Notification.requestPermission();
   } catch {
     return Notification.permission;
-  }
-}
-
-export async function showSessionNotification(
-  title: string,
-  body: string,
-  options: SessionNotificationOptions = {}
-): Promise<void> {
-  if (
-    typeof Notification === "undefined" ||
-    Notification.permission !== "granted" ||
-    !("serviceWorker" in navigator)
-  ) {
-    return;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.ready;
-    const notificationOptions = {
-      body,
-      tag: "settledsolo-return",
-      renotify: true,
-      requireInteraction: options.requireInteraction ?? false,
-      silent: false,
-      data: {
-        url: new URL("/app/", window.location.origin).href
-      },
-      icon: "/icon.svg",
-      badge: "/icon.svg"
-    } as NotificationOptions & { renotify: boolean };
-    await registration.showNotification(title, notificationOptions);
-  } catch {
-    // Alerts are supplementary. Timer/recovery state must never depend on them.
   }
 }
 
@@ -177,112 +119,180 @@ async function requestWakeLock() {
 }
 
 export function prepareSessionAudio() {
+  // Unlock Web Audio from the user's tap so foreground chimes can play later.
+  // Do not keep a looping media element alive: that creates a fake media
+  // session on iOS and makes the Lock Screen behave like an audio player.
   context();
-
-  if (!keeper && typeof Audio !== "undefined") {
-    try {
-      keeper = new Audio(makeSilentWav());
-      keeper.loop = true;
-      keeper.volume = 0.01;
-      keeper.setAttribute("playsinline", "");
-    } catch {
-      keeper = null;
-    }
-  }
-
-  if (keeper) {
-    try {
-      keeper.currentTime = 0;
-      void keeper.play().catch(() => {});
-    } catch {
-      // Best effort only.
-    }
-  }
-
   void requestWakeLock();
 }
 
-export function configureMediaSession(
-  dogName: string,
-  scenarioLabel: string,
-  targetSeconds: number,
-  elapsedSeconds: number
-) {
-  if (!("mediaSession" in navigator)) return;
+function decodeApplicationServerKey(value: string): ArrayBuffer {
+  const normal = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normal + "=".repeat((4 - (normal.length % 4)) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes.buffer;
+}
+
+function equalKeys(left: ArrayBuffer | null, right: ArrayBuffer): boolean {
+  if (!left || left.byteLength !== right.byteLength) return false;
+  const a = new Uint8Array(left);
+  const b = new Uint8Array(right);
+  for (let index = 0; index < a.length; index += 1) {
+    if (a[index] !== b[index]) return false;
+  }
+  return true;
+}
+
+async function pushConfig(): Promise<{ enabled: boolean; publicKey: string | null }> {
+  try {
+    const response = await fetch("/api/push/config", {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    });
+    if (!response.ok) return { enabled: false, publicKey: null };
+    const body = (await response.json()) as {
+      enabled?: unknown;
+      publicKey?: unknown;
+    };
+    return {
+      enabled: body.enabled === true,
+      publicKey: typeof body.publicKey === "string" ? body.publicKey : null
+    };
+  } catch {
+    return { enabled: false, publicKey: null };
+  }
+}
+
+async function ensurePushSubscription(): Promise<PushSubscription | null> {
+  if (
+    !pushSupported() ||
+    typeof Notification === "undefined" ||
+    Notification.permission !== "granted"
+  ) {
+    return null;
+  }
+
+  const config = await pushConfig();
+  if (!config.enabled || !config.publicKey) return null;
 
   try {
-    navigator.mediaSession.playbackState = "playing";
+    const registration = await navigator.serviceWorker.ready;
+    const applicationServerKey = decodeApplicationServerKey(config.publicKey);
+    let subscription = await registration.pushManager.getSubscription();
 
-    if (typeof MediaMetadata !== "undefined") {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: `${dogName} · training session`,
-        artist: scenarioLabel,
-        album: `${Math.max(0, targetSeconds - elapsedSeconds)}s remaining`,
-        artwork: [
-          {
-            src: "/icon.svg",
-            sizes: "512x512",
-            type: "image/svg+xml"
-          }
-        ]
+    if (
+      subscription &&
+      !equalKeys(subscription.options.applicationServerKey, applicationServerKey)
+    ) {
+      await subscription.unsubscribe();
+      subscription = null;
+    }
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
       });
     }
 
-    if (typeof navigator.mediaSession.setPositionState === "function") {
-      const duration = Math.max(1, targetSeconds);
-      const position = Math.min(duration, Math.max(0, elapsedSeconds));
-      navigator.mediaSession.setPositionState({
-        duration,
-        playbackRate: 1,
-        position
-      });
-    }
-
-    const keepRunning = () => {
-      if (keeper?.paused) void keeper.play().catch(() => {});
-    };
-    for (const action of ["play", "pause", "stop"] as MediaSessionAction[]) {
-      try {
-        navigator.mediaSession.setActionHandler(action, keepRunning);
-      } catch {
-        // Unsupported media actions vary by browser.
-      }
-    }
+    return subscription;
   } catch {
-    // Media Session is progressive enhancement.
+    return null;
+  }
+}
+
+export async function prepareBackgroundReturnAlerts(): Promise<boolean> {
+  return Boolean(await ensurePushSubscription());
+}
+
+function randomOpaqueId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
+function pushClientId(): string {
+  if (fallbackClientId) return fallbackClientId;
+
+  try {
+    const existing = localStorage.getItem(PUSH_CLIENT_ID_KEY);
+    if (existing) {
+      fallbackClientId = existing;
+      return existing;
+    }
+
+    const created = randomOpaqueId();
+    localStorage.setItem(PUSH_CLIENT_ID_KEY, created);
+    fallbackClientId = created;
+    return created;
+  } catch {
+    fallbackClientId = randomOpaqueId();
+    return fallbackClientId;
+  }
+}
+
+export function createReturnAlertToken(): string {
+  return randomOpaqueId();
+}
+
+export async function scheduleBackgroundReturnAlert(
+  targetAt: number,
+  sessionToken: string
+): Promise<boolean> {
+  const subscription = await ensurePushSubscription();
+  if (!subscription) return false;
+
+  try {
+    const response = await fetch("/api/push/schedule", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        clientId: pushClientId(),
+        sessionToken,
+        endpoint: subscription.endpoint,
+        targetAt
+      }),
+      keepalive: true
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function cancelBackgroundReturnAlert(
+  sessionToken: string
+): Promise<void> {
+  try {
+    await fetch("/api/push/cancel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        clientId: pushClientId(),
+        sessionToken
+      }),
+      keepalive: true
+    });
+  } catch {
+    // Cancellation is best effort; the push itself has a short TTL to avoid
+    // stale reminders being delivered long after a session has ended.
   }
 }
 
 export function stopSessionAlerts() {
-  if (keeper) {
-    try {
-      keeper.pause();
-      keeper.removeAttribute("src");
-      keeper.load();
-    } catch {
-      // Ignore cleanup failure.
-    }
-    keeper = null;
-  }
-
-  if ("mediaSession" in navigator) {
-    try {
-      navigator.mediaSession.playbackState = "none";
-      navigator.mediaSession.metadata = null;
-      navigator.mediaSession.setPositionState?.();
-    } catch {
-      // Ignore cleanup failure.
-    }
-
-    for (const action of ["play", "pause", "stop"] as MediaSessionAction[]) {
-      try {
-        navigator.mediaSession.setActionHandler(action, null);
-      } catch {
-        // Ignore unsupported actions.
-      }
-    }
-  }
-
   if (wakeLock && !wakeLock.released) {
     void wakeLock.release().catch(() => {});
   }
