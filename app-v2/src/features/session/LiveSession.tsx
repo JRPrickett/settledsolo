@@ -148,6 +148,13 @@ export function LiveSession({
     return () => {
       window.clearInterval(timer);
       removeWakeRecovery();
+      const pendingPush = pushScheduleRef.current;
+      pushScheduleRef.current = null;
+      if (pendingPush) {
+        void pendingPush.scheduled.finally(() =>
+          cancelBackgroundReturnAlert(pendingPush.token)
+        );
+      }
       stopSessionAlerts();
     };
   }, [state.phase]);
