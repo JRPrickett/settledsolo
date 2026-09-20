@@ -16,6 +16,7 @@ import {
 import { effectiveDailyCap } from "../../domain/dailyCap";
 import {
   alertCapabilities,
+  prepareBackgroundReturnAlerts,
   requestNotificationPermission,
   type NotificationPermissionState
 } from "../../session/sessionAlerts";
@@ -72,6 +73,20 @@ export function More({
     useState<NotificationPermissionState>(
       () => alertCapabilities().notifications
     );
+  const [backgroundAlertsReady, setBackgroundAlertsReady] = useState<boolean | null>(
+    () => (alertCapabilities().push ? null : false)
+  );
+
+  async function enableReturnAlerts() {
+    const permission = await requestNotificationPermission();
+    setNotificationPermission(permission);
+    if (permission !== "granted") {
+      setBackgroundAlertsReady(false);
+      return;
+    }
+
+    setBackgroundAlertsReady(await prepareBackgroundReturnAlerts());
+  }
 
   async function chooseBackup(file: File | undefined) {
     if (!file) return;
@@ -327,31 +342,39 @@ export function More({
           <p className="kicker">Return alerts</p>
           <h2>Know when it is time to come back.</h2>
           <p>
-            Enable system alerts for a reminder while you watch the camera. The
-            live-session chime remains a fallback, and the timer and saved session
-            never depend on notification delivery.
+            Enable a native return alert for the main departure while you watch the
+            camera in another app. Foreground chimes stay local, and the timer and
+            saved session never depend on notification delivery.
           </p>
         </div>
-        {notificationPermission === "default" && (
+        {(notificationPermission === "default" ||
+          (notificationPermission === "granted" && backgroundAlertsReady !== true)) &&
+          alertCapabilities().push && (
           <button
             className="secondary-button"
-            onClick={async () =>
-              setNotificationPermission(await requestNotificationPermission())
-            }
+            onClick={() => void enableReturnAlerts()}
           >
-            Enable system alerts
+            {notificationPermission === "granted"
+              ? "Set up return alerts"
+              : "Enable return alerts"}
           </button>
         )}
-        {notificationPermission === "granted" && (
-          <span className="alert-status enabled">System alerts enabled</span>
+        {notificationPermission === "granted" && backgroundAlertsReady === true && (
+          <span className="alert-status enabled">Background return alerts ready</span>
+        )}
+        {notificationPermission === "granted" && backgroundAlertsReady === false && (
+          <span className="alert-status">
+            Notifications are allowed, but background return alerts are not available
+            right now. The in-app timer still works.
+          </span>
         )}
         {notificationPermission === "denied" && (
-          <span className="alert-status">System alerts are blocked in this browser</span>
+          <span className="alert-status">Return alerts are blocked in this browser</span>
         )}
-        {notificationPermission === "unsupported" && (
+        {(notificationPermission === "unsupported" || !alertCapabilities().push) && (
           <span className="alert-status">
-            System alerts are unavailable here. Session chimes still work where
-            background audio is supported.
+            Background return alerts are unavailable here. On iPhone, install
+            SettledSolo to the Home Screen and enable notifications there.
           </span>
         )}
       </section>
