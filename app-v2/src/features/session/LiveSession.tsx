@@ -178,12 +178,12 @@ export function LiveSession({
       !state.warningIssued;
 
     if (shouldWarn) {
-      playHeadBackSoonChime();
+      if (document.visibilityState === "visible") playHeadBackSoonChime();
       dispatch({ type: "MARK_WARNING_ISSUED" });
     }
 
     if (elapsed >= step.targetSeconds && !state.targetIssued) {
-      playTargetReachedChime();
+      if (document.visibilityState === "visible") playTargetReachedChime();
       dispatch({ type: "MARK_TARGET_ISSUED" });
     }
   }, [
