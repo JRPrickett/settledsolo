@@ -1,5 +1,3 @@
-import { DurableObject } from "cloudflare:workers";
-
 interface PushSecrets {
   SITE_URL?: string;
   VAPID_PUBLIC_KEY?: string;
@@ -238,23 +236,28 @@ async function sendReturnPush(
   return "sent";
 }
 
-export class ReturnAlertScheduler extends DurableObject<PushSecrets> {
+export class ReturnAlertScheduler {
+  constructor(
+    private readonly state: DurableObjectState,
+    private readonly env: PushSecrets
+  ) {}
+
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/schedule" && request.method === "POST") {
       const pending = (await request.json()) as PendingAlert;
-      await this.ctx.storage.put("pending", pending);
-      await this.ctx.storage.setAlarm(pending.targetAt);
+      await this.state.storage.put("pending", pending);
+      await this.state.storage.setAlarm(pending.targetAt);
       return new Response(null, { status: 204 });
     }
 
     if (url.pathname === "/cancel" && request.method === "POST") {
       const input = (await request.json()) as { sessionToken: string };
-      const pending = await this.ctx.storage.get<PendingAlert>("pending");
+      const pending = await this.state.storage.get<PendingAlert>("pending");
       if (pending?.sessionToken === input.sessionToken) {
-        await this.ctx.storage.delete("pending");
-        await this.ctx.storage.deleteAlarm();
+        await this.state.storage.delete("pending");
+        await this.state.storage.deleteAlarm();
       }
       return new Response(null, { status: 204 });
     }
@@ -263,16 +266,16 @@ export class ReturnAlertScheduler extends DurableObject<PushSecrets> {
   }
 
   async alarm(): Promise<void> {
-    const pending = await this.ctx.storage.get<PendingAlert>("pending");
+    const pending = await this.state.storage.get<PendingAlert>("pending");
     if (!pending) return;
 
     if (pending.targetAt > Date.now() + 250) {
-      await this.ctx.storage.setAlarm(pending.targetAt);
+      await this.state.storage.setAlarm(pending.targetAt);
       return;
     }
 
     await sendReturnPush(pending, this.env);
-    await this.ctx.storage.delete("pending");
+    await this.state.storage.delete("pending");
   }
 }
 
