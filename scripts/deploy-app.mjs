@@ -1,9 +1,9 @@
-import { generateKeyPairSync } from "node:crypto";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { writeAccountConfig } from "./account-config.mjs";
+import { createVapidPair, hasCompleteVapidPair } from "./vapid.mjs";
 
 const target = process.argv[2];
 const config = writeAccountConfig(target);
@@ -25,41 +25,11 @@ const capture = (args) => {
   return result.stdout;
 };
 
-function createVapidPair() {
-  const { publicKey, privateKey } = generateKeyPairSync("ec", {
-    namedCurve: "prime256v1",
-  });
-  const publicJwk = publicKey.export({ format: "jwk" });
-  const privateJwk = privateKey.export({ format: "jwk" });
-  if (!publicJwk.x || !publicJwk.y || !privateJwk.d) {
-    throw new Error("Could not generate VAPID key material.");
-  }
-
-  const uncompressed = Buffer.concat([
-    Buffer.from([4]),
-    Buffer.from(publicJwk.x, "base64url"),
-    Buffer.from(publicJwk.y, "base64url"),
-  ]);
-
-  return {
-    VAPID_PUBLIC_KEY: uncompressed.toString("base64url"),
-    VAPID_PRIVATE_KEY: privateJwk.d,
-  };
-}
-
 function ensurePushSecrets(temporary) {
   const listed = JSON.parse(
     capture(["secret", "list", "--format", "json", "--config", config]),
   );
-  const names = new Set(
-    Array.isArray(listed)
-      ? listed
-          .map((entry) => (entry && typeof entry.name === "string" ? entry.name : ""))
-          .filter(Boolean)
-      : [],
-  );
-
-  if (names.has("VAPID_PUBLIC_KEY") && names.has("VAPID_PRIVATE_KEY")) {
+  if (hasCompleteVapidPair(listed)) {
     console.log("Background-return VAPID keys are already configured.");
     return;
   }
