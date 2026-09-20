@@ -3,7 +3,7 @@
 **Last updated:** 20 September 2026 (production hardening; PWA return-alert branch)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `ab83a4d43ca6e43d02f73108f532f3d49a9cf83a`  
-**Current branch:** `fix/pwa-background-return-alerts`
+**Current branch:** `fix/pwa-background-return-alerts` (PR #41)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
@@ -48,7 +48,7 @@ See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activat
 and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
 provider evidence.
 
-## Current branch — native background return alerts
+## PR #41 — native background return alerts — open
 
 The current branch replaces the iOS silent-audio/Media Session workaround that generated a
 two-second silent WAV, looped it and continuously updated Media Session position. That approach
@@ -64,8 +64,8 @@ The replacement keeps the actual training state unchanged and timestamp-derived:
   Web Push;
 - a Cloudflare `ReturnAlertScheduler` Durable Object stores only the push endpoint, anonymous
   installation ID mapping, opaque session token and target timestamp until delivery/cancellation;
-- the Web Push request intentionally carries no payload, so dog names, notes, outcomes, durations
-  and history are not sent to the push service;
+- the Web Push request intentionally carries no payload. The scheduler receives the push endpoint,
+  opaque identifiers and target timestamp, but no dog name, note, outcome or training history;
 - the generated service worker displays **Time to come back**; it requests sound when SettledSolo
   is backgrounded and stays silent when a visible app window is present so the foreground chime
   is not doubled;
