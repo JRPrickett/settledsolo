@@ -2,7 +2,7 @@
 
 **Date:** 20 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#40 merged; PWA background-return-alert hardening in progress  
+**Status:** PRs #34–#41 merged; native background return alerts deployed to preview, physical-device evidence pending  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -77,7 +77,7 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 - Prove update UI is never actionable during a live session or cue-practice session.
 - Test old-build/new-service-worker transitions on preview without forcing a live-session reload.
 - Complete installed-iPhone Airplane Mode relaunch and offline save.
-- Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Implemented on PR #41; deploys auto-provision stable per-environment VAPID keys, with physical-device evidence still required.**
+- Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Done: PR #41. Preview deploy auto-provisioned its VAPID pair successfully; physical-device evidence is still required.**
 - Complete iOS notification permission/denial, background delivery/cancellation and duplicate-chime checks.
 - Confirm the installed PWA no longer exposes fake media-player controls in Lock Screen / Control Centre.
 - Complete the Android installed-PWA matrix.
