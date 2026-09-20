@@ -21,37 +21,35 @@ The push request has a 60-second TTL so a reminder is not useful indefinitely if
 
 ## VAPID keys
 
-Each deployed environment needs a stable P-256 VAPID key pair. Do not rotate these casually: an existing browser subscription is restricted to the public key it was created with.
+Each deployed environment needs a stable P-256 VAPID key pair. The deploy script now provisions
+this automatically and safely:
 
-Generate a pair locally:
+- after deploying the Worker it lists the target's existing secret names;
+- if both `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` already exist, it leaves them untouched;
+- if either is absent, it creates a fresh pair in a mode-0600 temporary file, uploads both with
+  `wrangler secret bulk`, and removes the temporary file;
+- preview and production therefore receive separate key pairs automatically through their
+  separate Worker deployments.
+
+Do not rotate these casually: an existing browser subscription is restricted to the public key
+it was created with. The client does detect a changed application-server key and can resubscribe,
+but routine deployments should preserve the existing pair.
+
+For recovery or inspection work, a pair can also be generated locally:
 
 ```bash
 npm run push:keys
 ```
 
-Store both values as Worker secrets. Use separate pairs for preview and production.
+Never commit the private value. The public value is returned to the installed app from
+`GET /api/push/config`.
 
-Preview:
-
-```bash
-npx wrangler secret put VAPID_PUBLIC_KEY --config wrangler.preview.jsonc
-npx wrangler secret put VAPID_PRIVATE_KEY --config wrangler.preview.jsonc
-```
-
-Production:
-
-```bash
-npx wrangler secret put VAPID_PUBLIC_KEY --config wrangler.app.jsonc
-npx wrangler secret put VAPID_PRIVATE_KEY --config wrangler.app.jsonc
-```
-
-The private key must never be committed. The public key is returned to the installed app from `GET /api/push/config`.
-
-If either key is missing, the push API fails closed and the app continues with its normal local timer and foreground chimes.
+If key provisioning or push delivery fails, the app continues with its normal local timer and
+foreground chimes. Background alerts are supplementary.
 
 ## Deployment and test gate
 
-The first deployment creates the `ReturnAlertScheduler` Durable Object namespace through the Wrangler migration in both app configs.
+The first deployment creates the `ReturnAlertScheduler` Durable Object namespace through the Wrangler migration and automatically provisions a stable VAPID pair for that Worker.
 
 Before production use, verify on a physical iPhone Home Screen install:
 
