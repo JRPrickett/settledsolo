@@ -37,6 +37,15 @@ function PrivacyPage() {
         notes and observed signals on your device. You can use the core app without
         creating an account.
       </p>
+      <h2>Background return alerts</h2>
+      <p>
+        If you enable background return alerts, the installed app creates a browser push
+        subscription. For each main departure, SettledSolo sends Cloudflare the push
+        endpoint for that installed copy, an anonymous installation ID, an opaque session
+        token and the scheduled return time. Dog names, notes, outcomes and training
+        history are not included. Pending alert data is cleared after delivery or when
+        the app successfully cancels the alert.
+      </p>
       <h2>Product analytics are separate</h2>
       <p>
         Limited aggregate analytics may count events such as app opens and whether a
