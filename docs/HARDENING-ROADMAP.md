@@ -77,7 +77,7 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 - Prove update UI is never actionable during a live session or cue-practice session.
 - Test old-build/new-service-worker transitions on preview without forcing a live-session reload.
 - Complete installed-iPhone Airplane Mode relaunch and offline save.
-- Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Implemented on the current PWA-alert branch; preview VAPID configuration and physical-device evidence still required.**
+- Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Implemented on PR #41; deploys auto-provision stable per-environment VAPID keys, with physical-device evidence still required.**
 - Complete iOS notification permission/denial, background delivery/cancellation and duplicate-chime checks.
 - Confirm the installed PWA no longer exposes fake media-player controls in Lock Screen / Control Centre.
 - Complete the Android installed-PWA matrix.
@@ -139,7 +139,7 @@ Do not use training outcomes as an efficacy claim.
 4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
 5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
 6. ~~Run the repository storage/concurrency pass from H3.~~ Done: PR #40; multi-tab policy and user-facing degraded-storage messaging remain.
-7. Complete PWA/device lifecycle gates, including preview Web Push/VAPID setup and real iPhone return-alert evidence.
+7. Complete PWA/device lifecycle gates, including preview Web Push deployment and real iPhone return-alert evidence.
 8. Activate accounts on **preview only** and run the real two-device/security checks.
 9. Clear qualified behaviour-professional review and public-beta essentials.
 10. Activate production accounts only after the preview/release evidence is recorded.
