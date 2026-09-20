@@ -2,14 +2,13 @@
 
 **Last updated:** 20 September 2026 (production hardening; PWA return-alert branch)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `ab83a4d43ca6e43d02f73108f532f3d49a9cf83a`  
-**Current branch:** `fix/pwa-background-return-alerts` (PR #41)
+**Reviewed main:** `a25116e996c290f86f6d36bb95c65e06136d40de`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#40 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+PRs #34–#41 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
 `core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
@@ -48,7 +47,7 @@ See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activat
 and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
 provider evidence.
 
-## PR #41 — native background return alerts — open
+## PR #41 — native background return alerts — merged
 
 The current branch replaces the iOS silent-audio/Media Session workaround that generated a
 two-second silent WAV, looped it and continuously updated Media Session position. That approach
@@ -74,7 +73,7 @@ The replacement keeps the actual training state unchanged and timestamp-derived:
 - failure to configure, subscribe, schedule or deliver push never blocks starting, returning from
   or saving a local session.
 
-The deploy path now provisions a stable VAPID key pair automatically the first time either key
+The preview deployment after merge completed successfully. It created both VAPID Worker secrets automatically and the deploy workflow remained green. The deploy path provisions a stable VAPID key pair automatically the first time either key
 is missing, while preserving existing keys on normal deployments. `npm run push:keys` remains a
 manual recovery utility; see `docs/PUSH-ALERTS-SETUP.md`. Real installed-iPhone
  delivery/cancellation and duplicate-sound behaviour remain a physical-device release gate; do
