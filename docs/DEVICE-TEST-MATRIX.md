@@ -42,8 +42,10 @@ The production-service-worker test proves the web/PWA code path, not iOS lifecyc
 The timer is based on original timestamps, not interval ticks. If rendering or browser execution
 pauses, the displayed elapsed time should correct itself when execution resumes.
 
-Audio, Media Session controls, wake lock and local notifications are progressive enhancement.
+Foreground audio, wake lock and background Web Push are progressive enhancement.
 The training record and timer state must remain correct even when all alert features fail.
+The PWA no longer keeps a silent looping audio track alive or claims Media Session ownership
+to simulate a Lock Screen timer.
 
 ## iPhone / iPad real-device gate
 
@@ -66,13 +68,14 @@ Test in current Safari and as an installed Home Screen web app.
 - [ ] Switch Safari/PWA out of the foreground after the 5-second warning boundary and return.
 - [ ] Leave the app backgrounded beyond the target, return, and confirm it shows target exceeded rather than restarting.
 
-### Audio / Media Session
+### Audio / Lock Screen
 
 - [ ] Start the departure directly from a user tap and confirm no browser autoplay error.
-- [ ] Verify target chime while app remains foregrounded.
-- [ ] Verify whether warning/target chimes continue while another app is foregrounded.
-- [ ] Verify lock-screen / Control Centre metadata when available.
-- [ ] Confirm media play/pause controls cannot accidentally stop the training clock.
+- [ ] Verify warning and target chimes while the app remains foregrounded.
+- [ ] Switch to another app during the departure and confirm SettledSolo does **not** appear
+      as a fake audio player in Lock Screen / Control Centre.
+- [ ] Keep SettledSolo visible through the target and confirm the foreground chime plays once.
+- [ ] Confirm a simultaneous Web Push notification is silent while SettledSolo is visible.
 - [ ] Confirm returning to the app does not create duplicate chimes.
 
 Record the actual result; do not turn an inconsistent OS behaviour into a product guarantee.
@@ -80,16 +83,23 @@ Record the actual result; do not turn an inconsistent OS behaviour into a produc
 ### Notifications
 
 On iOS/iPadOS, Web Push/system notification support is tied to Home Screen web apps and
-permission must follow user interaction.
+permission must follow user interaction. The current PWA schedules one server-backed native
+return alert for the **main departure target**. Foreground warning/target chimes stay local.
 
-- [ ] Tap Enable system alerts from an explicit user action.
-- [ ] Confirm permission state is accurately reflected.
-- [ ] Verify a local in-session notification while the PWA remains active enough to execute.
+- [ ] Configure stable preview VAPID keys and deploy the `ReturnAlertScheduler` Durable Object.
+- [ ] Tap Enable return alerts from an explicit user action.
+- [ ] Confirm permission and background-alert readiness are accurately reflected.
+- [ ] Start a 30-second main departure, switch to the camera app, and confirm one audible
+      **Time to come back** notification arrives near the target.
+- [ ] Return early and confirm the pending alert is cancelled.
+- [ ] Keep SettledSolo visible through the target and confirm the notification is silent while
+      the foreground target chime remains audible.
 - [ ] Confirm denied permission does not affect the timer.
 - [ ] Confirm no repeated permission prompt.
-- [ ] Tap a notification and record platform behaviour.
+- [ ] Tap the notification and confirm it focuses/opens the installed app.
+- [ ] Repeat with networking disabled and confirm push failure never blocks or resets training.
 
-Server-backed Web Push is a later feature and is not required for this local-first release.
+Web Push timing is a supplementary reminder, not the source of truth for the session clock.
 
 ### Recovery
 
@@ -133,10 +143,10 @@ This clears the core timer/recovery resilience concern that automated WebKit cou
 Still to verify on iOS before public release:
 
 - Airplane Mode relaunch and full offline save;
-- notification permission/denial behaviour;
+- native Web Push permission/delivery/cancellation behaviour;
 - PWA update while a live session is running;
 - duplicate-chime behaviour across repeated/backgrounded sessions;
-- Media Session/Control Centre presentation where available.
+- confirmation that no fake Media Session/Control Centre player remains.
 
 ## Android real-device gate
 
@@ -147,9 +157,9 @@ Repeat:
 - [ ] installation/standalone shell;
 - [ ] camera-app switch during timer;
 - [ ] screen lock/unlock;
-- [ ] target chime foreground/background;
-- [ ] notification permission;
-- [ ] lock-screen Media Session presentation;
+- [ ] foreground target chime;
+- [ ] background Web Push notification permission/delivery;
+- [ ] confirm no fake lock-screen Media Session presentation;
 - [ ] force-close/relaunch recovery;
 - [ ] offline relaunch/session;
 - [ ] safe prompted PWA update.
