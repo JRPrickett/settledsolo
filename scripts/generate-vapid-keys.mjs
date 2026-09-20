@@ -1,27 +1,8 @@
-function base64Url(bytes) {
-  return Buffer.from(bytes)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
+import { createVapidPair } from "./vapid.mjs";
 
-const pair = await crypto.subtle.generateKey(
-  { name: "ECDSA", namedCurve: "P-256" },
-  true,
-  ["sign", "verify"]
-);
-const publicJwk = await crypto.subtle.exportKey("jwk", pair.publicKey);
-const privateJwk = await crypto.subtle.exportKey("jwk", pair.privateKey);
-
-const x = Buffer.from(publicJwk.x, "base64url");
-const y = Buffer.from(publicJwk.y, "base64url");
-const publicKey = base64Url(
-  Buffer.concat([Buffer.from([4]), x, y])
-);
-
-console.log("VAPID_PUBLIC_KEY=" + publicKey);
-console.log("VAPID_PRIVATE_KEY=" + privateJwk.d);
+const pair = createVapidPair();
+console.log("VAPID_PUBLIC_KEY=" + pair.VAPID_PUBLIC_KEY);
+console.log("VAPID_PRIVATE_KEY=" + pair.VAPID_PRIVATE_KEY);
 console.log(
-  "\nKeep the private key secret and keep this pair stable for the environment."
+  "\nKeep the private key secret and keep this pair stable for the environment.",
 );
