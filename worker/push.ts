@@ -108,7 +108,9 @@ function normalizeEcdsaSignature(signature: ArrayBuffer): Uint8Array {
   return raw;
 }
 
-function vapidConfigured(env: PushSecrets): env is PushSecrets & {
+function vapidConfigured<T extends PushSecrets>(
+  env: T
+): env is T & {
   VAPID_PUBLIC_KEY: string;
   VAPID_PRIVATE_KEY: string;
 } {
