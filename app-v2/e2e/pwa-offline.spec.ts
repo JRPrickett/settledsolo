@@ -50,6 +50,16 @@ test("production PWA service worker installs and controls the app", async ({
       navigator.serviceWorker.controller !== null
   );
   expect(controlled).toBe(true);
+
+  const serviceWorkerSource = await page.evaluate(() =>
+    fetch("/sw.js").then((response) => response.text())
+  );
+  const pushHandlerSource = await page.evaluate(() =>
+    fetch("/push-sw.js").then((response) => response.text())
+  );
+  expect(serviceWorkerSource).toContain("push-sw.js");
+  expect(pushHandlerSource).toContain("Time to come back");
+  expect(pushHandlerSource).toContain('self.addEventListener("push"');
 });
 
 test("Chromium production PWA relaunches and saves a session while offline", async ({
