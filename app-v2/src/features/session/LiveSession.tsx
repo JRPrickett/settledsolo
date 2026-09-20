@@ -302,11 +302,6 @@ export function LiveSession({
       })();
 
       pushScheduleRef.current = { token, scheduled };
-      void scheduled.then((ok) => {
-        if (!ok && pushScheduleRef.current?.token === token) {
-          setBackgroundAlertsReady(false);
-        }
-      });
     }
   }
 
