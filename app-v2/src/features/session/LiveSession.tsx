@@ -187,10 +187,8 @@ export function LiveSession({
       dispatch({ type: "MARK_TARGET_ISSUED" });
     }
   }, [
-    dogName,
     elapsed,
     remaining,
-    scenarioLabel,
     state.phase,
     state.targetIssued,
     state.warningIssued,
@@ -263,28 +261,39 @@ export function LiveSession({
   }
 
   async function startDeparture() {
-    // Notification permission and PushManager subscription creation both need
-    // a direct user gesture on iOS. Never let network/push setup block the
-    // timestamp-derived training timer.
-    let pushReady = backgroundAlertsReady === true;
+    // Permission may still need the user's direct tap. Network/subscription
+    // work must not delay the timestamp-derived training timer.
+    let permission = notificationPermission;
     if (
-      (notificationPermission === "default" ||
-        (notificationPermission === "granted" && backgroundAlertsReady !== true)) &&
+      permission === "default" &&
       (!iosDevice || runningStandalone)
     ) {
-      pushReady = await enableReturnAlerts();
+      permission = await requestNotificationPermission();
+      setNotificationPermission(permission);
+      if (permission !== "granted") setBackgroundAlertsReady(false);
     }
 
     const started = Date.now();
     prepareSessionAudio();
     setNow(started);
+    dispatch({ type: "START_STEP", now: started });
 
-    if (step.kind === "main" && pushReady) {
+    if (step.kind === "main" && permission === "granted") {
       const token = createReturnAlertToken();
-      const scheduled = scheduleBackgroundReturnAlert(
-        started + step.targetSeconds * 1000,
-        token
-      );
+      const scheduled = (async () => {
+        const ready =
+          backgroundAlertsReady === true
+            ? true
+            : await prepareBackgroundReturnAlerts();
+        setBackgroundAlertsReady(ready);
+        if (!ready) return false;
+
+        return scheduleBackgroundReturnAlert(
+          started + step.targetSeconds * 1000,
+          token
+        );
+      })();
+
       pushScheduleRef.current = { token, scheduled };
       void scheduled.then((ok) => {
         if (!ok && pushScheduleRef.current?.token === token) {
@@ -292,8 +301,6 @@ export function LiveSession({
         }
       });
     }
-
-    dispatch({ type: "START_STEP", now: started });
   }
 
   const restElapsed = restStartedAt
