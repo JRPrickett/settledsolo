@@ -269,8 +269,14 @@ export class ReturnAlertScheduler {
     const pending = await this.state.storage.get<PendingAlert>("pending");
     if (!pending) return;
 
-    if (pending.targetAt > Date.now() + 250) {
+    const now = Date.now();
+    if (pending.targetAt > now + 250) {
       await this.state.storage.setAlarm(pending.targetAt);
+      return;
+    }
+
+    if (now > pending.targetAt + 60_000) {
+      await this.state.storage.delete("pending");
       return;
     }
 
