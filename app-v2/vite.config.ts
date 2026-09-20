@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "prompt",
-      includeAssets: ["icon.svg"],
+      includeAssets: ["icon.svg", "push-sw.js"],
       manifest: {
         id: "/",
         name: "SettledSolo — dog separation training",
@@ -32,6 +32,7 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
+        importScripts: ["push-sw.js"],
         navigateFallback: "/index.html",
         navigateFallbackAllowlist: [/^\/$/, /^\/app\/?$/, /^\/privacy\/?$/, /^\/terms\/?$/, /^\/help\/?$/, /^\/evidence\/?$/]
       }
