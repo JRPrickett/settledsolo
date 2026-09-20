@@ -1,8 +1,8 @@
 # SettledSolo production hardening roadmap
 
-**Date:** 19 September 2026  
+**Date:** 20 September 2026  
 **Phase:** Production hardening  
-**Status:** PRs #34–#39 merged; repository concurrency/recovery tests in review  
+**Status:** PRs #34–#40 merged; PWA background-return-alert hardening in progress  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -61,12 +61,12 @@ Already protected: reload recovery, fallback-to-IndexedDB promotion, expired-che
 Still harden:
 
 - define and test the policy for multiple tabs/windows using the same local log;
-- prove rapid repeated add/edit/delete actions cannot overwrite newer local data; **repository serialization tests in review.**
-- exercise corrupted or partially valid stored data and confirm safe normalisation/fallback; **corrupted local snapshot test in review.**
-- exercise storage-write failure where feasible and surface a useful recovery/backup message; **storage degradation behaviour test in review; user-facing message still to assess.**
-- verify backup restore never imports authentication/sync ownership from another account; **repository ownership-isolation test in review.**
+- prove rapid repeated add/edit/delete actions cannot overwrite newer local data; **Done: PR #40.**
+- exercise corrupted or partially valid stored data and confirm safe normalisation/fallback; **Done: PR #40.**
+- exercise storage-write failure where feasible and surface a useful recovery/backup message; **Storage degradation behaviour covered in PR #40; user-facing message still to assess.**
+- verify backup restore never imports authentication/sync ownership from another account; **Done: PR #40.**
 - add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests;
-- prove sign-out, local reset and cloud deletion remain three distinct operations. **repository semantics test in review.**
+- prove sign-out, local reset and cloud deletion remain three distinct operations. **Done: PR #40.**
 
 **Exit:** interruption, concurrency or malformed local state cannot silently discard a completed session.
 
@@ -77,7 +77,9 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 - Prove update UI is never actionable during a live session or cue-practice session.
 - Test old-build/new-service-worker transitions on preview without forcing a live-session reload.
 - Complete installed-iPhone Airplane Mode relaunch and offline save.
-- Complete iOS notification permission/denial, duplicate-chime and Media Session checks.
+- Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Implemented on PR #41; deploys auto-provision stable per-environment VAPID keys, with physical-device evidence still required.**
+- Complete iOS notification permission/denial, background delivery/cancellation and duplicate-chime checks.
+- Confirm the installed PWA no longer exposes fake media-player controls in Lock Screen / Control Centre.
 - Complete the Android installed-PWA matrix.
 - Run desktop sanity checks for first run, session, history, backup/restore and track switching.
 - Record device, OS, browser/PWA mode, commit and result in `DEVICE-TEST-MATRIX.md`.
@@ -136,8 +138,8 @@ Do not use training outcomes as an efficacy claim.
 3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
 4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
 5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
-6. Run the storage/concurrency pass from H3. **Repository-level fast tests in review.**
-7. Complete PWA/device lifecycle gates.
+6. ~~Run the repository storage/concurrency pass from H3.~~ Done: PR #40; multi-tab policy and user-facing degraded-storage messaging remain.
+7. Complete PWA/device lifecycle gates, including preview Web Push deployment and real iPhone return-alert evidence.
 8. Activate accounts on **preview only** and run the real two-device/security checks.
 9. Clear qualified behaviour-professional review and public-beta essentials.
 10. Activate production accounts only after the preview/release evidence is recorded.

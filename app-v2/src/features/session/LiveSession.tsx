@@ -18,13 +18,15 @@ import {
 } from "../../session/sessionPersistence";
 import {
   alertCapabilities,
-  configureMediaSession,
+  cancelBackgroundReturnAlert,
+  createReturnAlertToken,
   installWakeLockRecovery,
   playHeadBackSoonChime,
   playTargetReachedChime,
+  prepareBackgroundReturnAlerts,
   prepareSessionAudio,
   requestNotificationPermission,
-  showSessionNotification,
+  scheduleBackgroundReturnAlert,
   stopSessionAlerts,
   type NotificationPermissionState
 } from "../../session/sessionAlerts";
@@ -101,6 +103,13 @@ export function LiveSession({
     useState<NotificationPermissionState>(
       () => alertCapabilities().notifications
     );
+  const [backgroundAlertsReady, setBackgroundAlertsReady] = useState<boolean | null>(
+    () => (alertCapabilities().push ? null : false)
+  );
+  const pushScheduleRef = useRef<{
+    token: string;
+    scheduled: Promise<boolean>;
+  } | null>(null);
   const runningStandalone = isStandalone();
   const iosDevice = isIOS();
 
@@ -122,6 +131,13 @@ export function LiveSession({
 
   useEffect(() => {
     if (state.phase !== "running") {
+      const pendingPush = pushScheduleRef.current;
+      pushScheduleRef.current = null;
+      if (pendingPush) {
+        void pendingPush.scheduled.finally(() =>
+          cancelBackgroundReturnAlert(pendingPush.token)
+        );
+      }
       stopSessionAlerts();
       return;
     }
@@ -132,6 +148,13 @@ export function LiveSession({
     return () => {
       window.clearInterval(timer);
       removeWakeRecovery();
+      const pendingPush = pushScheduleRef.current;
+      pushScheduleRef.current = null;
+      if (pendingPush) {
+        void pendingPush.scheduled.finally(() =>
+          cancelBackgroundReturnAlert(pendingPush.token)
+        );
+      }
       stopSessionAlerts();
     };
   }, [state.phase]);
@@ -154,13 +177,6 @@ export function LiveSession({
   useEffect(() => {
     if (state.phase !== "running") return;
 
-    configureMediaSession(
-      dogName,
-      scenarioLabel,
-      step.targetSeconds,
-      elapsed
-    );
-
     const shouldWarn =
       step.kind === "main" &&
       step.targetSeconds >= 10 &&
@@ -169,28 +185,17 @@ export function LiveSession({
       !state.warningIssued;
 
     if (shouldWarn) {
-      playHeadBackSoonChime();
-      void showSessionNotification(
-        "Head back soon",
-        `${dogName} · about ${remaining}s remaining`
-      );
+      if (document.visibilityState === "visible") playHeadBackSoonChime();
       dispatch({ type: "MARK_WARNING_ISSUED" });
     }
 
     if (elapsed >= step.targetSeconds && !state.targetIssued) {
-      playTargetReachedChime();
-      void showSessionNotification(
-        step.kind === "main" ? "Training target reached" : "Practice complete",
-        `${dogName} · time to come back`,
-        { requireInteraction: true }
-      );
+      if (document.visibilityState === "visible") playTargetReachedChime();
       dispatch({ type: "MARK_TARGET_ISSUED" });
     }
   }, [
-    dogName,
     elapsed,
     remaining,
-    scenarioLabel,
     state.phase,
     state.targetIssued,
     state.warningIssued,
@@ -248,25 +253,56 @@ export function LiveSession({
     }
   }
 
-  async function enableReturnAlerts() {
+  async function enableReturnAlerts(): Promise<boolean> {
     const permission = await requestNotificationPermission();
     setNotificationPermission(permission);
+
+    if (permission !== "granted") {
+      setBackgroundAlertsReady(false);
+      return false;
+    }
+
+    const ready = await prepareBackgroundReturnAlerts();
+    setBackgroundAlertsReady(ready);
+    return ready;
   }
 
   async function startDeparture() {
-    // Notification permission must be requested from a direct user gesture. Ask
-    // before any timed departure because every return point can alert the user.
+    // Permission may still need the user's direct tap. Network/subscription
+    // work must not delay the timestamp-derived training timer.
+    let permission = notificationPermission;
     if (
-      notificationPermission === "default" &&
+      permission === "default" &&
       (!iosDevice || runningStandalone)
     ) {
-      await enableReturnAlerts();
+      permission = await requestNotificationPermission();
+      setNotificationPermission(permission);
+      if (permission !== "granted") setBackgroundAlertsReady(false);
     }
 
     const started = Date.now();
     prepareSessionAudio();
     setNow(started);
     dispatch({ type: "START_STEP", now: started });
+
+    if (step.kind === "main" && permission === "granted") {
+      const token = createReturnAlertToken();
+      const scheduled = (async () => {
+        const ready =
+          backgroundAlertsReady === true
+            ? true
+            : await prepareBackgroundReturnAlerts();
+        setBackgroundAlertsReady(ready);
+        if (!ready) return false;
+
+        return scheduleBackgroundReturnAlert(
+          started + step.targetSeconds * 1000,
+          token
+        );
+      })();
+
+      pushScheduleRef.current = { token, scheduled };
+    }
   }
 
   const restElapsed = restStartedAt
@@ -448,23 +484,30 @@ export function LiveSession({
             </p>
             {step.kind === "main" && (
               <div className="return-alert" role="status" aria-live="polite">
-                {notificationPermission === "granted" ? (
-                  <span>System return alert ready while you watch the camera.</span>
-                ) : notificationPermission === "unsupported" || (iosDevice && !runningStandalone) ? (
+                {notificationPermission === "granted" && backgroundAlertsReady === true ? (
+                  <span>Background return alert ready. You can switch to your camera app.</span>
+                ) : notificationPermission === "unsupported" ||
+                  !alertCapabilities().push ||
+                  (iosDevice && !runningStandalone) ? (
                   <span>
-                    Add SettledSolo to your Home Screen for the best chance of a
-                    background reminder.
+                    Add SettledSolo to your Home Screen for background return alerts.
+                    The in-app timer still works while SettledSolo stays active.
                   </span>
                 ) : notificationPermission === "denied" ? (
                   <span>
-                    System alerts are blocked. Turn them on in your browser or
-                    iPhone Settings if you want a background reminder.
+                    Return alerts are blocked. Turn notifications on in your browser
+                    or iPhone Settings if you want a background reminder.
                   </span>
                 ) : (
                   <>
-                    <span>Watching the camera in another app?</span>
+                    <span>
+                      Watching the camera in another app? Enable a native return alert
+                      for the main departure.
+                    </span>
                     <button type="button" onClick={() => void enableReturnAlerts()}>
-                      Enable return alerts
+                      {notificationPermission === "granted"
+                        ? "Set up return alerts"
+                        : "Enable return alerts"}
                     </button>
                   </>
                 )}

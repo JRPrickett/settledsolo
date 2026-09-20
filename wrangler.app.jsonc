@@ -2,7 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "settledsolo-web",
   "main": "worker/index.ts",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "compatibility_date": "2026-09-18",
   "assets": {
     "directory": "./dist-v2",
@@ -11,8 +13,26 @@
     "html_handling": "auto-trailing-slash",
     "run_worker_first": true
   },
-  "observability": { "enabled": true },
+  "observability": {
+    "enabled": true
+  },
   "vars": {
     "SITE_URL": "https://settledsolo.com"
-  }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RETURN_ALERTS",
+        "class_name": "ReturnAlertScheduler"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "return-alerts-v1",
+      "new_sqlite_classes": [
+        "ReturnAlertScheduler"
+      ]
+    }
+  ]
 }

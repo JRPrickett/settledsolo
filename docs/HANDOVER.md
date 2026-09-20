@@ -1,14 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 19 September 2026 (production hardening phase; PRs #34–#35 merged)
+**Last updated:** 20 September 2026 (production hardening; PWA return-alert branch)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `59a3c495cb19f7f3d8ff05294526ece6f32d1294`
+**Reviewed main:** `ab83a4d43ca6e43d02f73108f532f3d49a9cf83a`  
+**Current branch:** `fix/pwa-background-return-alerts` (PR #41)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#39 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+PRs #34–#40 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
 `core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
@@ -46,6 +47,38 @@ qualified behaviour-professional review gate, not implementation.
 See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activation runbook,
 and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
 provider evidence.
+
+## PR #41 — native background return alerts — open
+
+The current branch replaces the iOS silent-audio/Media Session workaround that generated a
+two-second silent WAV, looped it and continuously updated Media Session position. That approach
+kept the page alive more often, but made SettledSolo appear as a media player on the Lock Screen
+and produced unstable/jumpy playback progress.
+
+The replacement keeps the actual training state unchanged and timestamp-derived:
+
+- foreground warning/target chimes still use Web Audio after the user's departure tap;
+- Screen Wake Lock remains best-effort while the PWA is visible;
+- SettledSolo no longer creates a looping audio element or claims Media Session ownership;
+- the **main departure target** can schedule one native background reminder using standards-based
+  Web Push;
+- a Cloudflare `ReturnAlertScheduler` Durable Object stores only the push endpoint, anonymous
+  installation ID mapping, opaque session token and target timestamp until delivery/cancellation;
+- the Web Push request intentionally carries no payload. The scheduler receives the push endpoint,
+  opaque identifiers and target timestamp, but no dog name, note, outcome or training history;
+- the generated service worker displays **Time to come back**; it requests sound when SettledSolo
+  is backgrounded and stays silent when a visible app window is present so the foreground chime
+  is not doubled;
+- returning early asks the scheduler to cancel the pending alarm, and push TTL is limited to
+  60 seconds to reduce stale delivery;
+- failure to configure, subscribe, schedule or deliver push never blocks starting, returning from
+  or saving a local session.
+
+The deploy path now provisions a stable VAPID key pair automatically the first time either key
+is missing, while preserving existing keys on normal deployments. `npm run push:keys` remains a
+manual recovery utility; see `docs/PUSH-ALERTS-SETUP.md`. Real installed-iPhone
+ delivery/cancellation and duplicate-sound behaviour remain a physical-device release gate; do
+not treat automated WebKit as proof.
 
 ## What changed most recently
 

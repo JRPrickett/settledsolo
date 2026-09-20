@@ -103,14 +103,18 @@ test("denying system alerts does not block training or repeatedly prompt", async
       configurable: true,
       value: MockNotification
     });
+    Object.defineProperty(window, "PushManager", {
+      configurable: true,
+      value: class MockPushManager {}
+    });
   });
 
   await completeSetup(page, 1);
   await page.getByRole("button", { name: "More" }).click();
-  await page.getByRole("button", { name: "Enable system alerts" }).click();
+  await page.getByRole("button", { name: "Enable return alerts" }).click();
 
   await expect(
-    page.getByText("System alerts are blocked in this browser")
+    page.getByText("Return alerts are blocked in this browser")
   ).toBeVisible();
 
   expect(

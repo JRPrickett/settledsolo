@@ -5,6 +5,7 @@ import {
   evaluateStatusProbe,
   evaluateFallthroughProbe,
 } from "./accounts-verify.mjs";
+import { createVapidPair, hasCompleteVapidPair } from "./vapid.mjs";
 
 const secret = "test-only-at-least-thirty-two-character-secret";
 const apiKey = "test-only-resend-key";
@@ -96,4 +97,30 @@ test("an unknown API path must not fall through to the app shell", () => {
     evaluateFallthroughProbe({ status: 503, contentType: "application/json" }),
     [],
   );
+});
+
+
+test("VAPID provisioning creates valid URL-safe P-256 key material", () => {
+  const pair = createVapidPair();
+  const publicKey = Buffer.from(pair.VAPID_PUBLIC_KEY, "base64url");
+  const privateKey = Buffer.from(pair.VAPID_PRIVATE_KEY, "base64url");
+
+  assert.equal(publicKey.length, 65);
+  assert.equal(publicKey[0], 4);
+  assert.equal(privateKey.length, 32);
+  assert.match(pair.VAPID_PUBLIC_KEY, /^[A-Za-z0-9_-]+$/);
+  assert.match(pair.VAPID_PRIVATE_KEY, /^[A-Za-z0-9_-]+$/);
+});
+
+test("VAPID deployment only preserves a complete existing pair", () => {
+  assert.equal(
+    hasCompleteVapidPair([
+      { name: "VAPID_PUBLIC_KEY" },
+      { name: "VAPID_PRIVATE_KEY" },
+      { name: "OTHER_SECRET" },
+    ]),
+    true,
+  );
+  assert.equal(hasCompleteVapidPair([{ name: "VAPID_PUBLIC_KEY" }]), false);
+  assert.equal(hasCompleteVapidPair(null), false);
 });
