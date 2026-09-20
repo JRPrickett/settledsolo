@@ -1,7 +1,10 @@
 import { handleAccountApi } from "./accounts/api";
 import type { AccountEnv } from "./accounts/auth";
+import { handlePushApi, type PushEnv } from "./push";
 
-interface Env extends AccountEnv {
+export { ReturnAlertScheduler } from "./push";
+
+interface Env extends AccountEnv, PushEnv {
   ASSETS: Fetcher;
   /** Canonical production origin. Preview hosts are automatically noindexed. */
   SITE_URL?: string;
@@ -108,6 +111,10 @@ function secure(response: Response, url: URL, env: Env): Response {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/push/")) {
+      return secure(await handlePushApi(request, env), url, env);
+    }
 
     if (url.pathname.startsWith("/api/")) return secure(await handleAccountApi(request, env), url, env);
 
