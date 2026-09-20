@@ -20,7 +20,8 @@
     "accounts:preflight": "node scripts/accounts-preflight.mjs",
     "accounts:verify": "node scripts/accounts-verify.mjs",
     "check:worker:accounts": "node scripts/check-accounts-worker.mjs",
-    "check:e2e": "tsc -p app-v2/tsconfig.e2e.json --noEmit"
+    "check:e2e": "tsc -p app-v2/tsconfig.e2e.json --noEmit",
+    "push:keys": "node scripts/generate-vapid-keys.mjs"
   },
   "dependencies": {
     "@fontsource/fraunces": "5.3.0",
