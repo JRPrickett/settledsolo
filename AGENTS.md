@@ -17,7 +17,7 @@ Older planning documents may contain completed or superseded steps. Never assume
 
 - `app-v2/` — modern React 19 + TypeScript + Vite SettledSolo PWA. This is the active product code.
 - `worker/` — Cloudflare Worker serving the modern static build and applying security/caching/noindex rules.
-- `wrangler.app.jsonc` — production Worker configuration (`settledsolo-web`).
+- `wrangler.app.jsonc` — production Worker configuration (`settledsolo`).
 - `wrangler.preview.jsonc` — preview Worker configuration (`settledsolo-web-preview`).
 - `migrations/accounts/` and `scripts/account*` — account D1 migrations and the provisioning, preflight, deployment and endpoint-verification tooling. See `docs/ACCOUNTS-DEPLOYMENT.md`.
 - `cloudflare-worker/` — separate privacy-limited analytics event Worker/database.
@@ -129,8 +129,10 @@ The live session is the highest-risk product path.
 
 The modern app is built to `dist-v2` and served by `worker/index.ts`.
 
-- Production Worker: `settledsolo-web`.
+- Production Worker: `settledsolo`.
 - Preview Worker: `settledsolo-web-preview`.
+- `settledsolo-web` is a retired/stale app Worker name and must not receive
+  production deployments.
 - Production canonical URL in config: `https://settledsolo.com`.
 - Production deployment is a manual GitHub Actions workflow dispatch from `main`.
 - Preview and production must never share future account D1 databases.

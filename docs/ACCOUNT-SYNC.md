@@ -188,7 +188,7 @@ context.
 Keep account/private training data separate from aggregate analytics:
 
 - `settledsolo-web-preview` -> preview auth/sync API + preview D1;
-- `settledsolo-web` -> production auth/sync API + production D1;
+- `settledsolo` -> production auth/sync API + production D1;
 - analytics/events remains a separate Worker/database.
 
 Use same-origin routes:

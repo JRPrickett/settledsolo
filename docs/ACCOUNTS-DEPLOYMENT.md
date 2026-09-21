@@ -12,6 +12,7 @@ Updated on 21 September 2026 after account activation:
 | Item | State |
 | --- | --- |
 | Account/sync code on `main` | Merged, CI green |
+| Production Worker | `settledsolo` on `https://settledsolo.com` |
 | Preview Worker | Deployed at `https://settledsolo-web-preview.jasonrprickett.workers.dev` |
 | `ACCOUNTS_ENABLED` | `true` in preview and production |
 | Account D1 databases | Active, isolated `settledsolo-accounts-preview` and `settledsolo-accounts-production` databases |
