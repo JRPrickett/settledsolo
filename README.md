@@ -48,11 +48,12 @@ See `docs/EVIDENCE-BASE.md`.
 
 ## Privacy boundary
 
-Private training data remains local in the current production-development build. Aggregate
-analytics are separate and do not include dog names, scenario names, notes, ratings, durations
-or training history.
+Training remains local-first, with optional authenticated backup/sync for signed-in users.
+SettledSolo does not send app-open, session or device-level product events to a separate
+analytics database. Registered-account count is the canonical user metric; aggregate web
+traffic may still be measured separately by Cloudflare Web Analytics.
 
-Future account sync will use a separate authenticated data path and remain optional.
+Account sync remains a separate authenticated data path and is optional.
 
 ## Useful documents
 
@@ -63,7 +64,7 @@ Future account sync will use a separate authenticated data path and remain optio
 - `docs/EVIDENCE-BASE.md` — research basis and product-heuristic boundaries
 - `docs/DEVICE-TEST-MATRIX.md` — real-device release gate
 - `docs/ACCOUNT-SYNC.md` — account, cloud-data and offline-sync architecture
-- `ANALYTICS-SETUP.md` — privacy-limited product analytics
+- `ANALYTICS-SETUP.md` — usage metrics and retired analytics cleanup
 
 ## Development
 
@@ -239,3 +240,10 @@ separate scenarios maintain independent target progression.
 - Pull-request CI added.
 - Aggregate analytics no longer send or store dog names or training-session details.
 - Public wording no longer implies affiliation with a named training programme.
+
+
+### Current metrics cleanup
+
+The legacy custom product-event Worker/D1 pipeline is retired. SettledSolo now treats the
+Better Auth registered-account count as the canonical user metric and does not claim a precise
+cross-platform PWA install count.
