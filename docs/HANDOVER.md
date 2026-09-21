@@ -26,7 +26,7 @@ deployment tooling. PR #49 made the live production Wrangler config safe for dir
 builds, and PR #50 fixed post-deploy verification so enabled environments are checked against
 `available:true`. Guest training remains local-first and usable offline.
 
-The current hardening branch adds truthful sign-in-or-sign-up copy, hides onboarding account
+Recent hardening work adds truthful sign-in-or-sign-up copy, hides onboarding account
 prompts until session state is known, explains passwordless sessions and junk/spam delivery,
 adds independent account/OTP/push rate limits, crypto-backed record IDs, stricter Worker/browser
 boundaries, immutable workflow dependencies and step-scoped secrets. It also disables the
