@@ -4,6 +4,7 @@ import { preflightReport } from "./accounts-preflight.mjs";
 import {
   evaluateStatusProbe,
   evaluateFallthroughProbe,
+  verifyWithRetry,
 } from "./accounts-verify.mjs";
 import { createVapidPair, hasCompleteVapidPair } from "./vapid.mjs";
 
@@ -97,6 +98,42 @@ test("an unknown API path must not fall through to the app shell", () => {
     evaluateFallthroughProbe({ status: 503, contentType: "application/json" }),
     [],
   );
+});
+
+test("deployment verification retries while the previous Worker is still served", async () => {
+  let statusCalls = 0;
+  let sleeps = 0;
+
+  const result = await verifyWithRetry("https://preview.example.test", true, {
+    attempts: 3,
+    delayMs: 1,
+    sleepFn: async () => {
+      sleeps += 1;
+    },
+    probeFn: async (url) => {
+      if (url.endsWith("/api/account/status")) {
+        statusCalls += 1;
+        return {
+          status: 200,
+          headers: privateHeaders,
+          contentType: "application/json",
+          body: { available: statusCalls >= 3 },
+        };
+      }
+
+      return {
+        status: 503,
+        headers: privateHeaders,
+        contentType: "application/json",
+        body: { error: "not found" },
+      };
+    },
+  });
+
+  assert.equal(statusCalls, 3);
+  assert.equal(sleeps, 2);
+  assert.equal(result.attempt, 3);
+  assert.deepEqual(result.problems, []);
 });
 
 
