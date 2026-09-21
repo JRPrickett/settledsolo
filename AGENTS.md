@@ -115,6 +115,13 @@ SettledSolo is mobile-first.
 
 ## 8. Live-session resilience rules
 
+- The modern app must mount behind `SingleWindowGuard`. Its window-lifetime Web
+  Lock is distinct from the repository mutation lock. Never steal/release ownership
+  merely because a phone window is hidden or suspended. See `docs/MULTI-WINDOW-SAFETY.md`.
+- The explicit one-window compatibility option preserves local use when locking is
+  unavailable; it does not promise automatic multi-tab protection. Server account
+  identity/origin checks remain required regardless of local-window ownership.
+
 The live session is the highest-risk product path.
 
 - The clock is timestamp-derived; interval ticks are presentation only.

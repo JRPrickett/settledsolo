@@ -60,7 +60,7 @@ Already protected: reload recovery, fallback-to-IndexedDB promotion, expired-che
 
 Still harden:
 
-- define and test the policy for multiple tabs/windows using the same local log;
+- define and test the policy for multiple tabs/windows using the same local log; **In review: `fix/single-window-training`; see `MULTI-WINDOW-SAFETY.md`.**
 - prove rapid repeated add/edit/delete actions cannot overwrite newer local data; **Done: PR #40.**
 - exercise corrupted or partially valid stored data and confirm safe normalisation/fallback; **Done: PR #40.**
 - exercise storage-write failure where feasible and surface a useful recovery/backup message; **Storage degradation behaviour covered in PR #40; user-facing message still to assess.**
@@ -160,7 +160,7 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 - qualified behaviour-professional review recorded;
 - rollback/export/recovery paths are understood.
 
-### H3 follow-up — storage failure recovery (21 September, in review)
+### H3 follow-up — storage failure recovery (21 September, merged PR #52)
 
 `fix/storage-fallback-recovery` preserves the last successful IndexedDB snapshot when a later
 operation fails, reports checkpoint-only storage degradation, and puts a saved-training backup

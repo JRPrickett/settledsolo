@@ -27,8 +27,11 @@ import { newlyEarnedAchievements, newlyEarnedMilestones } from "./domain/milesto
 
 type Screen = "today" | "progress" | "history" | "more";
 
-export default function App() {
-  const repository = useMemo(() => createAppRepository(), []);
+export default function App({ singleWindowCompatibility = false }: { singleWindowCompatibility?: boolean }) {
+  const repository = useMemo(
+    () => createAppRepository({ useWebLocks: !singleWindowCompatibility }),
+    [singleWindowCompatibility]
+  );
   const persistLiveSession = useCallback(
     (snapshot: PersistedLiveSession) => repository.saveActiveSession(snapshot),
     [repository]
