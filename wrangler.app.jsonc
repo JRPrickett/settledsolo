@@ -24,15 +24,36 @@
   "observability": {
     "enabled": true
   },
+  "d1_databases": [
+    {
+      "binding": "ACCOUNTS_DB",
+      "database_name": "settledsolo-accounts-production",
+      "database_id": "dacd0934-58b0-43de-9306-25b467bc0aea",
+      "migrations_dir": "migrations/accounts"
+    }
+  ],
   "ratelimits": [
     {
       "name": "PUSH_RATE_LIMITER",
       "namespace_id": "18002",
       "simple": { "limit": 30, "period": 60 }
+    },
+    {
+      "name": "ACCOUNT_RATE_LIMITER",
+      "namespace_id": "17002",
+      "simple": { "limit": 60, "period": 60 }
+    },
+    {
+      "name": "OTP_RATE_LIMITER",
+      "namespace_id": "17004",
+      "simple": { "limit": 3, "period": 60 }
     }
   ],
   "vars": {
-    "SITE_URL": "https://settledsolo.com"
+    "SITE_URL": "https://settledsolo.com",
+    "ACCOUNTS_ENABLED": "true",
+    "AUTH_ORIGIN": "https://settledsolo.com",
+    "AUTH_EMAIL_FROM": "SettledSolo <login@auth.settledsolo.com>"
   },
   "durable_objects": {
     "bindings": [
