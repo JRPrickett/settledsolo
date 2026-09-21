@@ -1,13 +1,13 @@
 import { useRegisterSW } from "virtual:pwa-register/react";
 
-export function PwaUpdateNotice() {
+export function PwaUpdateNotice({ canUpdate = true }: { canUpdate?: boolean }) {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker
   } = useRegisterSW();
 
-  if (!needRefresh && !offlineReady) return null;
+  if (!canUpdate || (!needRefresh && !offlineReady)) return null;
 
   return (
     <aside className="pwa-notice" aria-live="polite">
