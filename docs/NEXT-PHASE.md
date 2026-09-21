@@ -124,7 +124,7 @@ When A1-A4 are satisfied:
 2. Deploy the merged build to `settledsolo`.
 3. Connect the canonical domain.
 4. Preserve legacy import compatibility.
-5. Keep analytics/events on its separate Worker.
+5. Keep usage metrics privacy-light: registered-account count only; do not restore the retired event Worker.
 6. Treat this build as the rollback point before accounts/sync.
 
 ## Phase B — Optional Accounts
