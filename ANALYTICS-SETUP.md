@@ -1,45 +1,40 @@
-# Threshold analytics setup
+# SettledSolo usage metrics
 
-Threshold uses two deliberately limited analytics layers.
+SettledSolo no longer uses the custom product-event analytics pipeline that stored
+app opens, session starts/saves or device metadata in a dedicated D1 database.
 
-## 1. Cloudflare Web Analytics
+## Canonical user count
 
-Cloudflare Web Analytics is used for aggregate site traffic and does not require a
-Threshold account.
+Registered accounts are the reliable user metric. They are counted directly from the
+isolated Better Auth database without exposing email addresses or training data.
 
-The configured token lives in `js/analytics-config.js`.
+From GitHub, run **Count registered accounts** and choose `production` or `preview`.
+The workflow prints only the total number of rows in Better Auth's `user` table.
 
-## 2. Product event counts
+The same check can be run locally when the Cloudflare credentials and account D1 IDs are
+available:
 
-The `cloudflare-worker/` Worker accepts only:
+```sh
+npm run accounts:count -- production
+```
 
-- `app_open`
-- `session_started`
-- `session_saved`
+## Installed PWA count
 
-The event service stores only the app version, timestamps and basic platform metadata
-(device type, browser, operating system/display mode where relevant).
+Browsers do not provide a reliable server-side count of installed PWAs across iOS,
+Android and desktop. SettledSolo therefore does not claim an exact "installed users"
+number or add a persistent installation identifier just to manufacture one.
 
-It does **not** receive dog names, scenario names, notes, ratings, planned/actual
-durations, outcomes or training history.
+Cloudflare Web Analytics may still be used for aggregate site traffic where it is
+enabled, but visitor counts are directional traffic metrics rather than an account or
+installation count.
 
-This separation is intentional. Future account sync will use a different authenticated
-API and database model; private training records must never be mixed into analytics.
+## Retired event analytics
 
-## Offline behaviour
+The legacy `threshold-events` Worker and `threshold-analytics` D1 integration have
+been removed from the repository. After this change is merged, the Cloudflare resources
+can be deleted as infrastructure cleanup:
 
-When the event endpoint is configured but the phone is offline, events are held in a
-small local queue. Threshold sends them when it next has a connection and removes them
-after Cloudflare accepts them.
+1. delete the `threshold-events` Worker if it is still deployed;
+2. delete the `threshold-analytics` D1 database after any final export you want to keep.
 
-## Existing D1 databases
-
-Older Threshold schemas included nullable columns for additional metadata. The v38
-Worker no longer writes those values. Existing databases can keep the old nullable
-columns until a later maintenance migration; new databases should use
-`cloudflare-worker/schema.sql`.
-
-## Privacy rule
-
-Product analytics answer questions such as "is the app being used?" and "are sessions
-being completed?". They are not a second copy of the user's training log.
+Neither resource is used by the modern SettledSolo app or by account sync.
