@@ -159,3 +159,12 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 - privacy/account copy matches actual behaviour;
 - qualified behaviour-professional review recorded;
 - rollback/export/recovery paths are understood.
+
+### H3 follow-up — storage failure recovery (21 September, in review)
+
+`fix/storage-fallback-recovery` preserves the last successful IndexedDB snapshot when a later
+operation fails, reports checkpoint-only storage degradation, and puts a saved-training backup
+action on a cross-screen recovery notice. Memory-only storage also suppresses the PWA update
+prompt. Browser regressions cover a stale fallback retaining history/ownership, and full storage
+failure during a session followed by save/export. This does not close the multi-tab policy,
+divergent populated stores across visits, or real-device release gates.

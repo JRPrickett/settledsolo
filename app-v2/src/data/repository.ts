@@ -533,7 +533,13 @@ function createLocalRepository(): AppRepository {
       return safely(
         async () => {
           const existing = await getRecord<AppData>(APP_KEY);
-          if (existing) return normaliseAppData(existing);
+          if (existing) {
+            const latest = normaliseAppData(existing);
+            // Refresh both the in-memory and durable fallback before a later IDB
+            // failure can switch stores. Preserve sync ownership and the outbox.
+            await fallback.saveAppData(latest);
+            return latest;
+          }
 
           // A previous visit may have used localStorage while IndexedDB was unavailable.
           // The fallback already resolves modern saved data before legacy migration.
@@ -729,6 +735,7 @@ function createLocalRepository(): AppRepository {
             return null;
           }
 
+          await fallback.saveActiveSession(active);
           return active;
         },
         () => fallback.loadActiveSession()
@@ -784,6 +791,7 @@ function createLocalRepository(): AppRepository {
 
 
 export interface SyncedRepository extends AppRepository {
+  subscribeStorageMode(listener: (mode: StorageMode) => void): () => void;
   connectAccount(accountId: string): Promise<AppData>;
   pauseSync(): Promise<AppData>;
   markAccountDeleted(): Promise<AppData>;
@@ -832,5 +840,27 @@ export function createAppRepository(): SyncedRepository {
     await save(reconcile({ ...data, sync: current.sync }));
   });
   repository.resetAppData = () => serial(() => local.resetAppData());
+  const storageListeners = new Set<(mode: StorageMode) => void>();
+  let reportedMode = repository.storageMode();
+  const reportStorageMode = () => {
+    const mode = repository.storageMode();
+    if (mode === reportedMode) return;
+    reportedMode = mode;
+    storageListeners.forEach(listener => listener(mode));
+  };
+  // Include checkpoint writes and sync operations, not just screen-level edits.
+  for (const [name, operation] of Object.entries(repository)) {
+    if (name === "storageMode") continue;
+    Object.assign(repository, {
+      [name]: (...args: unknown[]) =>
+        (operation as (...values: unknown[]) => Promise<unknown>)(...args)
+          .finally(reportStorageMode)
+    });
+  }
+  repository.subscribeStorageMode = listener => {
+    storageListeners.add(listener);
+    listener(repository.storageMode());
+    return () => { storageListeners.delete(listener); };
+  };
   return repository;
 }

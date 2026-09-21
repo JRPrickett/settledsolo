@@ -586,3 +586,29 @@ After a meaningful merge, update at least:
 - architecture/data/deployment notes if affected.
 
 The goal is that a fresh agent can continue the project from the repository alone, without needing the previous chat history.
+
+## 21 September 2026 — post-account storage recovery pass (in review)
+
+Reviewed main `8116985`: production and preview deployment runs and CI passed. Accounts
+are active. PR #51 (`docs/complete-account-phase`) remains open and owns the broad
+roadmap/status refresh; its changes are not yet on main. Open PRs #44–#46 are GitHub
+Actions major-version dependency updates. No competing runtime hardening PR was open.
+
+Branch `fix/storage-fallback-recovery` addresses the next H3 recovery gap:
+
+- retain the latest successful IndexedDB read in the fallback, including account ownership,
+  unsynced changes and a recovered active checkpoint;
+- report storage-mode changes from all repository operations, including timer checkpoints;
+- show an actionable recovery notice across app screens and training, with saved-data backup;
+- withhold the PWA update notice while data is only in memory, to avoid inviting a data-losing reload.
+
+No D1 migration, remote data mutation, auth change or deployment is involved. Guest/offline
+training and training recommendations are unchanged. JSON backups still exclude sync ownership.
+
+Local TypeScript, unit/legacy/Worker tests and production build passed (115 modern tests and
+11 Worker tests). Browser installation failed against the Playwright CDN, so the two new
+real-storage browser journeys require GitHub CI. Worker dry-run verification is being checked
+separately; do not treat a partial local verification run as the complete release gate.
+
+Next: review CI for this PR, then complete multi-tab/live-session ownership policy and
+real-device/two-device account evidence. Broader roadmap priorities remain in PR #51.
