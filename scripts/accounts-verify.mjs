@@ -3,6 +3,9 @@ import { pathToFileURL } from "node:url";
 const has = (headers, name, value) =>
   (headers.get(name) ?? "").toLowerCase().includes(value);
 
+const RETRY_ATTEMPTS = 6;
+const RETRY_DELAY_MS = 5_000;
+
 /**
  * Checks the deployed /api/account/status response. `expectAvailable` is what
  * the deployment claimed it would do, so a silently disabled activation fails
@@ -56,24 +59,72 @@ async function probe(url) {
   };
 }
 
+const sleep = (milliseconds) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/**
+ * Cloudflare can briefly serve the previous Worker version immediately after
+ * deployment. Retry the complete endpoint check for up to ~25 seconds before
+ * treating a deployment as unhealthy.
+ */
+export async function verifyWithRetry(
+  origin,
+  expectAvailable,
+  {
+    attempts = RETRY_ATTEMPTS,
+    delayMs = RETRY_DELAY_MS,
+    probeFn = probe,
+    sleepFn = sleep,
+    onRetry,
+  } = {},
+) {
+  let result;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const status = await probeFn(`${origin}/api/account/status`);
+    const unknown = await probeFn(`${origin}/api/not-a-real-endpoint`);
+    const problems = [
+      ...evaluateStatusProbe(status, expectAvailable),
+      ...evaluateFallthroughProbe(unknown),
+    ];
+
+    result = { status, unknown, problems, attempt };
+
+    if (problems.length === 0 || attempt === attempts) return result;
+
+    onRetry?.({ attempt, attempts, delayMs, problems });
+    await sleepFn(delayMs);
+  }
+
+  return result;
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const origin = process.argv[2];
   if (!origin?.startsWith("https://"))
     throw new Error("Pass the deployed HTTPS origin to verify.");
   const expectAvailable = process.env.ACCOUNTS_ENABLED === "true";
 
-  const status = await probe(`${origin}/api/account/status`);
-  const unknown = await probe(`${origin}/api/not-a-real-endpoint`);
-  const problems = [
-    ...evaluateStatusProbe(status, expectAvailable),
-    ...evaluateFallthroughProbe(unknown),
-  ];
-
   console.log(`Account endpoint check: ${origin}`);
+
+  const { status, unknown, problems, attempt } = await verifyWithRetry(
+    origin,
+    expectAvailable,
+    {
+      onRetry: ({ attempt: current, attempts, delayMs }) => {
+        console.log(
+          `- verification attempt ${current}/${attempts} not ready; retrying in ${delayMs / 1000}s...`,
+        );
+      },
+    },
+  );
+
   console.log(
     `- accounts available: ${status.body?.available ?? "unknown"} (expected ${expectAvailable})`,
   );
   console.log(`- unknown API path: HTTP ${unknown.status} ${unknown.contentType}`);
+  if (attempt > 1 && problems.length === 0)
+    console.log(`- deployment became healthy on verification attempt ${attempt}`);
   for (const problem of problems) console.log(`- ${problem}`);
   if (problems.length) process.exitCode = 1;
   else console.log("- all checks passed");
