@@ -1,16 +1,22 @@
-# SettledSolo next phase — Release Candidate to Accounts & Sync
+# SettledSolo next phase — Beta readiness after accounts
 
-Date: 18 September 2026
+Date: 21 September 2026
 
-## Current work — account activation
+## Current work — post-account hardening and beta readiness
 
-The user explicitly prioritised optional accounts and sync on 19 September 2026. PR #28
-implemented that behind deployment configuration and is now **merged** as `e13f5d4`. The code is
-deployed to the preview Worker with accounts disabled; no account D1 database exists yet and no
-account variables or secrets are configured. The current phase is provisioning and configuration.
-Use `HANDOVER.md`, `ACCOUNTS-DEPLOYMENT.md` and `ACCOUNTS-REVIEW.md` for the current state.
-The earlier numbered plan below is historical scope; guided onboarding and PR #26 hardening
-are already merged. Physical-device and professional-review release gates remain open.
+The optional account/sync baseline is now **implemented and activated in both preview and
+production**. Better Auth email OTP, isolated D1 databases, Resend delivery, local-first sync,
+cloud export/deletion and deployment verification are live. PRs #49 and #50 closed the final
+production-deployment/configuration regressions by preserving the live account bindings and
+passing the expected account state into post-deploy verification.
+
+Account setup is therefore no longer the active development phase. Remaining account work is
+release evidence and operational validation (real two-device/offline/conflict checks, provider
+retention/privacy details and abuse/rate-limit observation), not another provisioning milestone.
+
+The active development phase is now **release hardening → small beta readiness**. Use
+`HANDOVER.md` and `HARDENING-ROADMAP.md` for the current implementation order. Physical-device
+and qualified behaviour-professional release gates remain open.
 
 ## Current position
 
@@ -26,8 +32,8 @@ Real iPhone testing has now confirmed the core live-session resilience path:
 - closing/reopening does not lose the session;
 - the session chime works on the tested device.
 
-That means the next phase should shift from timer-risk reduction toward release preparation and
-optional accounts.
+With accounts now active, the next phase shifts fully toward device lifecycle proof, remaining
+recovery/security edge cases, public-beta essentials and a deliberately small beta cohort.
 
 ## Phase A — Release Candidate
 
@@ -127,9 +133,13 @@ When A1-A4 are satisfied:
 5. Keep analytics/events on its separate Worker.
 6. Treat this build as the rollback point before accounts/sync.
 
-## Phase B — Optional Accounts
+## Phase B — Optional Accounts ✅ baseline complete
 
 Goal: protect progress without changing the first-run experience.
+
+**Status (21 September 2026):** the current scoped account baseline is implemented and active in
+preview and production. Passkeys remain intentionally deferred. Manual multi-device/offline/conflict
+proof remains a release-validation task rather than an account-setup blocker.
 
 ### Architecture
 
@@ -238,14 +248,18 @@ Measure only useful product signals:
 
 Do not use training outcomes as an efficacy claim.
 
-## Suggested implementation PR sequence
+## Suggested implementation PR sequence from here
 
-1. **RC polish and cutover readiness**
-2. **Better Auth + preview D1 + OTP**
-3. **Account UI + passkeys**
-4. **Guest import + local sync metadata**
-5. **Remote sync + conflict/retry tests**
-6. **Export/delete/privacy + beta readiness**
+1. **PWA/device lifecycle hardening** — update safety, installed iOS/Android checks and native
+   return-alert evidence.
+2. **Remaining storage/account edge cases** — multi-tab policy, browser-level conflict recovery
+   and degraded-storage messaging.
+3. **Security/privacy closure** — executable XSS/noindex/analytics assertions plus provider
+   retention/privacy wording.
+4. **Public-beta essentials** — feedback/contact route, accessibility pass, real product
+   screenshots and social metadata.
+5. **Small beta** — invite a limited cohort, record friction/failures and measure activation,
+   repeat use and sync reliability without making efficacy claims.
 
-Keeping these separate makes the release baseline easy to recover if the first account implementation
-causes regressions.
+Passkeys, admin metrics and collaboration features stay behind this baseline rather than becoming
+the next immediate feature tranche.
