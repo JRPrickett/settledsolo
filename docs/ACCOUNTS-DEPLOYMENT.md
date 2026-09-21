@@ -128,29 +128,29 @@ For preview, an unset/false `ACCOUNTS_ENABLED` still fails closed. For productio
 explicit `ACCOUNTS_ENABLED=false` remains an emergency kill switch; an unset value preserves
 the already-active production configuration.
 
-Verify a real delivered OTP, expiry/error handling, logout and a fresh OTP before deletion in
-preview. Confirm the privacy notice and sender identity before enabling production. Production
-remains a manual workflow dispatch from main.
+Real OTP delivery has been verified and both environments are active. Continue using preview for
+destructive/recovery testing before repeating those checks in production. Production remains a
+manual workflow dispatch from main.
 
-## Activation order
+## Activation order — complete
 
-1. ~~Run **Provision isolated account database** for `preview`, then for `production`.~~
-   Done: both databases exist and are empty. Re-run it at any time to reprint an ID.
-2. Set `ACCOUNTS_PREVIEW_D1_ID` and `ACCOUNTS_PRODUCTION_D1_ID` as repository variables.
-3. Complete Resend sender/domain verification and generate a separate
-   `BETTER_AUTH_SECRET` per environment.
-4. Set the remaining preview environment values, leaving `ACCOUNTS_ENABLED` unset.
-5. Run **Verify account configuration** for `preview` until it reports a complete
-   configuration. Nothing is deployed while it still lists outstanding items.
-6. Set `ACCOUNTS_ENABLED` to `true` for preview and run **Deploy SettledSolo Preview**.
-   The endpoint check must report `accounts available: true`.
-7. Verify a real delivered OTP, expiry and error handling, sign-out, a fresh OTP, and
-   two-device sync and recovery on preview before touching production.
-8. Repeat steps 4 to 6 for production, with `AUTH_ORIGIN` set to `https://settledsolo.com`,
-   only once the preview evidence and the release requirements are recorded.
+The infrastructure/setup portion of this checklist is complete as of 21 September 2026:
 
-Both D1 IDs must be set before either environment can be activated: the deployment
-refuses to run when the two IDs are missing, malformed or identical.
+1. ~~Provision isolated D1 databases for preview and production.~~ Done; both are active and migrated.
+2. ~~Set distinct preview and production D1 IDs as repository variables.~~ Done.
+3. ~~Verify the Resend sender/domain and create separate Better Auth secrets.~~ Done.
+4. ~~Configure the preview environment.~~ Done.
+5. ~~Run preview preflight and activation deployment.~~ Done.
+6. ~~Verify live preview account availability and real OTP delivery.~~ Done.
+7. ~~Configure and activate production with `AUTH_ORIGIN=https://settledsolo.com`.~~ Done.
+8. ~~Harden direct production deployment and post-deploy verification.~~ Done in PRs #49 and #50.
+
+What remains is **operational/release validation**, not account setup: two-device sync,
+offline/reconnect/conflict recovery, wrong/expired OTP and resend/rate-limit behaviour, cloud
+export/deletion on real devices, and provider retention/privacy documentation.
+
+Both D1 IDs must remain distinct: deployment refuses to run when the IDs are missing, malformed
+or identical.
 
 ## Operational boundaries
 
