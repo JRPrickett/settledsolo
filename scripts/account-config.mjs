@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 const ID_PATTERN = /^[a-f0-9-]{36}$/i;
+const ACCOUNT_RATE_LIMITS = new Set(["ACCOUNT_RATE_LIMITER", "OTP_RATE_LIMITER"]);
 
 export const ACCOUNT_TARGETS = ["preview", "production"];
 
@@ -80,9 +81,18 @@ export function accountConfigProblems(target, env = process.env, config) {
 export function accountConfig(target, env = process.env) {
   if (!ACCOUNT_TARGETS.includes(target))
     throw new Error("Choose preview or production.");
+
   const config = readWorkerConfig(target);
-  config.vars.ACCOUNTS_ENABLED = "false";
-  if (env.ACCOUNTS_ENABLED !== "true") return config;
+
+  // Production is already activated and its non-secret account bindings live in
+  // wrangler.app.jsonc. Preserve that state when an external Cloudflare build
+  // deploys the repository without GitHub environment variables. Preview stays
+  // fail-closed unless its GitHub environment explicitly enables accounts.
+  if (env.ACCOUNTS_ENABLED !== "true") {
+    if (target === "production" && env.ACCOUNTS_ENABLED == null) return config;
+    config.vars.ACCOUNTS_ENABLED = "false";
+    return config;
+  }
 
   const problems = accountConfigProblems(target, env, config);
   if (problems.length) throw new Error(problems.join(" "));
@@ -93,19 +103,28 @@ export function accountConfig(target, env = process.env) {
     AUTH_ORIGIN: exactHttpsOrigin(env.AUTH_ORIGIN),
     AUTH_EMAIL_FROM: env.AUTH_EMAIL_FROM,
   };
+
+  const accountDatabase = {
+    binding: "ACCOUNTS_DB",
+    database_name: `settledsolo-accounts-${target}`,
+    database_id:
+      target === "preview"
+        ? env.ACCOUNTS_PREVIEW_D1_ID
+        : env.ACCOUNTS_PRODUCTION_D1_ID,
+    migrations_dir: "migrations/accounts",
+  };
+
   config.d1_databases = [
-    {
-      binding: "ACCOUNTS_DB",
-      database_name: `settledsolo-accounts-${target}`,
-      database_id:
-        target === "preview"
-          ? env.ACCOUNTS_PREVIEW_D1_ID
-          : env.ACCOUNTS_PRODUCTION_D1_ID,
-      migrations_dir: "migrations/accounts",
-    },
+    ...(config.d1_databases ?? []).filter(
+      (database) => database.binding !== "ACCOUNTS_DB",
+    ),
+    accountDatabase,
   ];
+
   config.ratelimits = [
-    ...(config.ratelimits ?? []),
+    ...(config.ratelimits ?? []).filter(
+      (rateLimit) => !ACCOUNT_RATE_LIMITS.has(rateLimit.name),
+    ),
     {
       name: "ACCOUNT_RATE_LIMITER",
       namespace_id: target === "preview" ? "17001" : "17002",
@@ -117,6 +136,7 @@ export function accountConfig(target, env = process.env) {
       simple: { limit: 3, period: 60 },
     },
   ];
+
   return config;
 }
 

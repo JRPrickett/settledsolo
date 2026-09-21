@@ -77,6 +77,12 @@ The intended final domain layout is:
 The production custom domain is attached to `settledsolo`. Keep the alternate
 domains as redirects only; do not attach them to the application Worker.
 
+Because the `settledsolo` Worker is also connected directly to this GitHub repository
+in Cloudflare, `wrangler.app.jsonc` must remain safe to deploy on its own. It therefore
+contains the live production account D1 binding and non-secret account variables/rate
+limits. The Better Auth and Resend credentials remain Worker secrets. A direct Cloudflare
+build must never replace the live Worker with an accounts-disabled configuration.
+
 ### Cloudflare cutover checklist
 
 Before the first production deployment after this naming correction:
