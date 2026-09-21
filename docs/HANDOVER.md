@@ -1,43 +1,34 @@
 # SettledSolo handover
 
-**Last updated:** 20 September 2026 (production hardening; PWA return-alert branch)
+**Last updated:** 21 September 2026 (account UX and security hardening)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `a25116e996c290f86f6d36bb95c65e06136d40de`
+**Reviewed main:** `1479c6c`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#41 are merged and green. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
+PRs #34–#42 are merged. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
 `core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
 reliability, recovery, security and flow correctness before discretionary feature work.
 The physical-device and qualified behaviour-professional release gates still apply and remain open.
 
-Accounts and sync are **merged and deployed to the preview Worker, but not activated**. The
-merged implementation covers Better Auth email OTP, optional account UI, explicit guest-log
-import, local outbox, revision-based incremental sync, recoverable conflicts, cloud
-export/deletion and isolated account deployment tooling. Guest training remains usable offline.
+Accounts and sync are active in preview and production. The implementation covers Better Auth
+email OTP, optional account UI, explicit guest-log import, local outbox, revision-based
+incremental sync, recoverable conflicts, cloud export/deletion and isolated account deployment
+tooling. Guest training remains local-first and usable offline.
 
-Account activation remains a parallel gated track: its remaining work is provisioning and
-configuration rather than implementation. Verified on `5382dc0`:
+The current hardening branch adds truthful sign-in-or-sign-up copy, hides onboarding account
+prompts until session state is known, explains passwordless sessions and junk/spam delivery,
+adds independent account/OTP/push rate limits, crypto-backed record IDs, stricter Worker/browser
+boundaries, immutable workflow dependencies and step-scoped secrets. It also disables the
+production `workers.dev` hostname, documents D1 Time Travel recovery and enables GitHub
+dependency alerts, automated security fixes and CodeQL default scanning.
 
-- the preview Worker at `https://settledsolo-web-preview.jasonrprickett.workers.dev` runs the
-  merged account code with `ACCOUNTS_ENABLED="false"`;
-- `/api/account/status` returns `{"available":false}`, private and noindexed, and unknown API
-  paths fail closed as JSON rather than falling through to the app shell;
-- both account D1 databases now exist and are empty, with distinct IDs, and no account
-  migrations have been applied to either yet;
-- the Cloudflare API token carries D1 read/edit permission, and both GitHub environments hold
-  Cloudflare credentials;
-- **all seven account variables and secrets are still unset**, including the two D1 IDs.
-
-The remaining blocker is email delivery. There is no verified sender yet, so `AUTH_ORIGIN`,
-`AUTH_EMAIL_FROM`, `RESEND_API_KEY` and `BETTER_AUTH_SECRET` cannot be finalised and preview
-cannot be activated. Nothing else stands between the current state and preview accounts.
-
-Re-run **Provision isolated account database** to reprint a database ID: it is idempotent and
-reuses an existing database, so the UUIDs are deliberately not recorded in this repository.
+See `SECURITY.md` for the threat boundaries, incident response and recovery runbook. Re-run
+**Provision isolated account database** only when rebuilding an environment; it is idempotent and
+reuses an existing database, so UUIDs are deliberately not recorded in this repository.
 
 Separately, `docs/SA-QUALITY-ROADMAP.md` **items 1-5 are now complete**, including all three of
 item 5's sub-items. The behaviour-quality thread has no queued work; what remains there is the

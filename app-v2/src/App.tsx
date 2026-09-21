@@ -88,7 +88,11 @@ export default function App() {
   if (!data.dogName) {
     return (
       <Setup
-        onOpenAccount={() => setAccountOpen(true)}
+        onOpenAccount={
+          account.ready && !account.user
+            ? () => setAccountOpen(true)
+            : undefined
+        }
         onSaved={async (dogName, startSeconds, startingPath) => {
           setData(
             await repository.saveSetup(dogName, startSeconds, startingPath)

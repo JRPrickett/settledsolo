@@ -1,4 +1,9 @@
-import { accountsConfigured, createAuth, type AccountEnv } from "./auth";
+import {
+  accountsConfigured,
+  createAuth,
+  otpRateLimitKey,
+  type AccountEnv,
+} from "./auth";
 import { sync } from "./sync";
 import { ZodError } from "zod";
 export const json = (value: unknown, status = 200) =>
@@ -61,7 +66,7 @@ export async function handleAccountApi(
     return json({ error: "Open SettledSolo directly to continue." }, 403);
   if (env.ACCOUNT_RATE_LIMITER) {
     const limited = await env.ACCOUNT_RATE_LIMITER.limit({
-      key: request.headers.get("cf-connecting-ip") ?? "unknown",
+      key: `${url.pathname}:${request.headers.get("cf-connecting-ip") ?? "unknown"}`,
     });
     if (!limited.success)
       return json({ error: "Too many requests. Try again in a minute." }, 429);
@@ -78,6 +83,24 @@ export async function handleAccountApi(
           (body as { type?: unknown })?.type !== "sign-in"
         )
           return json({ error: "Unsupported code request." }, 400);
+        if (url.pathname.endsWith("send-verification-otp")) {
+          const email = (body as { email?: unknown })?.email;
+          if (typeof email !== "string" || email.length > 320)
+            return json({ error: "Enter a valid email address." }, 400);
+          if (env.OTP_RATE_LIMITER) {
+            const limited = await env.OTP_RATE_LIMITER.limit({
+              key: await otpRateLimitKey(email, env.BETTER_AUTH_SECRET!),
+            });
+            if (!limited.success)
+              return json(
+                {
+                  error:
+                    "A code was requested recently. Wait a minute before trying again.",
+                },
+                429,
+              );
+          }
+        }
         forwarded = new Request(request.url, {
           method: request.method,
           headers: request.headers,

@@ -1,7 +1,7 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { readFileSync } from "node:fs";
-import { createAuth, type AccountEnv } from "./auth";
+import { createAuth, otpRateLimitKey, type AccountEnv } from "./auth";
 import { handleAccountApi } from "./api";
 import { sync } from "./sync";
 let mf: Miniflare;
@@ -108,6 +108,35 @@ describe("account API on real local D1", () => {
         )
       ).status,
     ).toBe(401);
+    expect(
+      (
+        await handleAccountApi(
+          new Request(`${origin}/api/auth/get-session`, {
+            method: "POST",
+            headers: { origin, "Content-Type": "application/json" },
+            body: "{}",
+          }),
+          env,
+          auth,
+        )
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await handleAccountApi(
+          new Request(
+            `${origin}/api/auth/email-otp/send-verification-otp`,
+            {
+              method: "POST",
+              headers: { origin, "Content-Type": "text/plain" },
+              body: "not json",
+            },
+          ),
+          env,
+          auth,
+        )
+      ).status,
+    ).toBe(400);
   });
   it("signs in by OTP, rejects reuse, syncs idempotently, isolates users and deletes cloud data", async () => {
     const a = await login("a@example.test");
@@ -279,5 +308,37 @@ describe("account API on real local D1", () => {
       auth,
     );
     expect(limited.status).toBe(429);
+  });
+
+  it("rate-limits OTP delivery with an opaque normalized email key", async () => {
+    const keys: string[] = [];
+    const otpEnv: AccountEnv = {
+      ...env,
+      OTP_RATE_LIMITER: {
+        limit: async ({ key }) => {
+          keys.push(key);
+          return { success: false };
+        },
+      } as RateLimit,
+    };
+    const response = await handleAccountApi(
+      req("/api/auth/email-otp/send-verification-otp", {
+        email: "CaseSensitive@example.test",
+        type: "sign-in",
+      }),
+      otpEnv,
+      auth,
+    );
+
+    expect(response.status).toBe(429);
+    expect(keys).toHaveLength(1);
+    expect(keys[0]).toMatch(/^[a-f0-9]{64}$/);
+    expect(keys[0]).not.toContain("example.test");
+    expect(keys[0]).toBe(
+      await otpRateLimitKey(
+        "  casesensitive@EXAMPLE.TEST  ",
+        env.BETTER_AUTH_SECRET!,
+      ),
+    );
   });
 });

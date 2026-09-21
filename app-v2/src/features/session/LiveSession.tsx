@@ -16,6 +16,7 @@ import {
   makePersistedLiveSession,
   type PersistedLiveSession
 } from "../../session/sessionPersistence";
+import { createOpaqueId } from "../../domain/ids";
 import {
   alertCapabilities,
   cancelBackgroundReturnAlert,
@@ -236,7 +237,7 @@ export function LiveSession({
 
     try {
       await onSaved({
-        id: `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
+        id: createOpaqueId("p"),
         at: Date.now(),
         targetSeconds,
         actualSeconds: state.mainActualSeconds,

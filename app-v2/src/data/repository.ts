@@ -20,6 +20,7 @@ import {
 } from "../domain/preProtocolObservation";
 import { activeScenario, freshAppData, replaceScenario } from "./appData";
 import { LEGACY_KEY, readLegacyAppData } from "./legacyImport";
+import { createOpaqueId } from "../domain/ids";
 
 const DB_NAME = "dog-training-app";
 const DB_VERSION = 1;
@@ -399,7 +400,7 @@ function fallbackRepository(initial: AppData): AppRepository {
       return data;
     },
     async createScenario(label, startSeconds) {
-      const id = `scenario-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+      const id = createOpaqueId("scenario-");
       const scenario: Scenario = {
         id,
         label: label.trim() || "New training track",
@@ -647,7 +648,7 @@ function createLocalRepository(): AppRepository {
 
     async createScenario(label, startSeconds) {
       const data = await repository.loadAppData();
-      const id = `scenario-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+      const id = createOpaqueId("scenario-");
       const scenario: Scenario = {
         id,
         label: label.trim() || "New training track",

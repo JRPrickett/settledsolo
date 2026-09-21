@@ -16,6 +16,13 @@
   "observability": {
     "enabled": true
   },
+  "ratelimits": [
+    {
+      "name": "PUSH_RATE_LIMITER",
+      "namespace_id": "18001",
+      "simple": { "limit": 30, "period": 60 }
+    }
+  ],
   "vars": {
     "SITE_URL": "https://settledsolo.com",
     "ENVIRONMENT": "preview"

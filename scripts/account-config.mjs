@@ -105,10 +105,16 @@ export function accountConfig(target, env = process.env) {
     },
   ];
   config.ratelimits = [
+    ...(config.ratelimits ?? []),
     {
       name: "ACCOUNT_RATE_LIMITER",
       namespace_id: target === "preview" ? "17001" : "17002",
       simple: { limit: 60, period: 60 },
+    },
+    {
+      name: "OTP_RATE_LIMITER",
+      namespace_id: target === "preview" ? "17003" : "17004",
+      simple: { limit: 3, period: 60 },
     },
   ];
   return config;

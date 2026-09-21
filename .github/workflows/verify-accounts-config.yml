@@ -17,28 +17,29 @@ permissions:
 
 jobs:
   preflight:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: ${{ inputs.target }}
-    env:
-      ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
-      ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
-      ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
-      AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
-      AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      ACCOUNT_TARGET: ${{ inputs.target }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .node-version
 
       - name: Report account configuration
         shell: bash
+        env:
+          ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
+          ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
+          ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
+          AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
+          AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ACCOUNT_TARGET: ${{ inputs.target }}
         run: |
           # pipefail matters: tee would otherwise hide a failed preflight.
           set -euo pipefail

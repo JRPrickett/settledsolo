@@ -4,11 +4,36 @@ import { emailOTP } from "better-auth/plugins";
 export interface AccountEnv {
   ACCOUNTS_DB?: D1Database;
   ACCOUNT_RATE_LIMITER?: RateLimit;
+  OTP_RATE_LIMITER?: RateLimit;
   ACCOUNTS_ENABLED?: string;
   AUTH_ORIGIN?: string;
   BETTER_AUTH_SECRET?: string;
   RESEND_API_KEY?: string;
   AUTH_EMAIL_FROM?: string;
+}
+
+export async function otpRateLimitKey(
+  email: string,
+  secret: string,
+): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = new Uint8Array(
+    await crypto.subtle.sign(
+      "HMAC",
+      key,
+      encoder.encode(email.trim().toLowerCase()),
+    ),
+  );
+  return Array.from(signature, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
 }
 export function accountsConfigured(env: AccountEnv): boolean {
   return (

@@ -33,10 +33,17 @@ for (const target of ["preview", "production"]) {
   writeFileSync(path, JSON.stringify(config, null, 2));
   try {
     const result = spawnSync(
-      "npx",
-      ["wrangler", "deploy", "--dry-run", "--config", path],
+      process.execPath,
+      [
+        "node_modules/wrangler/bin/wrangler.js",
+        "deploy",
+        "--dry-run",
+        "--config",
+        path,
+      ],
       { stdio: "inherit" },
     );
+    if (result.error) throw result.error;
     if (result.status !== 0)
       throw new Error(`Accounts-enabled ${target} Worker config is invalid.`);
   } finally {

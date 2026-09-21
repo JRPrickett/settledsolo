@@ -2,6 +2,14 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "settledsolo-web",
   "main": "worker/index.ts",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "settledsolo.com",
+      "custom_domain": true
+    }
+  ],
   "compatibility_flags": [
     "nodejs_compat"
   ],
@@ -16,6 +24,13 @@
   "observability": {
     "enabled": true
   },
+  "ratelimits": [
+    {
+      "name": "PUSH_RATE_LIMITER",
+      "namespace_id": "18002",
+      "simple": { "limit": 30, "period": 60 }
+    }
+  ],
   "vars": {
     "SITE_URL": "https://settledsolo.com"
   },
