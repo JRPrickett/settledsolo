@@ -1,23 +1,30 @@
 # SettledSolo handover
 
-**Last updated:** 21 September 2026 (account UX and security hardening)
+**Last updated:** 21 September 2026 (account phase complete; beta-readiness handover)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `1479c6c`
+**Reviewed main:** `8116985`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
 
-PRs #34–#42 are merged. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
-changes, while fast verification continues broadly. PR #37 split the former 727-line
-`core-flow.spec.ts` into focused specs without changing the 23 existing journeys. PR #38 added browser regressions for History CRUD, relaxed early-return progression, mixed-outcome Progress, settings persistence and backup export/restore, plus corrected stale History storage wording. The active development phase is **production hardening**:
-reliability, recovery, security and flow correctness before discretionary feature work.
-The physical-device and qualified behaviour-professional release gates still apply and remain open.
+PRs #34–#42 and the account activation/deployment fixes through PR #50 are merged. PR #36
+reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting changes, while
+fast verification continues broadly. PR #37 split the former 727-line `core-flow.spec.ts` into
+focused specs, and PR #38 added browser regressions for History CRUD, early return, Progress,
+settings and backup/restore.
+
+The optional-account setup phase is now **complete**. The active development phase is
+**post-account production hardening and small-beta readiness**: close the remaining device
+lifecycle, recovery, security/privacy and public-beta gates rather than adding discretionary
+features. The physical-device and qualified behaviour-professional release gates still apply.
 
 Accounts and sync are active in preview and production. The implementation covers Better Auth
-email OTP, optional account UI, explicit guest-log import, local outbox, revision-based
-incremental sync, recoverable conflicts, cloud export/deletion and isolated account deployment
-tooling. Guest training remains local-first and usable offline.
+email OTP, verified Resend delivery, optional account UI, explicit guest-log import, local outbox,
+revision-based incremental sync, recoverable conflicts, cloud export/deletion and isolated D1
+deployment tooling. PR #49 made the live production Wrangler config safe for direct Cloudflare
+builds, and PR #50 fixed post-deploy verification so enabled environments are checked against
+`available:true`. Guest training remains local-first and usable offline.
 
 The current hardening branch adds truthful sign-in-or-sign-up copy, hides onboarding account
 prompts until session state is known, explains passwordless sessions and junk/spam delivery,
@@ -364,10 +371,10 @@ The reset flow deliberately clears the legacy migration key as well as modern pe
 
 ### Accounts / cloud data
 
-Merged on `main`, deployed to preview, not yet activated. The normal Wrangler configs remain
-unbound to account D1. Deployment generates a temporary config only when accounts are enabled
-and validates distinct preview/production database IDs. Private account data stays separate
-from the analytics Worker/database.
+Active in both preview and production. Preview and production use distinct account D1 databases;
+the production Wrangler config carries the live non-secret account bindings so direct Cloudflare
+repository builds cannot silently disable accounts. Secrets remain Worker/GitHub environment
+secrets. Private account data stays separate from the analytics Worker/database.
 
 - Better Auth 1.7.5 + hashed email OTP, secure HTTP-only cookies.
 - Generated auth migration + per-user sync records/change log with delete cascades.
