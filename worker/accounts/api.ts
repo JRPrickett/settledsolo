@@ -137,6 +137,16 @@ export async function handleAccountApi(
       return json(await sync(env.ACCOUNTS_DB!, session.user.id, payload));
     }
     if (url.pathname === "/api/account/export" && request.method === "GET") {
+      // Match the identity the user reviewed, not only the browser's shared cookie.
+      // Another tab may have changed that cookie since this screen was rendered.
+      if (url.searchParams.get("accountId") !== session.user.id)
+        return json(
+          {
+            error:
+              "Your signed-in account changed. Refresh and review the account before exporting it.",
+          },
+          409,
+        );
       const { results } = await env
         .ACCOUNTS_DB!.prepare(
           "SELECT record_key,revision,value_json FROM sync_records WHERE user_id=?",

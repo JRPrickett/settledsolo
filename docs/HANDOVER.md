@@ -341,6 +341,21 @@ Do not blur those two categories in UI, marketing or documentation.
 
 ## Storage and data architecture
 
+### 21 September — account export identity guard (in review)
+
+Branch `fix/account-export-identity` closes a stale-tab gap found in the post-account
+security review of main `8116985`. The UI already sends its displayed account ID when
+exporting; the API now requires it to match the authenticated session before reading
+private records. A missing/mismatched ID returns a private/no-store 409 response without
+user or training data. Sync and deletion already enforced this check.
+
+Local Worker TypeScript and `npm run test:accounts` pass (11 Worker tests, plus account
+tooling tests), including both directions of a two-account mismatch, missing identity,
+and the existing successful complete export. GitHub fast CI remains the review gate.
+No schema, cookie, UI or deployment changes; browser checks are not required for this
+server-only guard. This does not replace real two-device release evidence.
+
+
 ### Current private training data
 
 The active app is local-first.

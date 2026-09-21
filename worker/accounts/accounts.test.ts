@@ -225,6 +225,20 @@ describe("account API on real local D1", () => {
       auth,
     );
     expect(staleSync.status).toBe(409);
+    // A stale tab must never export the account selected in another tab.
+    for (const [path, cookie] of [
+      [`/api/account/export?accountId=${a.userId}`, b.cookie],
+      [`/api/account/export?accountId=${b.userId}`, a.cookie],
+      ["/api/account/export", a.cookie],
+    ]) {
+      const rejected = await handleAccountApi(req(path, undefined, cookie), env, auth);
+      expect(rejected.status).toBe(409);
+      expect(rejected.headers.get("cache-control")).toContain("no-store");
+      expect(rejected.headers.get("x-robots-tag")).toContain("noindex");
+      expect(await rejected.json()).toEqual({
+        error: "Your signed-in account changed. Refresh and review the account before exporting it.",
+      });
+    }
     const exported = await handleAccountApi(
       req(`/api/account/export?accountId=${a.userId}`, undefined, a.cookie),
       env,
