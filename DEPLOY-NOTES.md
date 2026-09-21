@@ -29,7 +29,7 @@ npm run deploy:preview
 This deploys the SPA as the `settledsolo-web-preview` Worker.
 
 The GitHub workflow `.github/workflows/deploy-preview.yml` auto-runs on relevant pushes to
-`modern-app-shell-engine` and also supports manual dispatch. It expects repository/environment
+`main` and also supports manual dispatch. It expects repository/environment
 secrets:
 
 - `CLOUDFLARE_API_TOKEN`
@@ -43,11 +43,12 @@ Use the resulting workers.dev URL for the physical-device test matrix before any
 
 Keep the product surfaces separate:
 
-- `settledsolo-web` — production website/PWA
+- `settledsolo` — production website/PWA and `settledsolo.com` custom domain
 - `settledsolo-web-preview` — isolated preview website/PWA
-- `settledsolo-events` — analytics/events API (legacy config currently still says `threshold-events` until that migration is handled separately)
+- the separate analytics/events Worker — configured independently under `cloudflare-worker/`
 
-Do not point the static site deployment at the analytics Worker.
+The old `settledsolo-web` app name is not a deployment target. Do not point the
+static site deployment at the analytics Worker or at that retired app Worker.
 
 ## Cloudflare production
 
@@ -73,8 +74,26 @@ The intended final domain layout is:
 - `settledsolo.app` — redirect
 - `settledsolo.co.uk` — redirect
 
-Do not attach the final custom domains until the owner has purchased them and the modern PWA has
-passed the real-device release gate.
+The production custom domain is attached to `settledsolo`. Keep the alternate
+domains as redirects only; do not attach them to the application Worker.
+
+### Cloudflare cutover checklist
+
+Before the first production deployment after this naming correction:
+
+1. Confirm `settledsolo.com` is attached to the `settledsolo` Worker in
+   **Workers & Pages → Settings → Domains & Routes**.
+2. Confirm the `settledsolo-web` Worker has no production route or active build
+   pipeline. Keep it available temporarily as a rollback reference; do not
+   delete it until the live deployment has been verified.
+3. Confirm the production GitHub environment token can deploy Worker versions,
+   manage the production D1 binding and write the production secrets.
+4. Run **Deploy SettledSolo Production** from `main`, then verify that the
+   Cloudflare deployment history names `settledsolo` and that
+   `https://settledsolo.com/api/account/status` reports the expected state.
+
+The repository's deployment helper validates the Worker name before Wrangler
+runs, so a stale `settledsolo-web` configuration fails closed.
 
 ## Security
 

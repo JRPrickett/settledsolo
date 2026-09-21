@@ -1,9 +1,10 @@
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { writeAccountConfig } from "./account-config.mjs";
 import { createVapidPair, hasCompleteVapidPair } from "./vapid.mjs";
+import { assertWorkerIdentity } from "./worker-config.mjs";
 
 const target = process.argv[2];
 const config = writeAccountConfig(target);
@@ -46,6 +47,8 @@ function ensurePushSecrets(temporary) {
 const temporary = mkdtempSync(join(tmpdir(), "settledsolo-deploy-"));
 
 try {
+  assertWorkerIdentity(target, JSON.parse(readFileSync(config, "utf8")));
+
   if (process.env.ACCOUNTS_ENABLED === "true") {
     run([
       "d1",

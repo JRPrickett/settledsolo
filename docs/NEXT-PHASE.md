@@ -121,7 +121,7 @@ Still required:
 When A1-A4 are satisfied:
 
 1. Select the verified main commit and record the existing production commit for rollback.
-2. Deploy the merged build to `settledsolo-web`.
+2. Deploy the merged build to `settledsolo`.
 3. Connect the canonical domain.
 4. Preserve legacy import compatibility.
 5. Keep analytics/events on its separate Worker.

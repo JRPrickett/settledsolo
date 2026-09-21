@@ -416,9 +416,12 @@ Suggested future metrics:
 
 Modern production config:
 
-- Worker: `settledsolo-web`
+- Worker: `settledsolo`
 - config: `wrangler.app.jsonc`
 - canonical `SITE_URL`: `https://settledsolo.com`
+
+The previous `settledsolo-web` app name is retired and must not be used as a
+deployment target. The separate analytics Worker remains independent.
 
 Preview config:
 

@@ -68,7 +68,7 @@ Physical-device and qualified behavioural-review gates remain open.
 - Complete formal name/trademark checks and domain connection.
 - Finish public-site beta essentials: feedback route, real product screenshots, social image and final privacy/terms wording.
 - The modern PWA is already merged; clear and record remaining release gates before broad public beta.
-- Deploy the modern app as `settledsolo-web` without overwriting the separate analytics/events Worker.
+- Deploy the modern app as `settledsolo` without overwriting the separate analytics/events Worker.
 
 ### Phase 2 — free accounts and sync
 
