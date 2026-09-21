@@ -33,7 +33,8 @@ test("a second window cannot edit or sync, then reads the latest log after hando
 });
 
 test("closing a running session window lets another recover its original timer and save once", async ({ page, context }) => {
-  await completeSetup(page, 30);
+  // A short main-only plan keeps this test focused on handover, not warm-up progression.
+  await completeSetup(page, 5);
   await page.getByRole("button", { name: "Start today's session" }).click();
   await page.getByRole("button", { name: "I'm leaving now" }).click();
   await expect.poll(() => page.evaluate(() => {
