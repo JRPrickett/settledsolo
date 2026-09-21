@@ -7,6 +7,10 @@ import {
   verifyWithRetry,
 } from "./accounts-verify.mjs";
 import { createVapidPair, hasCompleteVapidPair } from "./vapid.mjs";
+import {
+  accountStatsConfig,
+  parseRegisteredAccountCount,
+} from "./account-stats.mjs";
 
 const secret = "test-only-at-least-thirty-two-character-secret";
 const apiKey = "test-only-resend-key";
@@ -160,4 +164,27 @@ test("VAPID deployment only preserves a complete existing pair", () => {
   );
   assert.equal(hasCompleteVapidPair([{ name: "VAPID_PUBLIC_KEY" }]), false);
   assert.equal(hasCompleteVapidPair(null), false);
+});
+
+
+test("account stats select the requested isolated D1 database", () => {
+  const config = accountStatsConfig("production", {
+    CLOUDFLARE_ACCOUNT_ID: "account-id",
+    CLOUDFLARE_API_TOKEN: "token",
+    ACCOUNTS_PRODUCTION_D1_ID: "22222222-2222-4222-8222-222222222222",
+  });
+  assert.equal(config.databaseId, "22222222-2222-4222-8222-222222222222");
+});
+
+test("account stats accept only a non-negative integer count", () => {
+  assert.equal(
+    parseRegisteredAccountCount({
+      result: [{ results: [{ registered_accounts: 12 }] }],
+    }),
+    12,
+  );
+  assert.throws(
+    () => parseRegisteredAccountCount({ result: [{ results: [] }] }),
+    /unexpected account-count result/,
+  );
 });

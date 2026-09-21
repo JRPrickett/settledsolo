@@ -114,7 +114,7 @@ Hardening work:
 - confirm preview/app/API noindex behaviour;
 - keep workflow permissions minimal and secrets out of logs/generated config; **Step-scoped secrets and immutable action revisions added in the passwordless/security hardening PR.**
 - review dependencies and keep lockfile-driven installs reproducible; **Dependabot configuration added; lockfile installs retained.**
-- confirm analytics never receives dog names, notes, outcomes, durations or training history;
+- confirm the retired product-event analytics pipeline has not been reintroduced;
 - review CSP exceptions such as `style-src 'unsafe-inline'` before beta and retain only what the UI requires.
 
 **Exit:** known security boundaries are executable tests where practical, not just assumptions in documentation.

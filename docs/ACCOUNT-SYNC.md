@@ -15,7 +15,7 @@ a stable retry ID and expected base revision; stale writes return recoverable co
 The browser stores sync ownership, cursor, shadow, remote records, durable outbox and
 conflict archive with its existing local app record. Local mutations and merges are serialized.
 Live-session checkpoints are not synced. Signup and import remain separate actions.
-API routes are same-origin and no-store; private records never enter analytics.
+API routes are same-origin and no-store; private records are not used for product telemetry.
 
 Email OTP is the first supported path. Passkeys remain deferred. Account endpoints remain
 disabled without complete configuration; preview and production D1 IDs must differ.
@@ -145,11 +145,11 @@ record:
 
 ## Privacy boundaries
 
-**Analytics database:** aggregate product events only.
+**Usage metrics:** registered-account totals come from the Better Auth `user` table; there is no separate product-event database.
 
 **Account database:** private user-owned training data required to provide sync.
 
-Do not send notes, dog names or training history to analytics.
+Do not send notes, dog names or training history to usage metrics.
 
 ## Required account controls
 
@@ -185,11 +185,7 @@ context.
 
 ### Worker/database layout
 
-Keep account/private training data separate from aggregate analytics:
-
-- `settledsolo-web-preview` -> preview auth/sync API + preview D1;
-- `settledsolo` -> production auth/sync API + production D1;
-- analytics/events remains a separate Worker/database.
+Keep account/private training data out of aggregate usage metrics. Registered-account counting may query only the Better Auth user total.
 
 Use same-origin routes:
 

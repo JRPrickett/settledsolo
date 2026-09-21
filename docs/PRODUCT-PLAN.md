@@ -22,7 +22,7 @@ trainer, veterinary behaviourist or vet.
 3. **Accounts protect progress.** The account message is:
    "Your progress is currently saved on this device. Create a free account to back it up
    and use SettledSolo on your other devices."
-4. **Private by default.** Product analytics are aggregate and separate from account data.
+4. **Private by default.** Training data is not product telemetry; registered-account totals are the canonical user metric.
 5. **No hostage data.** Users can export their own training history and delete their account.
 6. **Calm, not gamified pressure.** Milestones may encourage people, but streaks or targets
    must never encourage a user to push a distressed dog.
@@ -46,7 +46,7 @@ Physical-device and qualified behavioural-review gates remain open.
 
 - CI on every pull request.
 - Bring privacy documentation and implementation back into sync.
-- Remove dog/training details from aggregate analytics.
+- Retire custom app-open/session/device analytics and use registered-account totals for user counts.
 - Document account/sync architecture.
 - Apply the SettledSolo brand system while keeping data/database identifiers brand-neutral.
 - Keep the proven training/progression engine stable while infrastructure changes.
@@ -68,7 +68,7 @@ Physical-device and qualified behavioural-review gates remain open.
 - Complete formal name/trademark checks and domain connection.
 - Finish public-site beta essentials: feedback route, real product screenshots, social image and final privacy/terms wording.
 - The modern PWA is already merged; clear and record remaining release gates before broad public beta.
-- Deploy the modern app as `settledsolo` without overwriting the separate analytics/events Worker.
+- Deploy the modern app as `settledsolo`; the legacy analytics/events Worker is retired.
 
 ### Phase 2 — free accounts and sync
 
@@ -86,7 +86,7 @@ Physical-device and qualified behavioural-review gates remain open.
 - Help, privacy and terms pages.
 - Feedback route.
 - Small invited beta cohort followed by public access.
-- Measure activation, repeat use and session completion using aggregate analytics.
+- Use registered-account totals for adoption; add further product metrics only with an explicit privacy/product decision.
 
 ### Phase 4 — useful collaboration
 

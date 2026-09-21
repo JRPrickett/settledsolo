@@ -389,8 +389,7 @@ The reset flow deliberately clears the legacy migration key as well as modern pe
 
 Merged on `main`, deployed to preview, not yet activated. The normal Wrangler configs remain
 unbound to account D1. Deployment generates a temporary config only when accounts are enabled
-and validates distinct preview/production database IDs. Private account data stays separate
-from the analytics Worker/database.
+and validates distinct preview/production database IDs. Private account data stays within the isolated account databases; no separate product-event analytics database is used.
 
 - Better Auth 1.7.5 + hashed email OTP, secure HTTP-only cookies.
 - Generated auth migration + per-user sync records/change log with delete cascades.
@@ -400,40 +399,24 @@ from the analytics Worker/database.
 - Sign-out pauses sync; reset only clears the device; cloud deletion requires recent sign-in.
 - Conflicts retain both versions and an exportable archive. Passkeys remain future work.
 
-## Analytics and the "how many users?" requirement
+## Usage metrics and the "how many users?" requirement
 
-The separate `cloudflare-worker/` event service currently accepts only:
+The custom `threshold-events` Worker / `threshold-analytics` D1 product-event pipeline is
+retired. The modern app does not need app-open, session or device-level telemetry to operate.
 
-- `app_open`
-- `session_started`
-- `session_saved`
+**Canonical user metric:** registered Better Auth accounts. Use the manual
+**Count registered accounts** GitHub workflow (production or preview), or run
+`npm run accounts:count -- production` with the Cloudflare credentials and D1 IDs available.
+The query returns only a count from Better Auth's `user` table.
 
-It stores basic app/platform metadata only. It must not receive dog names, notes, outcomes, durations or training history.
+An exact cross-platform PWA-install count is not available from browser APIs, so SettledSolo
+does not manufacture one with a persistent installation identifier. Cloudflare Web Analytics
+may still provide directional aggregate web traffic where enabled, but that is not the same as
+registered users or installed apps.
 
-**Current limitation:** app-open counts are not a trustworthy unique-user/member count because there is no persistent anonymous user/install identifier.
-
-For the production roadmap distinguish:
-
-- **registered members/users:** exact count from account D1 once accounts exist;
-- **active registered users:** activity/last-active measure after account implementation;
-- **anonymous installations/guest active users:** only countable if a privacy-conscious random installation ID is deliberately added and disclosed.
-
-Do not advertise raw event totals as "users".
-
-A private internal admin dashboard remains a planned item, ideally protected by Cloudflare Access rather than a custom app password.
-
-Suggested future metrics:
-
-- total registered accounts;
-- new accounts 7/30d;
-- active accounts 7/30d;
-- anonymous installations if implemented;
-- account conversion;
-- onboarding completion;
-- starting-path split;
-- sessions started/saved/completed;
-- departure-cue usage;
-- sync/API reliability.
+After this cleanup is merged, the unused `threshold-events` Worker and
+`threshold-analytics` D1 database can be deleted from Cloudflare after any final export worth
+keeping.
 
 ## Cloudflare/deployment position
 
@@ -444,7 +427,7 @@ Modern production config:
 - canonical `SITE_URL`: `https://settledsolo.com`
 
 The previous `settledsolo-web` app name is retired and must not be used as a
-deployment target. The separate analytics Worker remains independent.
+deployment target. The retired `threshold-events` Worker is not part of the modern app.
 
 Preview config:
 
