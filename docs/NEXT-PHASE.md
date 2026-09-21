@@ -162,9 +162,9 @@ After meaningful progress:
 First auth flow:
 
 - email OTP;
-- optional passkey registration immediately after successful sign-in;
 - no password requirement;
-- no forced account before training.
+- no forced account before training;
+- passkeys are a later enhancement, not part of the completed baseline.
 
 ### B1. Auth foundation
 
@@ -182,7 +182,7 @@ First auth flow:
 - account status in More;
 - create account/sign in;
 - last sync state;
-- add/manage passkey;
+- passkey management — **deferred beyond the baseline**;
 - sign out;
 - remove local account data without deleting cloud account.
 
