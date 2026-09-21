@@ -2,7 +2,7 @@
 
 **Date:** 21 September 2026
 **Phase:** Production hardening  
-**Status:** PRs #34–#41 merged; native background return alerts deployed to preview, physical-device evidence pending  
+**Status:** Accounts active in preview/production; hardening baseline substantially complete; device/beta evidence pending  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -86,21 +86,24 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 
 **Exit:** the real-device matrix contains evidence for iOS and Android, with any OS limitation explicitly documented rather than assumed away.
 
-## H5 — Account and sync activation hardening
+## H5 — Account and sync operational validation
 
-Accounts are active in preview and production. Continue treating the evidence
-below as ongoing release gates, not as one-time activation tasks.
+**Activation/setup complete.** Preview and production have isolated D1 databases, Better Auth
+email OTP, verified Resend delivery, account/sync bindings, migrations, secrets and live
+post-deploy endpoint verification. PRs #49 and #50 hardened the production deployment path and
+fixed the verifier's expected account state.
 
-- Configure verified email delivery and isolated preview credentials.
-- Run configuration preflight before any migration/deploy.
-- Verify real OTP delivery, expiry, wrong/expired codes and resend/rate-limit behaviour.
-- Verify real two-device initial import, incremental sync, offline save/reconnect and conflict recovery.
-- Verify stale-tab account checks on sync/export/delete.
-- Verify cloud export completeness.
-- Verify account deletion requires recent auth and typed confirmation while leaving local copies untouched.
-- Confirm provider retention/backups and privacy wording before production activation.
+Remaining work here is release evidence rather than provisioning:
 
-**Exit:** preview accounts survive real two-device use without losing, duplicating or leaking training data. Production remains disabled until this evidence is recorded.
+- verify expiry, wrong/expired codes and resend/rate-limit behaviour on the live provider;
+- verify real two-device initial import, incremental sync, offline save/reconnect and conflict recovery;
+- verify stale-tab account checks on sync/export/delete;
+- verify cloud export completeness;
+- verify account deletion requires recent auth and typed confirmation while leaving local copies untouched;
+- document provider retention/backups and final privacy wording before broad beta.
+
+**Exit:** live account behaviour has been exercised across two real devices and failure/recovery
+paths without losing, duplicating or leaking training data.
 
 ## H6 — Security and privacy verification
 
@@ -140,10 +143,10 @@ Do not use training outcomes as an efficacy claim.
 4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
 5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
 6. ~~Run the repository storage/concurrency pass from H3.~~ Done: PR #40; multi-tab policy and user-facing degraded-storage messaging remain.
-7. Complete PWA/device lifecycle gates, including preview Web Push deployment and real iPhone return-alert evidence.
-8. Continue real two-device/security checks now that preview and production accounts are active.
-9. Clear qualified behaviour-professional review and public-beta essentials.
-10. Keep production account changes behind preview evidence and the manual deployment gate.
+7. Complete PWA/device lifecycle gates, including real iPhone return-alert evidence and the installed Android matrix.
+8. Finish the remaining storage/account operational evidence: multi-tab policy, two-device sync/offline/conflict checks and degraded-storage messaging.
+9. Close the remaining security/privacy assertions and provider-retention wording.
+10. Clear qualified behaviour-professional review and public-beta essentials, then begin a small invited beta.
 
 ## Public-beta release gate
 
@@ -155,7 +158,7 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 - current Chromium + WebKit automated journeys green;
 - production service-worker/offline gate green;
 - real installed iOS and Android checks recorded;
-- account preview checks recorded if accounts are being enabled;
+- live account/two-device checks recorded;
 - privacy/account copy matches actual behaviour;
 - qualified behaviour-professional review recorded;
 - rollback/export/recovery paths are understood.
