@@ -6,6 +6,8 @@ export default defineConfig({
   testIgnore: "pwa-offline.spec.ts",
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
+  // Shared startup faults should fail the gate without burning the whole suite.
+  maxFailures: process.env.CI ? 5 : undefined,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: "http://127.0.0.1:4173",

@@ -798,11 +798,11 @@ export interface SyncedRepository extends AppRepository {
   receiveSync(accountId: string, sent: SyncOperation[], reply: SyncReply, canApply?: () => boolean): Promise<AppData>;
   resolveConflict(key: string, choice: "local" | "cloud"): Promise<AppData>;
 }
-export function createAppRepository(): SyncedRepository {
+export function createAppRepository({ useWebLocks = true }: { useWebLocks?: boolean } = {}): SyncedRepository {
   const local = createLocalRepository();
   let queue: Promise<unknown> = Promise.resolve();
   const serial = <T,>(operation: () => Promise<T>): Promise<T> => {
-    const run = () => typeof navigator !== "undefined" && navigator.locks
+    const run = () => useWebLocks && typeof navigator !== "undefined" && navigator.locks
       ? navigator.locks.request("settledsolo-data", operation) : operation();
     const result = queue.then(run, run);
     queue = result.catch(() => {});

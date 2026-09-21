@@ -2,11 +2,19 @@
 
 **Last updated:** 21 September 2026 (account UX and security hardening)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `1479c6c`
+**Reviewed main:** `280bdf8`
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 ## Executive status
+
+**Current continuation (21 September):** PRs #52 and #53 are merged on main
+`280bdf8`; the user confirms both deployed, and the latest main CI/preview workflow
+passed. PR #51 still owns the pending broader account-roadmap refresh. The next
+focused branch is `fix/single-window-training` (in review): one writable app window
+per browser storage context, protecting local history, live checkpoints and sync
+from a competing window. See `MULTI-WINDOW-SAFETY.md` for policy and release limits.
+
 
 PRs #34–#42 are merged. PR #36 reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting
 changes, while fast verification continues broadly. PR #37 split the former 727-line
@@ -341,7 +349,7 @@ Do not blur those two categories in UI, marketing or documentation.
 
 ## Storage and data architecture
 
-### 21 September — account export identity guard (in review)
+### 21 September — account export identity guard (merged, PR #53)
 
 Branch `fix/account-export-identity` closes a stale-tab gap found in the post-account
 security review of main `8116985`. The UI already sends its displayed account ID when
@@ -602,7 +610,7 @@ After a meaningful merge, update at least:
 
 The goal is that a fresh agent can continue the project from the repository alone, without needing the previous chat history.
 
-## 21 September 2026 — post-account storage recovery pass (in review)
+## 21 September 2026 — post-account storage recovery pass (merged, PR #52)
 
 Reviewed main `8116985`: production and preview deployment runs and CI passed. Accounts
 are active. PR #51 (`docs/complete-account-phase`) remains open and owns the broad
@@ -627,3 +635,22 @@ separately; do not treat a partial local verification run as the complete releas
 
 Next: review CI for this PR, then complete multi-tab/live-session ownership policy and
 real-device/two-device account evidence. Broader roadmap priorities remain in PR #51.
+
+## Single-window training guard — implementation checkpoint
+
+Branch `fix/single-window-training` adds an app-entry guard before repository/account
+hooks mount. Only a window holding `settledsolo-app-window` can run the app. Another
+window presents a return/close/retry flow, then mounts a fresh app and reads current
+persisted data. No timeout, hidden-tab takeover or forced handover is used. Missing
+or denied Web Locks requires an explicit one-window compatibility confirmation;
+that mode retains local serialization but cannot guarantee cross-window exclusion.
+
+No cloud/schema/training algorithm changes. Unit coverage checks ownership lifetime,
+contention, cleanup/Strict Mode and unavailable APIs. Browser coverage checks no
+account traffic from blocked windows, latest-data handover, back navigation, original
+timer recovery and one saved session, plus missing/denied API onboarding. Final CI
+results belong to the PR; installed-phone lifecycle testing remains outstanding.
+
+Next after merge: record real installed-device window/suspension checks, then harden
+real two-device sync conflicts/reconnect. Do not treat this local-window policy as
+cross-device coordination or proof of all PWA update/notification gates.
