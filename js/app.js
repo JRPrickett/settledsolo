@@ -669,9 +669,8 @@ function ask(parent,question,opts,fn){
 }
 
 function startRep(){
-  var beginsSession=phase==="idle"&&repIdx===0;
   phase="running"; startedAt=Date.now(); chimed=false; preChimed=false;
-    persistActiveRun(); requestReturnNotificationPermission(); audioStart();
+  persistActiveRun(); requestReturnNotificationPermission(); audioStart();
   drawActions(); drawTabs(); drawHeadline(); drawReps();
   el("coach").hidden=true; runTicker();
 }
