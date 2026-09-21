@@ -39,7 +39,5 @@ jobs:
           {
             echo "## Registered accounts"
             echo
-            echo '\`\`\`'
             node scripts/account-stats.mjs "$ACCOUNT_TARGET"
-            echo '\`\`\`'
           } | tee -a "$GITHUB_STEP_SUMMARY"
