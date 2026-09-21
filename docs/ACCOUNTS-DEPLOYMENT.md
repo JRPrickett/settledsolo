@@ -117,9 +117,16 @@ Use **Deploy SettledSolo Preview** after configuration. The deployment script:
 5. Deploys the selected Worker and removes the temporary config.
 
 All generated config paths are ignored by git. Secrets are not written into Wrangler config.
-When `ACCOUNTS_ENABLED` is unset/false, deployment explicitly disables account endpoints; it
-does not delete existing cloud data. Set the variable consistently once enabled to avoid
-accidentally disabling accounts on a later deployment.
+
+Production is already activated, so its non-secret account binding, origin, sender and rate
+limits are also committed in `wrangler.app.jsonc`. This is deliberate: the production Worker
+is connected to the repository in Cloudflare, and a direct Cloudflare build must not silently
+remove D1/auth bindings just because GitHub environment variables are unavailable there.
+Production secrets remain Cloudflare Worker secrets and are never committed.
+
+For preview, an unset/false `ACCOUNTS_ENABLED` still fails closed. For production, an
+explicit `ACCOUNTS_ENABLED=false` remains an emergency kill switch; an unset value preserves
+the already-active production configuration.
 
 Verify a real delivered OTP, expiry/error handling, logout and a fresh OTP before deletion in
 preview. Confirm the privacy notice and sender identity before enabling production. Production
