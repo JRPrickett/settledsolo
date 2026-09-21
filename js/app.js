@@ -21,14 +21,10 @@ import {
 } from "./dashboard.js";
 
 import { friendlyTargetReason } from "./target-reason.js";
-import { createAnalytics } from "./analytics.js";
-import { ANALYTICS_CONFIG } from "./analytics-config.js";
 
 /* ================= storage ================= */
 var storage=createStorage();
 var state=storage.boot();
-var analytics=createAnalytics(ANALYTICS_CONFIG);
-analytics.init();
 
 function save(){
   storage.save(state);
@@ -487,7 +483,6 @@ function stopReasonPanel(parent){
 function startCue(){
   if(phase==="idle"){
     startedAt=Date.now();
-    analytics.track("session_started");
   }
   phase="cue"; clearInterval(tick); persistActiveRun();
   render();
@@ -528,7 +523,6 @@ function recordDoor(outcome){
   phase="idle"; pending=null; repIdx=0; repLog=[]; tags=[]; note=""; shuffle=0; clearActiveRun();
   clearInterval(tick);
   save();
-  analytics.track("session_saved");
   render();
   showToast("Door session saved.","Undo",function(){ removeSessionById(s.id,saved.id); });
 }
@@ -677,8 +671,7 @@ function ask(parent,question,opts,fn){
 function startRep(){
   var beginsSession=phase==="idle"&&repIdx===0;
   phase="running"; startedAt=Date.now(); chimed=false; preChimed=false;
-  if(beginsSession) analytics.track("session_started");
-  persistActiveRun(); requestReturnNotificationPermission(); audioStart();
+    persistActiveRun(); requestReturnNotificationPermission(); audioStart();
   drawActions(); drawTabs(); drawHeadline(); drawReps();
   el("coach").hidden=true; runTicker();
 }
@@ -823,7 +816,6 @@ function commitReviewedSession(){
   closeModal("sessionReviewModal");
   pending=null; phase="idle"; repLog=[]; repIdx=0; retries=0; shuffle=0; tags=[]; note="";
   clearActiveRun(); clearInterval(tick); save();
-  analytics.track("session_saved");
   render();
 
   clearTimeout(milestoneTimer);
