@@ -31,14 +31,17 @@ trainer, veterinary behaviourist or vet.
 8. **Free core.** The core training plan, timer, history and basic progress view should
    remain genuinely useful for free.
 
-## Current delivery status (19 September 2026)
+## Current delivery status (21 September 2026)
 
-The modern app, Cloudflare Worker configuration, guided onboarding and the first automated
-release-hardening pass are merged through PR #26, and optional accounts and local-first sync
-through PR #28. The phase lists below describe the product scope, not a claim that each entry
-is still unimplemented. Use `HANDOVER.md` and `NEXT-PHASE.md` for the current sequence.
-Accounts are merged but not activated: no verified email sender is configured yet.
-Physical-device and qualified behavioural-review gates remain open.
+The modern app, production Cloudflare Worker, guided onboarding, hardening work and optional
+accounts/local-first sync are live. Account activation is complete in both preview and production:
+isolated D1 databases, Better Auth email OTP, verified Resend delivery, sync, cloud export/deletion
+and deployment verification are configured.
+
+The phase lists below describe product scope rather than implying every bullet is still open.
+The active development focus is now **release hardening and small-beta readiness**, while
+physical-device and qualified behaviour-professional review gates remain open. Use
+`HANDOVER.md`, `HARDENING-ROADMAP.md` and `NEXT-PHASE.md` for the current sequence.
 
 ## Production phases
 
@@ -70,23 +73,29 @@ Physical-device and qualified behavioural-review gates remain open.
 - The modern PWA is already merged; clear and record remaining release gates before broad public beta.
 - Deploy the modern app as `settledsolo` without overwriting the separate analytics/events Worker.
 
-### Phase 2 — free accounts and sync
+### Phase 2 — free accounts and sync ✅ baseline complete
 
-- Guest/local mode remains the default first-run experience.
-- Optional account creation.
-- Import existing local history into the account after explicit confirmation.
-- Cross-device sync.
-- Account export and deletion.
-- Recovery flow.
-- Offline writes queued and reconciled safely.
+- Guest/local mode remains the default first-run experience. **Done.**
+- Optional passwordless account creation/sign-in. **Done.**
+- Import existing local history into the account after explicit confirmation. **Done.**
+- Cross-device sync architecture and incremental sync. **Done.**
+- Account export and deletion. **Done.**
+- Recovery/conflict flow. **Done in implementation; real multi-device evidence remains a release gate.**
+- Offline writes queued and reconciled safely. **Done in implementation; real-device validation remains.**
 
-### Phase 3 — public beta
+Passkeys are intentionally deferred and are not required to call the baseline account phase complete.
 
-- New landing page separate from the training interface.
-- Help, privacy and terms pages.
-- Feedback route.
-- Small invited beta cohort followed by public access.
-- Measure activation, repeat use and session completion using aggregate analytics.
+### Phase 3 — public beta ← next product phase
+
+Already present: landing page, app route, help, privacy and terms.
+
+Next work:
+- finish the remaining PWA/device lifecycle and recovery/security gates;
+- add a clear feedback/contact route;
+- complete accessibility and final privacy/provider wording;
+- use real product screenshots and final social-share metadata;
+- run a small invited beta cohort before widening access;
+- measure activation, repeat use, session completion and sync reliability using aggregate analytics.
 
 ### Phase 4 — useful collaboration
 
