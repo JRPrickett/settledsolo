@@ -22,6 +22,11 @@ export function claimAppWindow(
 
   const claim = async () => {
     try {
+      // React Strict Mode immediately disposes its first effect setup. Do not
+      // submit that abandoned probe: the browser can reserve its lock before
+      // invoking its callback, making the real probe incorrectly see contention.
+      await Promise.resolve();
+      if (disposed) return;
       await locks.request(WINDOW_LOCK, { mode: "exclusive", ifAvailable: true }, lock => {
         if (disposed) return;
         if (!lock) {

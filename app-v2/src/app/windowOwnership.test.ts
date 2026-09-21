@@ -10,6 +10,7 @@ describe("app window ownership", () => {
     });
     const state = vi.fn();
     const dispose = claimAppWindow({ request }, state);
+    await Promise.resolve();
     expect(state.mock.calls.map(call => call[0])).toEqual(["checking", "active"]);
     expect(request.mock.calls[0][1]).toEqual({ mode: "exclusive", ifAvailable: true });
     const released = vi.fn();
@@ -25,6 +26,7 @@ describe("app window ownership", () => {
     const request = vi.fn<WindowLocks["request"]>(async (_name, _options, callback) => callback(null));
     const state = vi.fn();
     claimAppWindow({ request }, state);
+    await Promise.resolve();
     expect(state.mock.calls.map(call => call[0])).toEqual(["checking", "waiting"]);
   });
 
@@ -34,6 +36,8 @@ describe("app window ownership", () => {
     const state = vi.fn();
     const dispose = claimAppWindow({ request }, state);
     dispose();
+    await Promise.resolve();
+    expect(request).not.toHaveBeenCalled();
     expect(grant({ name: "settledsolo-app-window", mode: "exclusive" })).toBeUndefined();
     expect(state).toHaveBeenCalledExactlyOnceWith("checking");
   });
@@ -44,6 +48,7 @@ describe("app window ownership", () => {
     expect(state).toHaveBeenLastCalledWith("unavailable");
     state.mockClear();
     claimAppWindow({ request: vi.fn().mockRejectedValue(new Error("denied")) }, state);
+    await Promise.resolve();
     await Promise.resolve();
     expect(state).toHaveBeenLastCalledWith("unavailable");
   });
