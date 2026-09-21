@@ -79,6 +79,23 @@ test("setup accepts an observed comfortable duration and converts minutes to sec
   await expect(page.getByText("1:00")).toBeVisible();
 });
 
+test("HTML-like dog names are rendered as text and cannot execute", async ({
+  page,
+}) => {
+  const name = "<img src=x onerror=window.x=1>";
+  await page.goto("/app/");
+  await page.getByLabel("Your dog's name").fill(name);
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByText(name, { exact: false })).toBeVisible();
+  await expect(page.locator('img[src="x"]')).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => (window as typeof window & { x?: number }).x,
+    ),
+  ).toBeUndefined();
+});
+
 test("onboarding routes cue-sensitive dogs to departure-cue practice before leaving", async ({ page }) => {
   await page.goto("/app/");
   await page.getByLabel("Your dog's name").fill("Mabel");

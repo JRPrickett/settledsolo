@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import type { ObservedSignal, Outcome, SessionTag, TrainingSession } from "../../domain/types";
 import { observedSignalOptions } from "../../domain/observedSignals";
 import { SESSION_TAG_OPTIONS } from "../../domain/sessionTags";
+import { createOpaqueId } from "../../domain/ids";
 
 function toLocalDateTimeValue(ms: number): string {
   const offset = new Date(ms).getTimezoneOffset() * 60000;
@@ -15,7 +16,7 @@ function toggled<T>(list: T[], value: T): T[] {
 }
 
 function makeSessionId(): string {
-  return `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  return createOpaqueId("p");
 }
 
 export function SessionForm({

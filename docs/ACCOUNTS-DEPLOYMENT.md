@@ -1,34 +1,29 @@
 # Optional account activation
 
-Accounts and sync are merged on `main`, but **not activated on any deployed Worker**.
-Guest use remains the default. Unconfigured account endpoints fail closed with JSON and the app
-continues to work locally. Never point account bindings at the analytics database.
+Accounts and sync are active in preview and production. Guest use remains fully
+supported and local-first. Unconfigured account endpoints still fail closed with
+JSON and the app continues to work locally. Never point account bindings at the
+analytics database.
 
 ## Current activation state
 
-Verified on 19 September 2026, after PR #28 merged as `e13f5d4`:
+Updated on 21 September 2026 after account activation:
 
 | Item | State |
 | --- | --- |
 | Account/sync code on `main` | Merged, CI green |
 | Preview Worker | Deployed at `https://settledsolo-web-preview.jasonrprickett.workers.dev` |
-| `ACCOUNTS_ENABLED` on the deployed preview Worker | `false` |
-| Account D1 databases | **Created and empty.** `settledsolo-accounts-preview` and `settledsolo-accounts-production`, with distinct IDs |
-| Account D1 migrations | **Not applied.** Deployment applies them when accounts are enabled |
-| Account variables and secrets | **All unset.** Both D1 IDs still need storing as repository variables |
+| `ACCOUNTS_ENABLED` | `true` in preview and production |
+| Account D1 databases | Active, isolated `settledsolo-accounts-preview` and `settledsolo-accounts-production` databases |
+| Account D1 migrations | Applied independently in both environments |
+| Account variables and secrets | Configured through the corresponding GitHub environments |
 | Cloudflare deployment credentials | Present in both the `preview` and `production` GitHub environments, with D1 read/edit permission |
-| Live `/api/account/status` on preview | `{"available":false}`, private and noindexed |
+| Live `/api/account/status` | `{"available":true}`, private and noindexed |
 | Unknown API paths on preview | Fail closed as JSON, never the app shell |
 
-So the code path is deployed and failing closed exactly as intended, and every
-remaining step is provisioning and configuration rather than implementation.
-
-Provisioning confirmed that the existing Cloudflare API token carries D1 read/edit
-permission and that both GitHub environments hold Cloudflare credentials.
-
-The remaining blocker is email delivery: accounts cannot be activated without a verified
-sender, and `AUTH_ORIGIN`, `AUTH_EMAIL_FROM`, `RESEND_API_KEY` and `BETTER_AUTH_SECRET`
-are all still unset.
+The original activation steps below remain as the runbook for rebuilding an
+environment. Current security and recovery controls are documented in
+`SECURITY.md`.
 
 The provisioning workflow is idempotent: it reuses a database that already exists and
 reprints its ID, so re-run it rather than recording the UUIDs here, where they would go

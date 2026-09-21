@@ -50,7 +50,10 @@ export function AccountPanel({
         Training works without an account. Connect when you want to keep your
         log across devices.
       </p>
-      {account.available !== true && (
+      {!account.ready && (
+        <p role="status">Checking your account status…</p>
+      )}
+      {account.ready && account.available !== true && (
         <>
           <p role="status">
             {account.available === false
@@ -62,7 +65,7 @@ export function AccountPanel({
           </button>
         </>
       )}
-      {account.available === true && !account.user && (
+      {account.ready && account.available === true && !account.user && (
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -85,6 +88,19 @@ export function AccountPanel({
             });
           }}
         >
+          <div className="account-auth-summary">
+            <h3>Sign in or create a free account</h3>
+            <p>
+              <strong>No password needed.</strong> We&apos;ll email you a
+              one-time 6-digit code. If your email is new, entering the code
+              creates your account; otherwise it signs you in. There is no
+              SettledSolo password to remember or for us to store.
+            </p>
+            <p>
+              You&apos;ll stay signed in on this device until you sign out or
+              your session expires. A new device or browser needs its own code.
+            </p>
+          </div>
           <label>
             Email address
             <input
@@ -99,8 +115,9 @@ export function AccountPanel({
           {sent && (
             <>
               <p>
-                A six-digit code has been sent to {email}. It expires in five
-                minutes.
+                A one-time 6-digit code has been sent to {email}. It expires
+                in five minutes. Check your junk or spam folder if it does not
+                arrive.
               </p>
               <label>
                 Sign-in code
@@ -119,7 +136,11 @@ export function AccountPanel({
             </>
           )}
           <button type="submit" disabled={busy}>
-            {busy ? "Please wait…" : sent ? "Sign in" : "Email me a code"}
+            {busy
+              ? "Please wait…"
+              : sent
+                ? "Sign in or create account"
+                : "Email me a code"}
           </button>
           {sent && (
             <button
@@ -144,6 +165,9 @@ export function AccountPanel({
         <>
           <p>
             Signed in as <strong>{account.user.email}</strong>
+          </p>
+          <p className="account-session-status">
+            Passwordless email account · signed in on this device
           </p>
           {!owned ? (
             <p role="status">

@@ -1,3 +1,5 @@
+import { createOpaqueId } from "../domain/ids";
+
 export type NotificationPermissionState =
   | "unsupported"
   | NotificationPermission;
@@ -209,15 +211,6 @@ export async function prepareBackgroundReturnAlerts(): Promise<boolean> {
   return Boolean(await ensurePushSubscription());
 }
 
-function randomOpaqueId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}${Math.random()
-    .toString(36)
-    .slice(2)}`;
-}
-
 function pushClientId(): string {
   if (fallbackClientId) return fallbackClientId;
 
@@ -228,18 +221,18 @@ function pushClientId(): string {
       return existing;
     }
 
-    const created = randomOpaqueId();
+    const created = createOpaqueId();
     localStorage.setItem(PUSH_CLIENT_ID_KEY, created);
     fallbackClientId = created;
     return created;
   } catch {
-    fallbackClientId = randomOpaqueId();
+    fallbackClientId = createOpaqueId();
     return fallbackClientId;
   }
 }
 
 export function createReturnAlertToken(): string {
-  return randomOpaqueId();
+  return createOpaqueId();
 }
 
 export async function scheduleBackgroundReturnAlert(

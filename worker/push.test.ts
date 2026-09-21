@@ -128,6 +128,24 @@ describe("background return push", () => {
     );
     expect(badEndpoint.status).toBe(400);
 
+    const endpointWithCredentials = await handlePushApi(
+      request("https://settledsolo.test", "/api/push/schedule", {
+        ...body,
+        endpoint: "https://user:password@web.push.apple.com/Q2-example"
+      }),
+      env
+    );
+    expect(endpointWithCredentials.status).toBe(400);
+
+    const endpointWithPort = await handlePushApi(
+      request("https://settledsolo.test", "/api/push/schedule", {
+        ...body,
+        endpoint: "https://web.push.apple.com:8443/Q2-example"
+      }),
+      env
+    );
+    expect(endpointWithPort.status).toBe(400);
+
     const scheduled = await handlePushApi(
       request("https://settledsolo.test", "/api/push/schedule", body),
       env
@@ -142,5 +160,30 @@ describe("background return push", () => {
       sessionToken: body.sessionToken,
       targetAt: Math.floor(body.targetAt)
     });
+  });
+
+  it("rate-limits alert requests before reading private payloads", async () => {
+    const keys = await makeVapidKeys();
+    const rateLimitKeys: string[] = [];
+    const response = await handlePushApi(
+      request("https://settledsolo.test", "/api/push/schedule", {
+        private: "payload must not be needed for an IP limit"
+      }),
+      {
+        SITE_URL: "https://settledsolo.test",
+        VAPID_PUBLIC_KEY: keys.publicKey,
+        VAPID_PRIVATE_KEY: keys.privateKey,
+        RETURN_ALERTS: {} as DurableObjectNamespace,
+        PUSH_RATE_LIMITER: {
+          limit: async ({ key }) => {
+            rateLimitKeys.push(key);
+            return { success: false };
+          }
+        } as RateLimit
+      }
+    );
+
+    expect(response.status).toBe(429);
+    expect(rateLimitKeys).toEqual(["/api/push/schedule:unknown"]);
   });
 });

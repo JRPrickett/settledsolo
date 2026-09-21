@@ -7,6 +7,7 @@ import {
   cueOutcome,
   recommendCueLevel
 } from "../../domain/departureCues";
+import { createOpaqueId } from "../../domain/ids";
 
 export function DepartureCuePracticeView({
   data,
@@ -37,7 +38,7 @@ export function DepartureCuePracticeView({
   async function save() {
     const outcome = cueOutcome(relaxedReps, concernReps);
     const session: DepartureCueSession = {
-      id: `c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`,
+      id: createOpaqueId("c"),
       at: Date.now(),
       cueIndex: recommendation.cueIndex,
       relaxedReps,

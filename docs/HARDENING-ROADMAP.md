@@ -1,6 +1,6 @@
 # SettledSolo production hardening roadmap
 
-**Date:** 20 September 2026  
+**Date:** 21 September 2026
 **Phase:** Production hardening  
 **Status:** PRs #34–#41 merged; native background return alerts deployed to preview, physical-device evidence pending  
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
@@ -88,7 +88,8 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 
 ## H5 — Account and sync activation hardening
 
-Accounts stay disabled until this phase is proven in preview.
+Accounts are active in preview and production. Continue treating the evidence
+below as ongoing release gates, not as one-time activation tasks.
 
 - Configure verified email delivery and isolated preview credentials.
 - Run configuration preflight before any migration/deploy.
@@ -107,12 +108,12 @@ The Worker already has a strong baseline: same-origin checks, secure cookies, re
 
 Hardening work:
 
-- add regression assertions for security headers on public, app and API responses;
-- test rejected origin/method/content-type/oversized requests;
+- add regression assertions for security headers on public, app and API responses; **Done in the passwordless/security hardening PR.**
+- test rejected origin/method/content-type/oversized requests; **Done in the passwordless/security hardening PR.**
 - test that user-provided/imported HTML-like text is rendered as text and cannot execute;
 - confirm preview/app/API noindex behaviour;
-- keep workflow permissions minimal and secrets out of logs/generated config;
-- review dependencies and keep lockfile-driven installs reproducible;
+- keep workflow permissions minimal and secrets out of logs/generated config; **Step-scoped secrets and immutable action revisions added in the passwordless/security hardening PR.**
+- review dependencies and keep lockfile-driven installs reproducible; **Dependabot configuration added; lockfile installs retained.**
 - confirm analytics never receives dog names, notes, outcomes, durations or training history;
 - review CSP exceptions such as `style-src 'unsafe-inline'` before beta and retain only what the UI requires.
 
@@ -140,9 +141,9 @@ Do not use training outcomes as an efficacy claim.
 5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
 6. ~~Run the repository storage/concurrency pass from H3.~~ Done: PR #40; multi-tab policy and user-facing degraded-storage messaging remain.
 7. Complete PWA/device lifecycle gates, including preview Web Push deployment and real iPhone return-alert evidence.
-8. Activate accounts on **preview only** and run the real two-device/security checks.
+8. Continue real two-device/security checks now that preview and production accounts are active.
 9. Clear qualified behaviour-professional review and public-beta essentials.
-10. Activate production accounts only after the preview/release evidence is recorded.
+10. Keep production account changes behind preview evidence and the manual deployment gate.
 
 ## Public-beta release gate
 

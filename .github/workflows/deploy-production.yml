@@ -15,28 +15,21 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
-      ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
-      ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
-      AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
-      AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .node-version
 
       - name: Validate deployment credentials
         shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing CLOUDFLARE_API_TOKEN"; exit 1; }
@@ -44,6 +37,14 @@ jobs:
 
       - name: Check account configuration
         shell: bash
+        env:
+          ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
+          ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
+          ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
+          AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
+          AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           # pipefail matters: tee would otherwise hide a failed preflight.
           set -euo pipefail
@@ -60,6 +61,16 @@ jobs:
         run: npm run verify
 
       - name: Deploy production Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ACCOUNTS_ENABLED: ${{ vars.ACCOUNTS_ENABLED }}
+          ACCOUNTS_PREVIEW_D1_ID: ${{ vars.ACCOUNTS_PREVIEW_D1_ID }}
+          ACCOUNTS_PRODUCTION_D1_ID: ${{ vars.ACCOUNTS_PRODUCTION_D1_ID }}
+          AUTH_ORIGIN: ${{ vars.AUTH_ORIGIN }}
+          AUTH_EMAIL_FROM: ${{ vars.AUTH_EMAIL_FROM }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: node scripts/deploy-app.mjs production
 
       - name: Verify deployed account endpoints

@@ -10,6 +10,7 @@ export function useAccount(
 ) {
   const [available, setAvailable] = useState<boolean | null>(null);
   const [user, setUser] = useState<AccountUser | null>(null);
+  const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
   const running = useRef(false);
@@ -109,15 +110,20 @@ export function useAccount(
   );
   useEffect(() => {
     let mounted = true;
-    void refresh().catch(() => {
-      if (mounted) setAvailable(null);
-    });
+    void refresh()
+      .catch(() => {
+        if (mounted) setAvailable(null);
+      })
+      .finally(() => {
+        if (mounted) setReady(true);
+      });
     return () => {
       mounted = false;
       epoch.current++;
     };
   }, [refresh]);
   useEffect(() => {
+    if (!ready) return;
     const check = async () => {
       if (document.visibilityState !== "visible" || pausedRef.current) return;
       if (!currentUser.current) {
@@ -140,10 +146,11 @@ export function useAccount(
       window.removeEventListener("focus", check);
       document.removeEventListener("visibilitychange", check);
     };
-  }, [syncNow, user, paused, refresh]);
+  }, [syncNow, user, paused, refresh, ready]);
   return {
     available,
     user,
+    ready,
     error,
     syncing,
     refresh,

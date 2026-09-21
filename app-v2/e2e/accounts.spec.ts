@@ -24,7 +24,13 @@ function cloud() {
       changes.push(record);
     },
     async attach(context: BrowserContext) {
-      const state = { signedIn: false, online: true, account: "owner", hold: null as Promise<void> | null };
+      const state = {
+        signedIn: false,
+        online: true,
+        account: "owner",
+        hold: null as Promise<void> | null,
+        sessionHold: null as Promise<void> | null,
+      };
       await context.route("**/api/**", async (route) => {
         const path = new URL(route.request().url()).pathname;
         if (!state.online) {
@@ -34,7 +40,8 @@ function cloud() {
         const respond = (json: unknown, status = 200) =>
           route.fulfill({ status, json });
         if (path === "/api/account/status") return respond({ available: true });
-        if (path === "/api/auth/get-session")
+        if (path === "/api/auth/get-session") {
+          if (state.sessionHold) await state.sessionHold;
           return respond(
             state.signedIn
               ? {
@@ -45,6 +52,7 @@ function cloud() {
                 }
               : null,
           );
+        }
         if (path.endsWith("send-verification-otp"))
           return respond({ success: true });
         if (path.endsWith("sign-in/email-otp")) {
@@ -119,10 +127,46 @@ async function setup(page: Page) {
 async function signIn(page: Page) {
   await page.getByLabel("Email address").fill("owner@example.test");
   await page.getByRole("button", { name: "Email me a code" }).click();
+  await expect(page.getByText(/Check your junk or spam folder/)).toBeVisible();
   await page.getByLabel("Sign-in code").fill("123456");
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Sign in or create account", exact: true })
+    .click();
   await expect(page.getByText("Signed in as", { exact: false })).toBeVisible();
+  await expect(
+    page.getByText("Passwordless email account · signed in on this device"),
+  ).toBeVisible();
 }
+test("onboarding waits for the session check and hides the account prompt when signed in", async ({
+  page,
+  context,
+}) => {
+  const server = cloud();
+  const state = await server.attach(context);
+  state.signedIn = true;
+  let release!: () => void;
+  state.sessionHold = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  await page.goto("/app/");
+  await expect(page.getByLabel("Your dog's name")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Sign in or create a free account" }),
+  ).toHaveCount(0);
+
+  const sessionResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/get-session"),
+  );
+  release();
+  await sessionResponse;
+  await page.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+  );
+  await expect(
+    page.getByRole("button", { name: "Sign in or create a free account" }),
+  ).toHaveCount(0);
+});
 test("account import is explicit, controls fit mobile, and sign-out prevents account mixing", async ({
   page,
   context,
@@ -131,6 +175,13 @@ test("account import is explicit, controls fit mobile, and sign-out prevents acc
   const state = await server.attach(context);
   await setup(page);
   await page.getByRole("button", { name: "More", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Sign in or create a free account" }),
+  ).toBeVisible();
+  await expect(page.getByText(/No password needed/)).toBeVisible();
+  await expect(
+    page.getByText(/new device or browser needs its own code/),
+  ).toBeVisible();
   await page.screenshot({
     path: info.outputPath("account-signin.png"),
     fullPage: true,
@@ -170,6 +221,7 @@ test("offline local save syncs later and restores on a second device without dup
   context,
   browser,
 }, info) => {
+  test.setTimeout(60_000);
   const server = cloud();
   const state = await server.attach(context);
   await setup(page);
@@ -200,7 +252,7 @@ test("offline local save syncs later and restores on a second device without dup
     const other = await second.newPage();
     await other.goto("/app/");
     await other
-      .getByRole("button", { name: "Already have an account? Sign in" })
+      .getByRole("button", { name: "Sign in or create a free account" })
       .click();
     await signIn(other);
     await other

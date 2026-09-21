@@ -6,6 +6,7 @@ interface PushSecrets {
 
 export interface PushEnv extends PushSecrets {
   RETURN_ALERTS?: DurableObjectNamespace;
+  PUSH_RATE_LIMITER?: RateLimit;
 }
 
 interface PendingAlert {
@@ -118,7 +119,13 @@ function vapidConfigured<T extends PushSecrets>(
 function pushEndpointAllowed(endpoint: string): boolean {
   try {
     const url = new URL(endpoint);
-    if (url.protocol !== "https:") return false;
+    if (
+      url.protocol !== "https:" ||
+      url.username ||
+      url.password ||
+      url.port
+    )
+      return false;
     const host = url.hostname.toLowerCase();
     return (
       host === "fcm.googleapis.com" ||
@@ -315,6 +322,13 @@ export async function handlePushApi(
   if (request.headers.get("origin") !== url.origin) {
     return json({ error: "Open SettledSolo directly to continue." }, 403);
   }
+  if (env.PUSH_RATE_LIMITER) {
+    const limited = await env.PUSH_RATE_LIMITER.limit({
+      key: `${url.pathname}:${request.headers.get("cf-connecting-ip") ?? "unknown"}`,
+    });
+    if (!limited.success)
+      return json({ error: "Too many alert requests. Try again shortly." }, 429);
+  }
 
   let body: unknown;
   try {
@@ -348,6 +362,14 @@ export async function handlePushApi(
       return json({ error: "Invalid return alert." }, 400);
     }
 
+    if (env.PUSH_RATE_LIMITER) {
+      const limited = await env.PUSH_RATE_LIMITER.limit({
+        key: `${url.pathname}:client:${input.clientId}`,
+      });
+      if (!limited.success)
+        return json({ error: "Too many alert requests. Try again shortly." }, 429);
+    }
+
     const stub = env.RETURN_ALERTS.get(
       env.RETURN_ALERTS.idFromName(input.clientId)
     );
@@ -367,6 +389,14 @@ export async function handlePushApi(
     const input = body as Partial<CancelInput>;
     if (!validOpaqueId(input.clientId) || !validOpaqueId(input.sessionToken)) {
       return json({ error: "Invalid return alert." }, 400);
+    }
+
+    if (env.PUSH_RATE_LIMITER) {
+      const limited = await env.PUSH_RATE_LIMITER.limit({
+        key: `${url.pathname}:client:${input.clientId}`,
+      });
+      if (!limited.success)
+        return json({ error: "Too many alert requests. Try again shortly." }, 429);
     }
 
     const stub = env.RETURN_ALERTS.get(

@@ -4,7 +4,7 @@ import { handlePushApi, type PushEnv } from "./push";
 
 export { ReturnAlertScheduler } from "./push";
 
-interface Env extends AccountEnv, PushEnv {
+export interface Env extends AccountEnv, PushEnv {
   ASSETS: Fetcher;
   /** Canonical production origin. Preview hosts are automatically noindexed. */
   SITE_URL?: string;
@@ -74,6 +74,9 @@ function secure(response: Response, url: URL, env: Env): Response {
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  headers.set("Origin-Agent-Cluster", "?1");
+  headers.set("X-Permitted-Cross-Domain-Policies", "none");
 
   const isApi = url.pathname.startsWith("/api/");
   if (isApi) headers.set("Cache-Control", "no-store, private");
@@ -108,19 +111,48 @@ function secure(response: Response, url: URL, env: Env): Response {
   });
 }
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-
+export async function handleRequest(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  const url = new URL(request.url);
+  try {
     if (url.pathname.startsWith("/api/push/")) {
       return secure(await handlePushApi(request, env), url, env);
     }
 
-    if (url.pathname.startsWith("/api/")) return secure(await handleAccountApi(request, env), url, env);
+    if (url.pathname.startsWith("/api/"))
+      return secure(await handleAccountApi(request, env), url, env);
+
+    if (!["GET", "HEAD"].includes(request.method)) {
+      return secure(
+        new Response("Method not allowed", {
+          status: 405,
+          headers: { Allow: "GET, HEAD" },
+        }),
+        url,
+        env,
+      );
+    }
 
     const redirect = canonicalHostRedirect(url, env);
     if (redirect) return secure(redirect, url, env);
 
     return secure(await env.ASSETS.fetch(request), url, env);
+  } catch {
+    const unavailable = url.pathname.startsWith("/api/")
+      ? Response.json(
+          { error: "Service unavailable. Try again later." },
+          { status: 503 },
+        )
+      : new Response("SettledSolo is temporarily unavailable.", {
+          status: 503,
+        });
+
+    return secure(unavailable, url, env);
   }
+}
+
+export default {
+  fetch: handleRequest,
 } satisfies ExportedHandler<Env>;
