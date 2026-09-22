@@ -20,8 +20,8 @@ threads.
 
 r/dogtraining runs a recurring weekly "Separation Anxiety Support Group" megathread — evidence
 of sustained, high-volume demand. r/Separation_Anxiety exists almost entirely as discussion of
-one commercial product (Julie Naismith's "Be Right Back" app/method) — the single most
-concentrated pocket of the target user.
+one commercial separation-training programme — the single most concentrated pocket of the target
+user.
 
 ### Findings, prioritized
 
@@ -54,7 +54,7 @@ concentrated pocket of the target user.
    log," not "talk to your dog," and consider a check-frequency limiter as an anti-obsession
    feature.
 
-5. **Julie Naismith's app is the dominant competitor and has real, repeated complaints**:
+5. **A leading commercial programme is the dominant competitor and has real, repeated complaints**:
    cohort-gated access that closes and reopens unpredictably, rising subscription cost ($25/mo
    → $13/mo app-only after the 3-month program), and reputational hesitancy tied to the trainer
    personally (alleged support for aversive tools, causing at least one user to actively avoid a
@@ -79,7 +79,7 @@ concentrated pocket of the target user.
 Reviewed via App Store, Trustpilot, and ProductReview.com.au listings (fetched directly where
 available); Google Play review bodies were not reachable through available tooling.
 
-**Be Right Back (Julie Naismith)** — web-only, bundled inside a 3-month program; no App
+**A leading commercial separation-training programme** — web-only, bundled inside a 3-month program; no App
 Store/Play listing. No independent third-party reviews found anywhere (Reddit, Trustpilot, app
 stores). The gating itself is notable: no standalone trial, so you can't try the product before
 buying the full program. Pricing from a secondary, unverified source only (~$127/3 months or

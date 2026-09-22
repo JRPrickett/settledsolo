@@ -2,7 +2,7 @@
 
 Last reviewed: 22 September 2026
 
-Threshold is a training/planning aid, not a diagnostic or veterinary product. This document
+SettledSolo is a training/planning aid, not a diagnostic or veterinary product. This document
 separates what is supported by published evidence from the product heuristics we use to turn
 that evidence into a practical app.
 
@@ -33,7 +33,7 @@ In the same study, treatment success was not associated with how consistently ow
 the length of consecutive separations. Separation duration and symptom severity were also not
 significantly correlated for six of seven dogs with complete duration data.
 
-Threshold therefore should not claim that a precise mathematical percentage increase is
+SettledSolo therefore should not claim that a precise mathematical percentage increase is
 scientifically necessary. The product should favour conservative, comprehensible steps and
 allow easier/shorter sessions whenever appropriate.
 
@@ -44,7 +44,7 @@ behaviours included vocalisation, orientation to the environment, panting and de
 Many signs appeared early after departure. The authors argued that direct video observation is
 preferable for diagnosis and measuring behavioural change when practical.
 
-Threshold should encourage users to observe with an existing pet camera/phone and record what
+SettledSolo should encourage users to observe with an existing pet camera/phone and record what
 they actually saw rather than infer state only from elapsed time.
 
 Source:
@@ -57,7 +57,7 @@ A 2024 systematic review of counterconditioning-based dog behaviour intervention
 substantial variation in definitions and implementation, small samples, and limited
 generalisability. Separation-related behaviour appeared relatively resistant to change.
 
-Threshold therefore must not present any generated target as a clinically validated prescription
+SettledSolo therefore must not present any generated target as a clinically validated prescription
 or promise a universal timeline.
 
 Source:
@@ -90,7 +90,7 @@ Sources:
 - Sargisson RJ. *Canine separation anxiety: strategies for treatment and management*. Veterinary
   Medicine: Research and Reports. 2014;5:143-151. PMID 33062616 / PMCID PMC7521022.
 
-Threshold's production departure-cue mode therefore:
+SettledSolo's production departure-cue mode therefore:
 
 - is a separate track from timed absences;
 - never asks the owner to leave during cue-only practice;
@@ -101,8 +101,8 @@ Threshold's production departure-cue mode therefore:
 - steps back and recommends stopping after clear/escalating concern.
 
 The exact rule "two calm three-repetition sets before advancing" is a **product heuristic**, not a
-published clinical dosage. It is intentionally conservative and remains subject to professional
-review.
+published clinical dosage. It is intentionally conservative and must remain labelled as a
+SettledSolo planning rule.
 
 ## What the evidence does NOT establish
 
@@ -120,10 +120,9 @@ dosage rules.
 ### Training frequency and the daily ceiling
 
 The peer-reviewed literature above does not establish a universal number of main departures per
-day. Julie Naismith's current public FAQ recommends regular short practice and says consistency
-matters more than occasional long sessions; her podcast guidance also emphasises realistic
-frequency and the importance of days off. Those are practitioner guidance, not a clinical dosage
-rule.
+day. SettledSolo's own practical synthesis favours regular, realistic short practice, recovery
+between repetitions and easier days when needed. Those are planning considerations, not a
+clinical dosage rule.
 
 SettledSolo therefore uses **two timed training sessions as the default daily ceiling**, with
 **three as the absolute product maximum**. This is a conservative planning boundary, counted
@@ -132,24 +131,13 @@ choose one, and the app's rest-day and observation guidance can still recommend 
 session that ends during a warm-up still uses one allowance because it involved a real departure;
 departure-cue practice does not count because the owner never leaves.
 
-Sources:
-
-- Julie Naismith, *Dog Separation Anxiety FAQ* —
-  https://julienaismith.com/faq/
-- Julie Naismith, *Episode 63: Answered! Your Most Frequently Asked Questions (Part 1)* —
-  https://julienaismith.com/podcast/episode-63/
-- Julie Naismith, *Be Right Back* baseline assessment worksheets —
-  https://julienaismith.com/book-resource/
-
 ### Warm-up variation
 
-No source establishes a precise number or percentage of warm-up departures. Julie's published
-baseline worksheets do show varied, non-monotonic short-step sequences before a final target, but
-those examples are not a universal dosage formula. SettledSolo keeps its conservative product
-bounds — brief steps, no longer than one minute, and no more than half of a target below two
-minutes — and the Today-page **Shuffle** action changes the order of a fixed, bounded set rather
-than inventing arbitrary durations. Variation remains a product heuristic, not a clinically
-validated formula.
+No source establishes a precise number or percentage of warm-up departures. SettledSolo keeps its
+conservative product bounds — brief steps, no longer than one minute, and no more than half of a
+target below two minutes — and the Today-page **Shuffle** action changes the order of a fixed,
+bounded set rather than inventing arbitrary durations. Variation remains a product heuristic, not
+a clinically validated formula.
 
 ## Practitioner credentials and clinical guidance
 
@@ -216,7 +204,7 @@ It does **not** establish a universal starting duration.
 
 SettledSolo currently uses **3 seconds** for the unknown-duration route. That exact number is a
 deliberately conservative **product heuristic**, not a clinically validated dosage or diagnostic
-threshold. It should remain labelled as such and is part of the professional-review gate.
+threshold. It should remain labelled as such in the product and documentation.
 
 For dogs routed through cue practice, the app waits for repeated relaxed practice at the most
 departure-like doorway cue before offering a timed departure. The exact readiness rule is also a
@@ -314,8 +302,8 @@ The initial production engine uses human-readable absolute increments:
 - over 30 min: +60 s
 
 These numbers are deliberately modest and easy to understand. They are not presented as a
-scientific formula and should be reviewed with a qualified behaviour professional before public
-beta.
+scientific formula or clinical dosage. Any future change should be evidence-logged, clearly
+labelled as a product heuristic and covered by regression tests.
 
 ## Outcome language
 
@@ -329,16 +317,9 @@ Production UI:
 
 The app should always encourage returning before distress develops.
 
-## Professional review gate
+## Limits and maintenance
 
-Before public launch, review by a CSAT, CDBC, or veterinary behaviourist (DACVB) — see
-"Practitioner credentials and clinical guidance" above — should cover:
-
-- onboarding and safety wording;
-- outcome descriptions;
-- progression / reduction heuristics;
-- departure-cue exercises;
-- professional-support escalation wording.
-
-The review should be documented as review of product content and heuristics, not as an endorsement
-claim unless explicit permission is obtained.
+SettledSolo is independently maintained and does not claim professional review or endorsement.
+The evidence base should be revisited when the product changes, while the boundary between
+published evidence, clinical guidance and SettledSolo product heuristics remains explicit. Safety
+referral wording is retained for users who need veterinary or qualified behaviour support.

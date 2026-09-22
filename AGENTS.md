@@ -59,7 +59,9 @@ Before changing training logic or behavioural copy:
 - Do not prescribe medication. Referral wording may suggest discussing persistent/severe cases with a vet or appropriately qualified behaviour professional.
 - Repeated or strong distress should make the plan easier, stop the session, or surface support guidance — never increase difficulty.
 
-Substantive behaviour/protocol changes should remain subject to the qualified behaviour-professional review release gate.
+Substantive behaviour/protocol changes must be documented against the evidence base, clearly label
+product heuristics, preserve safety boundaries and be covered by tests. SettledSolo must not imply
+professional review or endorsement where none exists.
 
 ## 5. Data and privacy rules
 

@@ -238,8 +238,8 @@ function shuffled<T>(values: T[], seed: number): T[] {
  * also cap warm-ups at half the main target.
  *
  * The count, shape and ceiling remain SettledSolo product heuristics rather
- * than Julie Naismith's published baseline plans. The safety rule is that every
- * practice departure stays below the main ceiling and remains brief.
+ * than any fixed published baseline plan. The safety rule is that every practice
+ * departure stays below the main ceiling and remains brief.
  */
 export function buildPracticeDepartures(
   targetSeconds: number,

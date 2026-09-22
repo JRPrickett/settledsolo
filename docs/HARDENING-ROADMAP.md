@@ -133,6 +133,7 @@ Only after the reliability gates above are substantially green:
 - add a clear feedback/contact route;
 - finalise privacy/account/provider wording;
 - replace stale local-only/account-coming-later copy wherever account state can differ;
+- publish the owned resources/FAQ/cheatsheet pages and final SEO metadata;
 - add final real product screenshots and social-share image metadata;
 - confirm brand/domain/trademark readiness;
 - invite a small beta cohort and record qualitative failures/friction before widening access.
@@ -148,7 +149,7 @@ Do not use training outcomes as an efficacy claim.
 4. Complete installed iOS/Android lifecycle gates, including update/notification/background-return evidence.
 5. Complete real two-device sync/offline/conflict and live OTP/rate-limit checks.
 6. Add the remaining browser-level sync conflict/recovery and security/privacy assertions.
-7. Clear qualified behaviour-professional review and public-beta contact/accessibility/assets/provider wording.
+7. Clear public-beta contact/accessibility/assets/provider wording and publish the owned resources/SEO pass.
 8. Begin a deliberately small invited beta, then widen only after reliability/friction evidence is acceptable.
 
 ## Public-beta release gate
@@ -163,7 +164,7 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 - real installed iOS and Android checks recorded;
 - live account/two-device checks recorded;
 - privacy/account copy matches actual behaviour;
-- qualified behaviour-professional review recorded;
+- evidence and product-heuristic boundaries are accurately represented;
 - rollback/export/recovery paths are understood.
 
 ### H3 follow-up — storage failure recovery (21 September, merged PR #52)

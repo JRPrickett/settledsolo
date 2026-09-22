@@ -21,6 +21,7 @@ export function PublicSite() {
             <a href="#how-it-works">How it works</a>
             <a href="#the-session">The session</a>
             <a href="/evidence">Evidence</a>
+            <a href="/resources">Resources</a>
           </div>
           <details className="marketing-mobile-menu">
             <summary>Explore</summary>
@@ -29,6 +30,7 @@ export function PublicSite() {
               <a href="#the-session">The session</a>
               <a href="/evidence">Evidence</a>
               <a href="/help">Help</a>
+              <a href="/resources">Resources</a>
             </div>
           </details>
           <a href="/app/" className="marketing-nav-cta">Start free</a>
@@ -40,8 +42,8 @@ export function PublicSite() {
           <div className="marketing-hero-copy">
             <h1>Calm starts with small steps.</h1>
             <p className="marketing-lead">
-              A gentle, practical way to build comfortable alone time—one
-              observable, manageable departure at a time.
+              A free dog separation anxiety training tool for building comfortable
+              alone time—one observable, manageable departure at a time.
             </p>
             <div className="marketing-actions">
               <PublicInstallAction />
@@ -187,8 +189,8 @@ export function PublicSite() {
             </article>
             <article>
               <span>Where the product stands</span>
-              <h3>Built transparently, with review still to complete.</h3>
-              <p>Training wording and heuristics are scheduled for qualified professional review before general launch.</p>
+              <h3>Independent, transparent and honest about its limits.</h3>
+              <p>SettledSolo explains which ideas come from evidence and which are its own conservative planning heuristics.</p>
             </article>
           </div>
           <a className="marketing-text-link" href="/evidence">Read the evidence notes <ArrowIcon /></a>
@@ -220,7 +222,8 @@ export function PublicSite() {
               <p>
                 No. Core training works locally and is free, with no signup wall or trial
                 that silently converts. Optional account backup and cross-device sync are
-                planned, and any future paid features would require clear opt-in.
+                available where enabled, and any future paid feature would require clear
+                opt-in.
               </p>
             </details>
             <details>
@@ -229,6 +232,14 @@ export function PublicSite() {
                 No. SettledSolo uses evidence-supported behavioural principles, while
                 its exact software step sizes are conservative product heuristics.
                 The reason for each recommendation is shown in plain English.
+              </p>
+            </details>
+            <details>
+              <summary>When should I ask a professional for help?</summary>
+              <p>
+                Pause timed departures and seek veterinary or qualified behaviour support
+                for self-injury, destructive escape attempts, rapidly escalating distress,
+                or repeated sessions that cannot stay manageable.
               </p>
             </details>
           </div>
@@ -249,6 +260,7 @@ export function PublicSite() {
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="/help">Help</a>
+            <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
           </span>
           <span>SettledSolo is a training and record-keeping aid, not a diagnosis.</span>

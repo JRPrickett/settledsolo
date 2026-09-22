@@ -129,7 +129,7 @@ Before public beta:
 
 1. document every progression rule in plain English;
 2. identify which rules are safety/product heuristics versus evidence-backed principles;
-3. have the overall logic reviewed by a qualified behaviour professional;
+3. keep the evidence/heuristic boundary explicit in the product and public documentation;
 4. keep manual override easy;
 5. use conservative defaults;
 6. explain why a target moved;

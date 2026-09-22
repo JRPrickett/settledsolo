@@ -43,6 +43,26 @@ test("a warm-up concern stops the session before the main departure", async ({ p
   await expect(page.getByText("Some concern", { exact: true })).toBeVisible();
 });
 
+test("warm-up return control stays visible after the target on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await completeSetup(page, 8);
+
+  await page.getByRole("button", { name: "More" }).click();
+  await page.getByLabel("Warm-up count").fill("1");
+  await page.getByLabel("Suggested settle time").fill("0");
+  await page.getByRole("button", { name: "Save track changes" }).click();
+  await page.getByRole("button", { name: "Today" }).click();
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await expect(page.getByText(/Practice 1 of/)).toBeVisible();
+
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  const returnButton = page.getByRole("button", { name: "I'm back" });
+  await expect(returnButton).toBeVisible();
+  await page.waitForTimeout(3_300);
+  await expect(page.getByText("Target reached")).toBeVisible();
+  await expect(returnButton).toBeInViewport();
+});
+
 test("a running session survives a reload and keeps its original timer", async ({ page }) => {
   await completeSetup(page, 5);
 

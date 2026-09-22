@@ -13,7 +13,7 @@ export default defineConfig({
         name: "SettledSolo — dog separation training",
         short_name: "SettledSolo",
         description:
-          "Plan gradual dog separation training, track what happens, and adapt the next step without pushing through distress.",
+          "Free dog separation anxiety training tool for gradual, observable alone-time practice.",
         start_url: "/app/",
         scope: "/",
         display: "standalone",
@@ -34,7 +34,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         importScripts: ["push-sw.js"],
         navigateFallback: "/index.html",
-        navigateFallbackAllowlist: [/^\/$/, /^\/app\/?$/, /^\/privacy\/?$/, /^\/terms\/?$/, /^\/help\/?$/, /^\/evidence\/?$/]
+        navigateFallbackAllowlist: [/^\/$/, /^\/app\/?$/, /^\/privacy\/?$/, /^\/terms\/?$/, /^\/help\/?$/, /^\/resources\/?$/, /^\/evidence\/?$/]
       }
     })
   ],

@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 22 September 2026 (account phase complete; separation-training safety hardening)
+**Last updated:** 22 September 2026 (beta-readiness UX, owned content and SEO pass)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `bf5fbec` (through PR #55, before this documentation merge)
+**Reviewed main:** `e250aa1` (through PR #56)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #55 before this documentation refresh. PRs #52–#55 closed the
+Main is current through PR #56 before this documentation refresh. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -20,8 +20,9 @@ remains local-first and usable offline.
 
 The active development phase is **release hardening → small-beta readiness**. Remaining priorities
 are real installed-device lifecycle evidence, real two-device sync/offline/conflict proof, the
-remaining security/privacy checks, qualified behaviour-professional review and public-beta
-essentials. Avoid discretionary feature expansion until those release gates are clear.
+remaining security/privacy checks and public-beta essentials. SettledSolo does not claim
+professional review or endorsement. Avoid discretionary feature expansion until those release
+gates are clear.
 
 The custom product-event analytics Worker/database has been retired. Registered Better Auth
 account totals are now the canonical user-count metric; an exact PWA-install count is not inferred
@@ -32,8 +33,8 @@ See `SECURITY.md` for the threat boundaries, incident response and recovery runb
 reuses an existing database, so UUIDs are deliberately not recorded in this repository.
 
 Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 September
-follow-up safety hardening now also applied. The remaining behaviour-quality release gates are
-qualified behaviour-professional review and real-device testing.
+follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
+real-device testing; product heuristics remain explicitly labelled as heuristics.
 
 ### 22 September — warm-up and red-flag safety hardening
 
@@ -50,6 +51,15 @@ The one-time pre-protocol observation is no longer offered to known-duration use
 requires an already-safe absence; it does not ask owners to leave for a few minutes to discover
 a limit. Today Shuffle now changes the order of a fixed bounded warm-up set, and the daily
 ceiling is described as a SettledSolo safety limit rather than clinical dosage.
+
+### 22 September — beta-readiness UX, owned resources and SEO
+
+The history editor now reflows inside narrow mobile viewports, keeps form controls at a usable
+touch-target size and exposes an explicit, confirmed delete action from the history row as well
+as the editor. Desktop live sessions keep the “I'm back” control visible after the warm-up target
+is reached. The public site now has owned resources/FAQ content, canonical SEO metadata, a sitemap
+and a beta roadmap. No named external commercial training site is linked or presented as an
+affiliation. Monetisation remains a later product decision with a free core.
 
 See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activation runbook,
 and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
@@ -529,8 +539,8 @@ Desktop sanity checks are still open.
 ## Behaviour-quality roadmap status
 
 `docs/SA-QUALITY-ROADMAP.md` items 1–5 are complete. There is no queued implementation
-work in that roadmap. The remaining behaviour-related release requirement is a qualified
-behaviour-professional review of the wording and heuristics already implemented.
+work in that roadmap. The product maintains an evidence/heuristic boundary and does not claim
+professional review or endorsement.
 
 Any new behaviour feature should start from fresh evidence/research rather than treating the
 completed roadmap as an open backlog.
@@ -540,7 +550,7 @@ completed roadmap as an open backlog.
 Before a broad public beta, remaining work includes:
 
 - complete the physical-device release gates;
-- qualified behaviour-professional review of wording/heuristics;
+- publish the owned resources/FAQ/cheatsheet and complete the SEO pass;
 - feedback/contact route;
 - final real product screenshots/social metadata;
 - final account/privacy wording once auth/sync exists;
@@ -560,8 +570,8 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 4. ~~Retire legacy product analytics and replace it with registered-account counts.~~ Done: PR #55.
 5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
 6. Finish the remaining browser-level conflict/recovery and security/privacy assertions.
-7. Clear qualified behaviour-professional review plus feedback/contact, accessibility, product
-   screenshots and final social/privacy/provider wording.
+7. Clear feedback/contact, accessibility, product screenshots, owned resources/SEO and final
+   social/privacy/provider wording.
 8. Start with a deliberately small invited beta and measure adoption/reliability without efficacy claims.
 
 
