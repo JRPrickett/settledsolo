@@ -47,7 +47,7 @@ Add browser-level proof for flows that exist in the product but are not yet cove
 - Backup **export + restore round-trip**, not restore alone. **Done: PR #38.**
 - Track/scenario settings: duration entry, minutes/seconds handling, warm-up count, shuffle and rest settings. **Done: PR #38.**
 - Navigation after save/recovery so a completed session cannot reappear as active.
-- Error-boundary fallback and successful reload/recovery.
+- Error-boundary fallback and successful reload/recovery. **Done: release-hardening PR (22 Sept) — the error screen also downloads a saved-data backup.**
 - Account-aware copy: local-only users and connected users must not be told contradictory things about backup/sync. **History copy fixed in PR #38.**
 
 **Exit:** every primary screen and every destructive/data-changing action has at least one realistic browser journey.
@@ -117,12 +117,12 @@ Hardening work:
 
 - add regression assertions for security headers on public, app and API responses; **Done in the passwordless/security hardening PR.**
 - test rejected origin/method/content-type/oversized requests; **Done in the passwordless/security hardening PR.**
-- test that user-provided/imported HTML-like text is rendered as text and cannot execute;
-- confirm preview/app/API noindex behaviour;
+- test that user-provided/imported HTML-like text is rendered as text and cannot execute; **Done: release-hardening PR (22 Sept).**
+- confirm preview/app/API noindex behaviour; unknown public paths now return a real 404 with noindex;
 - keep workflow permissions minimal and secrets out of logs/generated config; **Step-scoped secrets and immutable action revisions added in the passwordless/security hardening PR.**
 - review dependencies and keep lockfile-driven installs reproducible; **Dependabot configuration added; lockfile installs retained.**
 - confirm the retired product-event analytics pipeline has not been reintroduced; **Retirement completed in PR #55; keep this as a regression boundary.**
-- review CSP exceptions such as `style-src 'unsafe-inline'` before beta and retain only what the UI requires.
+- review CSP exceptions such as `style-src 'unsafe-inline'` before beta and retain only what the UI requires. **Done: `'unsafe-inline'` removed; the production-bundle PWA gate now runs under the Worker's CSP and fails on any violation (this also removed Zod's eval probe).**
 
 **Exit:** known security boundaries are executable tests where practical, not just assumptions in documentation.
 
@@ -130,7 +130,7 @@ Hardening work:
 
 Only after the reliability gates above are substantially green:
 
-- add a clear feedback/contact route;
+- add a clear feedback/contact route; **Done: `/contact` and More → Help & feedback. Set the `VITE_CONTACT_EMAIL` GitHub environment variable to show the inbox.**
 - finalise privacy/account/provider wording;
 - replace stale local-only/account-coming-later copy wherever account state can differ;
 - publish the owned resources/FAQ/cheatsheet pages and final SEO metadata;

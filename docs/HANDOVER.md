@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 22 September 2026 (beta-readiness UX, owned content and SEO pass)
+**Last updated:** 22 September 2026 (release-hardening pass on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `e250aa1` (through PR #56)
+**Reviewed main:** `53bc2e4` (through PR #58)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #56 before this documentation refresh. PRs #52–#56 closed the
+Main is current through PR #58. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -35,6 +35,44 @@ reuses an existing database, so UUIDs are deliberately not recorded in this repo
 Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 September
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
+
+### 22 September — release-hardening pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
+
+Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Live-session bug fixed.** On Android/desktop, the first "I'm leaving now" tap awaited the
+  browser notification prompt *before* starting the timer. An owner who walked out with the
+  prompt still open had no running departure. The timer now starts synchronously on the tap;
+  permission is still requested within the same gesture and push scheduling waits for the
+  answer. A pending alert is flagged cancelled when the departure ends, so a late "granted"
+  cannot schedule a return alert for a finished departure. Regression-tested; the existing
+  reload-recovery journey failed consistently in the authoring environment's Chromium because
+  of this, where its prompt takes about a second to resolve.
+- **Error screen rescue.** The app error boundary now offers "Download a backup first", reading
+  persisted storage directly because the React tree holding the data has failed. Browser
+  coverage forces a render failure, checks the backup contents and proves reload recovers.
+- **Contact/feedback.** New `/contact` page and More → Help & feedback card (help, resources,
+  evidence, privacy, terms, contact). The inbox comes from `VITE_CONTACT_EMAIL`; while it is unset
+  the page and links still show the self-service routes but no email address or send button. The feedback email template carries only app mode, storage mode and browser
+  string, editable before sending, never the dog name or training record.
+- **Build-time links wired.** `VITE_SUPPORT_URL` was documented but never passed by either deploy
+  workflow. Both workflows now read `VITE_SUPPORT_URL` and `VITE_CONTACT_EMAIL` from GitHub
+  environment variables in the build ("Verify product") step. Cloudflare direct builds need the
+  same variables set in the Cloudflare build settings if that path is used.
+- **Real 404s.** Unknown public paths render a not-found page (noindex, no canonical) and the
+  Worker returns status 404 instead of a 200 duplicate of the homepage. `app-v2/src/public/routes.ts`
+  is the single public-route list used by the router, Worker and service-worker offline allowlist.
+- **CSP tightened and executable.** `style-src 'unsafe-inline'` is removed. The CSP lives in
+  `worker/csp.ts` and the vite preview server sends it, so `npm run test:pwa` now includes
+  `csp.spec.ts`, which fails on any `securitypolicyviolation` across public pages and a full
+  training session. That gate exposed Zod's `new Function` probe firing on every page; Zod now
+  runs in `jitless` mode.
+- **Long names.** Long unbroken dog/track names or notes previously widened the mobile layout and
+  pushed the bottom navigation off-screen. App text now wraps and the header name chip truncates.
+- HTML-like imported text is covered by a browser test proving it renders inertly as text.
+
+Local evidence: `npm run verify` green; full Chromium Playwright suite and Chromium PWA/CSP gate
+green. WebKit could not run in the authoring environment, so the WebKit/iPhone profile relies on CI.
 
 ### 22 September — warm-up and red-flag safety hardening
 
@@ -551,7 +589,7 @@ Before a broad public beta, remaining work includes:
 
 - complete the physical-device release gates;
 - publish the owned resources/FAQ/cheatsheet and complete the SEO pass;
-- feedback/contact route;
+- ~~feedback/contact route~~ done in the release-hardening pass; set `VITE_CONTACT_EMAIL` to open the inbox;
 - final real product screenshots/social metadata;
 - final account/privacy wording once auth/sync exists;
 - confirm formal brand/trademark/domain readiness;
@@ -569,8 +607,10 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 3. ~~Protect training/sync from competing app windows.~~ Done: PR #54.
 4. ~~Retire legacy product analytics and replace it with registered-account counts.~~ Done: PR #55.
 5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
-6. Finish the remaining browser-level conflict/recovery and security/privacy assertions.
-7. Clear feedback/contact, accessibility, product screenshots, owned resources/SEO and final
+6. Finish the remaining browser-level sync-conflict assertions (error-boundary recovery,
+   HTML-as-text and CSP-violation gates are now done).
+7. Set `VITE_CONTACT_EMAIL` (and `VITE_SUPPORT_URL` when a provider is confirmed) as GitHub
+   environment variables, then clear accessibility, product screenshots and final
    social/privacy/provider wording.
 8. Start with a deliberately small invited beta and measure adoption/reliability without efficacy claims.
 
