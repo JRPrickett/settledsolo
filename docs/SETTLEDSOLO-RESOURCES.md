@@ -8,6 +8,20 @@ practical principles: start below meaningful distress, observe what the dog actu
 adapt to the individual and avoid repeatedly rehearsing panic. They are not a diagnosis,
 clinical dosage or substitute for veterinary or qualified behaviour support.
 
+## Printable downloads
+
+The public Resources page includes three first-party PDFs:
+
+- `settledsolo-session-cheatsheet.pdf` — a compact five-step reminder for a planned
+  session;
+- `settledsolo-setback-checklist.pdf` — a recovery and next-step checklist after a
+  difficult session;
+- `settledsolo-observation-log.pdf` — a five-session printable log for duration, context,
+  first observations and recovery.
+
+They are designed to support observation and calm decision-making, not to turn duration
+into a score or replace veterinary advice.
+
 ## One-session cheatsheet
 
 1. Choose a duration your dog has already handled comfortably. Do not use the session to
@@ -68,6 +82,24 @@ and ask for support if you are unsure.
 Use departure-cue practice while staying home: handle keys, shoes, a bag or the door in a
 small way, then return to ordinary activity before concern builds. Keep cue practice brief
 and separate from timed absences.
+
+### Is separation-related distress always obvious?
+
+No. Pacing, panting, exit-watching, food refusal, freezing, repeated vocalising or
+following a person closely before departure can all be useful observations. They are not
+diagnostic in isolation, so consider the context and ask for help when the picture is
+unclear.
+
+### Is comfort after a return harmful?
+
+There is no need to withhold calm comfort. Keep returns ordinary and focus on avoiding
+repeated absences that push the dog into panic.
+
+### Should medical decisions be part of the training algorithm?
+
+No. Questions about medication, illness, confinement or procedures such as spaying or
+neutering belong with a veterinarian who can assess the individual dog. The app does not
+make those decisions.
 
 ### When should I stop and ask for help?
 

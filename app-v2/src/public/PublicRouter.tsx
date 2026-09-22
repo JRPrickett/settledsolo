@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
+import { OptionalSupportCard } from "./PublicSupport";
 
 const CANONICAL_ORIGIN = "https://settledsolo.com";
 const DEFAULT_DESCRIPTION =
@@ -228,6 +229,27 @@ function EvidencePage() {
           Palestrini et al., Applied Animal Behaviour Science (2010)
         </a>
       </p>
+      <h2>Signs can be easy to miss</h2>
+      <p>
+        Stress is not always loud. Pacing, panting, repeated lip-licking or yawning,
+        freezing, refusing a normally welcome treat, watching the exit or following you
+        closely before departure can all be useful observations. None of these signs is
+        diagnostic on its own; context and direct observation matter.
+      </p>
+      <h2>Management is part of the plan</h2>
+      <p>
+        Where practical, avoid absences that are longer than your dog can currently
+        manage while you are building comfort. A sitter, daycare, friend, schedule change
+        or work-from-home day can protect the gaps between planned sessions. Calm comfort
+        after a return is fine; there is no need to make reunions cold or dramatic.
+      </p>
+      <h2>Medical questions stay with a vet</h2>
+      <p>
+        SettledSolo cannot decide whether medication, confinement changes, illness or a
+        procedure such as spaying or neutering is relevant to an individual dog. The
+        evidence is not strong enough for a general app rule, so those decisions belong
+        in a conversation with your veterinarian.
+      </p>
       <h2>What the app adds</h2>
       <p>
         The exact software increments, repetition rules and support flags are conservative
@@ -256,10 +278,8 @@ function EvidencePage() {
       </p>
       <p>
         The peer-reviewed sources and product boundary notes are collected in the
-        <a href="/resources">SettledSolo resources</a> and the project&apos;s
-        <a href="https://github.com/JRPrickett/settledsolo/blob/main/docs/EVIDENCE-BASE.md" target="_blank" rel="noreferrer">
-          evidence-base notes
-        </a>.
+        <a href="/resources">SettledSolo resources</a>, including printable checklists
+        and an observation log.
       </p>
     </InfoPage>
   );
@@ -291,6 +311,18 @@ function HelpPage() {
         training information. If concern appears, end the absence and make the next
         session easier.
       </p>
+      <h2>Comfort is not a reward you need to withhold</h2>
+      <p>
+        Keep departures and returns ordinary, but there is no training benefit in making
+        your dog wait for comfort after you come home. The important boundary is avoiding
+        repeated absences that push them into panic.
+      </p>
+      <h2>What if the trigger is not the absence?</h2>
+      <p>
+        Noise, confinement, illness, incomplete housetraining or a changed routine can
+        look similar from a distance. Record what you observe and ask a vet or qualified
+        behaviour professional when the picture is unclear.
+      </p>
       <h2>Know when to pause</h2>
       <p>
         Repeated difficult sessions, escalating distress, self-injury or destructive
@@ -312,6 +344,37 @@ function ResourcesPage() {
         page</a> with cautious product heuristics. They are not a diagnosis, a
         replacement for veterinary care or a promise of a particular result.
       </p>
+      <section className="resource-downloads" aria-labelledby="downloads-heading">
+        <div>
+          <p className="marketing-eyebrow">Free downloads</p>
+          <h2 id="downloads-heading">Keep the useful reminders close by.</h2>
+          <p>
+            These are SettledSolo&apos;s own printable pages for the fridge, notebook or
+            training bag. They are designed to support observation without turning every
+            departure into a performance review.
+          </p>
+        </div>
+        <div className="resource-download-grid">
+          <a className="resource-download" href="/resources/settledsolo-session-cheatsheet.pdf" download>
+            <span>PDF download</span>
+            <strong>One-session cheat sheet</strong>
+            <p>Five reminders for choosing, observing and closing a manageable session.</p>
+            <b>Download the cheat sheet <span aria-hidden="true">↗</span></b>
+          </a>
+          <a className="resource-download" href="/resources/settledsolo-setback-checklist.pdf" download>
+            <span>PDF download</span>
+            <strong>Setback checklist</strong>
+            <p>A calm sequence for reviewing a difficult session and choosing a smaller next step.</p>
+            <b>Download the checklist <span aria-hidden="true">↗</span></b>
+          </a>
+          <a className="resource-download" href="/resources/settledsolo-observation-log.pdf" download>
+            <span>PDF download</span>
+            <strong>Observation log</strong>
+            <p>A printable five-session log for duration, context, first signs and recovery.</p>
+            <b>Download the log <span aria-hidden="true">↗</span></b>
+          </a>
+        </div>
+      </section>
       <h2>One-session cheat sheet</h2>
       <ol>
         <li>Choose a duration your dog has already handled comfortably.</li>
@@ -352,6 +415,39 @@ function ResourcesPage() {
           </p>
         </details>
         <details>
+          <summary>What if my dog looks worried before I leave?</summary>
+          <p>
+            Practise one small departure cue while staying home: pick up keys, put on
+            shoes or touch the door, then return to ordinary activity before concern
+            builds. Keep cue practice brief and separate from timed absences.
+          </p>
+        </details>
+        <details>
+          <summary>Is separation anxiety just boredom or stubbornness?</summary>
+          <p>
+            Not necessarily. Separation-related distress can include subtle changes such
+            as pacing, panting, exit-watching or refusing food. A camera or careful
+            observation can help distinguish it from boredom, frustration, confinement or
+            another problem.
+          </p>
+        </details>
+        <details>
+          <summary>Should I ignore my dog when I get home?</summary>
+          <p>
+            No special coldness is required. Keep the return calm and ordinary, and focus
+            on avoiding absences that are too difficult. Comfort after a hard moment is
+            not something you need to withhold.
+          </p>
+        </details>
+        <details>
+          <summary>Will spaying, neutering or medication fix this?</summary>
+          <p>
+            There is no one-size-fits-all answer that the app can safely give. Medical
+            decisions and medication belong with your veterinarian, who can consider the
+            whole dog, the home setup and any other health factors.
+          </p>
+        </details>
+        <details>
           <summary>What if I miss a day?</summary>
           <p>
             Nothing needs catching up. Resume with an easy, familiar step rather than
@@ -368,6 +464,7 @@ function ResourcesPage() {
           </p>
         </details>
       </div>
+      <OptionalSupportCard compact />
       <a className="marketing-primary info-cta" href="/app/">Open SettledSolo</a>
     </InfoPage>
   );
@@ -389,7 +486,7 @@ export function PublicRouter() {
     return <HelpPage />;
   }
   if (path === "/resources") {
-    setPublicMetadata("Dog separation anxiety resources | SettledSolo", "Owned checklists, FAQs and practical resources for gradual dog separation anxiety training.", path);
+    setPublicMetadata("Dog separation anxiety resources | SettledSolo", "Owned FAQs, printable checklists and observation tools for gradual dog separation anxiety training.", path);
     return <ResourcesPage />;
   }
   if (path === "/evidence") {

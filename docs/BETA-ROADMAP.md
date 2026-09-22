@@ -7,6 +7,22 @@ free, local-first and understandable; users can keep and delete their records; t
 site explains the evidence and limits; and release risks are tested on real devices before
 the audience widens.
 
+## Next update in progress
+
+The next beta pass keeps the core training loop free while making the public product more
+useful and easier to find:
+
+- the public evidence and resources pages are SettledSolo-owned and contain original FAQs,
+  practical guidance and printable downloads;
+- the public site does not expose a repository, maintainer profile or external trainer
+  sales page;
+- Today shows the last target, last actual duration and next target at a glance;
+- Progress can filter its duration view by outcome;
+- an optional one-off support CTA is implemented behind `VITE_SUPPORT_URL`, so a provider
+  account is never guessed or hard-coded into the product;
+- the app continues to separate published evidence, clinical questions and SettledSolo
+  product heuristics.
+
 ## Tranche 1 — beta-readiness UX and trust
 
 Current pass:
@@ -43,11 +59,13 @@ The core plan, timer, history, export and basic progress view should remain usef
 Monetisation is deliberately staged:
 
 1. **Beta:** no payment wall. Measure whether the product is useful and reliable.
-2. **Optional support:** if users ask for it, add a clearly labelled “Support SettledSolo”
-   or “Buy me a coffee” link only after choosing a provider and confirming the account,
-   fees, region and privacy terms. It must be optional and must not interrupt training.
-3. **Paid additions:** consider only after usage evidence. Candidate features are richer
-   reports, multiple-dog workspaces, trainer sharing or advanced reminders/integrations —
+2. **Optional support:** the CTA is ready, but remains hidden until `VITE_SUPPORT_URL` is
+   populated with the confirmed provider URL. Confirm the account, fees, region, payout
+   details and privacy terms before enabling it in production. It must be optional and
+   must not interrupt training.
+3. **Paid additions:** consider only after usage evidence and an explicit provider choice.
+   Candidate features are richer reports, multiple-dog workspaces, trainer sharing or
+   advanced reminders/integrations —
    never safety-critical access to the core record.
 
 Guardrails for any future payment flow: explicit opt-in, clear price and renewal terms,
