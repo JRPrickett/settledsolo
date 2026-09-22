@@ -200,12 +200,35 @@ export function defaultWarmupCount(targetSeconds: number): number {
     : LONG_SESSION_WARMUP_COUNT;
 }
 
+function seededRandom(seed: number): () => number {
+  let state = (Math.trunc(seed) >>> 0) || 0x6d2b79f5;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffled<T>(values: T[], seed: number): T[] {
+  const result = [...values];
+  const random = seededRandom(seed);
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
 /**
- * `variabilitySeed` (typically how many main departures have already been
- * logged) varies the practice order so a dog can't learn the shape of the
- * warm-up and anticipate what's coming next. Short targets default to four
+ * `variabilitySeed` is normally a per-session random seed. It selects distinct
+ * brief durations and puts them in a non-linear order, so the dog cannot learn
+ * that every session is the same staircase. Short targets default to four
  * warm-ups; longer targets keep two. Every warm-up is capped at one minute,
  * and targets below two minutes also cap warm-ups at half the main target.
+ *
+ * The exact count and duration range are product heuristics. The safety rule is
+ * that every practice departure stays below the main ceiling and remains brief.
  */
 export function buildPracticeDepartures(
   targetSeconds: number,
@@ -230,6 +253,14 @@ export function buildPracticeDepartures(
   const actualCount = Math.min(count, available);
   if (actualCount === 0) return [];
 
+  if (shuffleWarmups) {
+    const candidates = Array.from(
+      { length: available },
+      (_, index) => minimum + index
+    );
+    return shuffled(candidates, variabilitySeed).slice(0, actualCount);
+  }
+
   const values: number[] = [];
   for (let index = 0; index < actualCount; index += 1) {
     const fraction = actualCount === 1 ? 0.5 : index / (actualCount - 1);
@@ -242,10 +273,7 @@ export function buildPracticeDepartures(
     values.push(Math.min(maximum, seconds));
   }
 
-  if (!shuffleWarmups || values.length <= 1) return values;
-
-  const rotation = Math.abs(Math.round(variabilitySeed)) % values.length;
-  return [...values.slice(rotation), ...values.slice(0, rotation)];
+  return values;
 }
 
 export function formatDuration(totalSeconds: number): string {

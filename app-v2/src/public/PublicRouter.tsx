@@ -172,6 +172,30 @@ function EvidencePage() {
         product heuristics. They are deliberately explainable and are not described as a
         clinically validated dose of training.
       </p>
+      <h2>Frequency and warm-up variation</h2>
+      <p>
+        There is no published universal number of main departures to perform each day.
+        SettledSolo uses two as its default daily ceiling and three as its absolute maximum;
+        choose less whenever observation or the plan says to. This is a conservative product
+        boundary, not a clinical prescription.
+      </p>
+      <p>
+        Julie Naismith&apos;s public guidance emphasises regular, realistic practice and rest
+        days. Her current FAQ and podcast are useful background reading:
+        {" "}
+        <a href="https://julienaismith.com/faq/" target="_blank" rel="noreferrer">
+          FAQ
+        </a>{" "}
+        and{" "}
+        <a href="https://julienaismith.com/podcast/episode-63/" target="_blank" rel="noreferrer">
+          episode 63
+        </a>.
+      </p>
+      <p>
+        The Today-page Shuffle action varies the brief warm-up durations within the app&apos;s
+        safety bounds. That variation is a usability heuristic, not a clinically validated
+        formula.
+      </p>
       <h2>Professional review</h2>
       <p>
         The training wording and heuristics are scheduled for review by an appropriately

@@ -1,6 +1,6 @@
 # Evidence base and training-engine decisions
 
-Last reviewed: 18 September 2026
+Last reviewed: 22 September 2026
 
 Threshold is a training/planning aid, not a diagnostic or veterinary product. This document
 separates what is supported by published evidence from the product heuristics we use to turn
@@ -116,6 +116,35 @@ Published research does not establish a universal rule such as:
 
 Those were reasonable prototype heuristics, but they must not be described as evidence-based
 dosage rules.
+
+### Training frequency and the daily ceiling
+
+The peer-reviewed literature above does not establish a universal number of main departures per
+day. Julie Naismith's current public FAQ recommends regular short practice and says consistency
+matters more than occasional long sessions; her podcast guidance also emphasises realistic
+frequency and the importance of days off. Those are practitioner guidance, not a clinical dosage
+rule.
+
+SettledSolo therefore uses **two main departures as the default daily ceiling**, with **three as
+the absolute product maximum**. This is a conservative planning boundary, counted across all
+training tracks for the same dog. It is a ceiling rather than a quota: a user can choose one, and
+the app's rest-day and observation guidance can still recommend doing less. Warm-up departures
+inside one session do not count as additional main departures.
+
+Sources:
+
+- Julie Naismith, *Dog Separation Anxiety FAQ* —
+  https://julienaismith.com/faq/
+- Julie Naismith, *Episode 63: Answered! Your Most Frequently Asked Questions (Part 1)* —
+  https://julienaismith.com/podcast/episode-63/
+
+### Warm-up variation
+
+No source establishes a precise number or percentage of warm-up departures. SettledSolo keeps the
+existing conservative bounds — brief steps, no longer than one minute, and no more than half of a
+target below two minutes — while the Today-page **Shuffle** action chooses a fresh set of distinct
+durations. Variation is a product heuristic intended to prevent the warm-up becoming a predictable
+staircase; it is not presented as a clinically validated formula.
 
 ## Practitioner credentials and clinical guidance
 

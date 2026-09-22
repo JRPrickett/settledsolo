@@ -174,6 +174,11 @@ describe("backup restore", () => {
     });
   });
 
+  it("reduces an older daily ceiling to the current maximum", () => {
+    const data = parseBackupText(envelope({ dailyCap: 10 }));
+    expect(data.dailyCap).toBe(3);
+  });
+
   it("rejects unrecognised JSON", () => {
     expect(() => parseBackupText('{"hello":"world"}')).toThrow(
       /not a recognised/i

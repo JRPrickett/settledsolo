@@ -47,7 +47,6 @@ export function LiveSession({
   initialState,
   variabilitySeed = 0,
   warmupCount,
-  shuffleWarmups,
   restSeconds = 60,
   onClose,
   onSaved,
@@ -60,7 +59,6 @@ export function LiveSession({
   initialState?: PersistedLiveSession["state"];
   variabilitySeed?: number;
   warmupCount?: number;
-  shuffleWarmups?: boolean;
   restSeconds?: number;
   onClose: () => Promise<void>;
   onSaved: (session: TrainingSession) => Promise<void>;
@@ -72,9 +70,9 @@ export function LiveSession({
         targetSeconds,
         variabilitySeed,
         warmupCount,
-        shuffleWarmups
+        true
       ),
-    [targetSeconds, variabilitySeed, warmupCount, shuffleWarmups]
+    [targetSeconds, variabilitySeed, warmupCount]
   );
   const steps = useMemo<SessionStep[]>(
     () => [

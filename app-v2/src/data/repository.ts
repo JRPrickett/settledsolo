@@ -21,6 +21,7 @@ import {
 import { activeScenario, freshAppData, replaceScenario } from "./appData";
 import { LEGACY_KEY, readLegacyAppData } from "./legacyImport";
 import { createOpaqueId } from "../domain/ids";
+import { clampDailyCap } from "../domain/dailyCap";
 
 const DB_NAME = "dog-training-app";
 const DB_VERSION = 1;
@@ -249,7 +250,7 @@ function normaliseAppData(data: AppData): AppData {
     dailyCap:
       data.dailyCap == null
         ? undefined
-        : Math.max(1, Math.min(10, Math.round(data.dailyCap)))
+        : clampDailyCap(data.dailyCap)
   };
 }
 

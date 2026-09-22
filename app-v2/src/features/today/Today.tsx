@@ -22,6 +22,10 @@ import { AccountNotice } from "../../components/AccountNotice";
 import { MilestoneBanner } from "../progress/MilestoneBanner";
 import type { Achievement, EarnedMilestone } from "../../domain/milestones";
 
+function newWarmupSeed(): number {
+  return Math.floor(Math.random() * 0x7fffffff) || Date.now();
+}
+
 export function Today({
   data,
   storageMode,
@@ -36,7 +40,7 @@ export function Today({
   storageMode: StorageMode;
   celebration: { milestones: EarnedMilestone[]; achievements: Achievement[] } | null;
   onDismissCelebration: () => void;
-  onStart: (target: number) => void;
+  onStart: (target: number, warmupSeed: number) => void;
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
   onRecordObservation: (
@@ -53,11 +57,12 @@ export function Today({
     () => recommendCueLevel(scenario.cuePractice),
     [scenario.cuePractice]
   );
+  const [warmupSeed, setWarmupSeed] = useState(newWarmupSeed);
   const practice = buildPracticeDepartures(
     recommendation.targetSeconds,
-    scenario.sessions.length,
+    warmupSeed,
     scenario.warmupCount,
-    scenario.shuffleWarmups
+    true
   );
   const capReached = isDailyCapReached(data, effectiveDailyCap(data));
   const [restDayOverride, setRestDayOverride] = useState(false);
@@ -199,11 +204,23 @@ export function Today({
 
           {practice.length > 0 && !capReached && !showRestDayCard && (
             <div className="practice-preview">
-              <span>Before the main departure</span>
-              <strong>
+              <div className="practice-preview-heading">
+                <span>Before the main departure</span>
+                <button
+                  type="button"
+                  className="shuffle-button"
+                  aria-label="Shuffle warm-up durations"
+                  onClick={() => setWarmupSeed(newWarmupSeed())}
+                >
+                  Shuffle
+                </button>
+              </div>
+              <strong aria-live="polite" aria-atomic="true">
                 {practice.map((seconds) => formatDuration(seconds)).join(" · ")}
               </strong>
-              <small>Short practice departures with calm settle time between them.</small>
+              <small>
+                Brief, varied practice departures with calm settle time between them.
+              </small>
             </div>
           )}
 
@@ -265,7 +282,7 @@ export function Today({
             <>
               <button
                 className="primary-button start-button"
-                onClick={() => onStart(recommendation.targetSeconds)}
+                onClick={() => onStart(recommendation.targetSeconds, warmupSeed)}
               >
                 Start today&apos;s session
               </button>

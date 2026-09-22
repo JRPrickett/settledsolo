@@ -15,6 +15,7 @@ import { readLegacyAppData } from "./legacyImport";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 // Derived rather than duplicated: a new signal is accepted by restore automatically.
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { clampDailyCap } from "../domain/dailyCap";
 
 const outcomes: Outcome[] = ["relaxed", "concern", "distressed"];
 
@@ -233,7 +234,7 @@ export function sanitiseImportedAppData(value: unknown): AppData {
     dailyCap:
       value.dailyCap == null
         ? undefined
-        : Math.max(1, Math.min(10, Math.round(finiteNumber(value.dailyCap, 2))))
+        : clampDailyCap(finiteNumber(value.dailyCap, 2))
   };
 }
 

@@ -7,6 +7,7 @@ import type {
   DepartureCueSession,
 } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { MAX_DAILY_CAP } from "../domain/dailyCap";
 const id = z.string().min(1).max(100);
 const seconds = z.number().int().min(0).max(86400);
 const outcome = z.enum(["relaxed", "concern", "distressed"]);
@@ -17,7 +18,7 @@ const profile = z
     kind: z.literal("profile"),
     dogId: id,
     dogName: z.string().max(40),
-    dailyCap: z.number().int().min(1).max(10).optional(),
+    dailyCap: z.number().int().min(1).max(MAX_DAILY_CAP).optional(),
     onboarding: z
       .object({
         version: z.literal(2),

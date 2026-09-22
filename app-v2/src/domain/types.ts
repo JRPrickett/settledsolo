@@ -64,7 +64,10 @@ export interface Scenario {
   cuePractice?: DepartureCuePractice;
   /** Number of short practice departures before the main one. Defaults to four below ten minutes. */
   warmupCount?: number;
-  /** Vary the warm-up order from session to session when enabled. */
+  /**
+   * Legacy persisted preference. The current app exposes a per-session shuffle
+   * action on Today instead of a permanent setting.
+   */
   shuffleWarmups?: boolean;
   /** Suggested minimum settle time between departures, in seconds. Defaults to 60 when unset. */
   restSeconds?: number;
@@ -91,6 +94,6 @@ export interface AppData {
   preProtocolObservation?: import("./preProtocolObservation").PreProtocolObservation;
   activeScenarioId: string;
   scenarios: Scenario[];
-  /** Main departures allowed per day, counted across every scenario. Defaults to 2 when unset. */
+  /** Main departures allowed per day, counted across every scenario. Defaults to 2 and is capped at 3. */
   dailyCap?: number;
 }
