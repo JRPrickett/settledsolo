@@ -5783,3 +5783,13 @@ a:focus-visible {
     font-size: 14px;
   }
 }
+
+.error-card .error-backup-button {
+  margin-top: 12px;
+}
+
+.error-backup-status {
+  margin: 12px 0 0;
+  color: var(--ink);
+  line-height: 1.5;
+}

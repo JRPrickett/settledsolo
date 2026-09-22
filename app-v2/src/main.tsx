@@ -26,7 +26,7 @@ if (isAppRoute) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AppErrorBoundary>
+    <AppErrorBoundary offerBackup={isAppRoute}>
       {isAppRoute ? <SingleWindowGuard>{compatibility => <App singleWindowCompatibility={compatibility} />}</SingleWindowGuard> : <PublicRouter />}
     </AppErrorBoundary>
   </StrictMode>
