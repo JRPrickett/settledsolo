@@ -44,6 +44,7 @@ delivery. It is still not a substitute for the remaining two-device and installe
 - Removed the installation-as-backup claim and retained standalone JSON/CSV export.
 - Kept mobile inputs at 16px, wrapping long email addresses and providing explicit error text.
 
+
 ## Validation status
 
 Local/code validation covers type/build/Worker dry-run, legacy regressions, sync model and actual
@@ -54,7 +55,7 @@ Live activation is also complete:
 - Better Auth/Resend secrets and account variables are configured per environment;
 - real OTP email delivery has succeeded;
 - `/api/account/status` reports accounts available on preview and production;
-- post-deploy verification now checks the intended enabled state correctly.
+- post-deploy verification checks the intended enabled state correctly.
 
 ## Remaining release evidence
 
@@ -63,9 +64,3 @@ Live activation is also complete:
 - Installed iOS/Android offline lifecycle, safe updates, alerts and device-copy deletion behaviour.
 - Final privacy/contact/provider-retention information; physical-device and professional
   behavioural-review gates remain open from the earlier roadmap.
-- Compatibility-storage mode deliberately pauses cloud sync. Export remains available; do not
-  claim that storage fallback reconciles two already-divergent populated local stores.
-- Account UI currently supports one dog per log; records carry a dog ID for future extension.
-- Passkeys, admin metrics and paid features are not in this implementation.
-- Large histories sync in bounded pages; operational retention/compaction of the incremental
-  change log remains a later measured optimisation, not a prerequisite for the small preview cohort.

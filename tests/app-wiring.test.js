@@ -9,11 +9,7 @@ assert.match(
   "The session editor must import validOutcome before its submit handler uses it."
 );
 
-// Product analytics must remain deliberately separate from private training data.
-assert.match(app,/analytics\.track\("session_started"\);/);
-assert.match(app,/analytics\.track\("session_saved"\);/);
-assert.doesNotMatch(app,/analytics\.track\("session_(?:started|saved)",\s*\{/);
-assert.doesNotMatch(app,/dogName:\s*dogName\(\)/);
-assert.doesNotMatch(app,/targetSeconds:/);
+// The retired product-event pipeline must not creep back into the legacy app.
+assert.doesNotMatch(app,/createAnalytics|ANALYTICS_CONFIG|analytics\.track/);
 
 console.log("app-wiring.test.js passed");

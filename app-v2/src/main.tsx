@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { AppErrorBoundary } from "./app/AppErrorBoundary";
+import { SingleWindowGuard } from "./app/SingleWindowGuard";
 import { PublicRouter } from "./public/PublicRouter";
 import "@fontsource/fraunces/500.css";
 import "@fontsource/fraunces/600.css";
@@ -26,7 +27,7 @@ if (isAppRoute) {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AppErrorBoundary>
-      {isAppRoute ? <App /> : <PublicRouter />}
+      {isAppRoute ? <SingleWindowGuard>{compatibility => <App singleWindowCompatibility={compatibility} />}</SingleWindowGuard> : <PublicRouter />}
     </AppErrorBoundary>
   </StrictMode>
 );

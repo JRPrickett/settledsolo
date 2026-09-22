@@ -1,3 +1,4 @@
+import { StorageNotice } from "./components/StorageNotice";
 import { AccountPanel } from "./account/AccountPanel";
 import { useAccount } from "./account/useAccount";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,8 +27,11 @@ import { newlyEarnedAchievements, newlyEarnedMilestones } from "./domain/milesto
 
 type Screen = "today" | "progress" | "history" | "more";
 
-export default function App() {
-  const repository = useMemo(() => createAppRepository(), []);
+export default function App({ singleWindowCompatibility = false }: { singleWindowCompatibility?: boolean }) {
+  const repository = useMemo(
+    () => createAppRepository({ useWebLocks: !singleWindowCompatibility }),
+    [singleWindowCompatibility]
+  );
   const persistLiveSession = useCallback(
     (snapshot: PersistedLiveSession) => repository.saveActiveSession(snapshot),
     [repository]
@@ -69,6 +73,9 @@ export default function App() {
     };
   }, [repository]);
 
+  useEffect(() => repository.subscribeStorageMode(setStorageMode), [repository]);
+
+  function renderContent() {
   if (!data) {
     return (
       <main className="setup-shell">
@@ -278,7 +285,7 @@ export default function App() {
         )}
       </main>
 
-      <PwaUpdateNotice />
+      <PwaUpdateNotice canUpdate={storageMode !== "memory"} />
 
       <nav className="bottom-nav" aria-label="Main navigation">
         {([
@@ -298,5 +305,13 @@ export default function App() {
         ))}
       </nav>
     </div>
+  );
+  }
+
+  return (
+    <>
+      {data && <StorageNotice data={data} mode={storageMode} training={liveTarget !== null || cuePracticeOpen} />}
+      {renderContent()}
+    </>
   );
 }

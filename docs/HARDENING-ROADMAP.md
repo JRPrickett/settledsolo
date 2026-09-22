@@ -2,7 +2,7 @@
 
 **Date:** 21 September 2026
 **Phase:** Production hardening  
-**Status:** Accounts active in preview/production; hardening baseline substantially complete; device/beta evidence pending  
+**Status:** Accounts active; PRs #52–#55 merged; device/two-device/beta evidence pending
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -52,21 +52,24 @@ Add browser-level proof for flows that exist in the product but are not yet cove
 
 **Exit:** every primary screen and every destructive/data-changing action has at least one realistic browser journey.
 
+
 ## H3 — Storage, recovery and concurrency
 
-This is the highest-risk product area because failures can lose trust even when the training logic is correct.
+This is a high-risk product area because failures can lose trust even when the training logic is correct.
 
-Already protected: reload recovery, fallback-to-IndexedDB promotion, expired-checkpoint rejection, save deduplication and offline local save.
+Already protected: reload recovery, fallback-to-IndexedDB promotion, expired-checkpoint rejection,
+save deduplication, offline local save, storage-failure backup/recovery messaging and single-window
+write ownership.
 
 Still harden:
 
-- define and test the policy for multiple tabs/windows using the same local log;
-- prove rapid repeated add/edit/delete actions cannot overwrite newer local data; **Done: PR #40.**
-- exercise corrupted or partially valid stored data and confirm safe normalisation/fallback; **Done: PR #40.**
-- exercise storage-write failure where feasible and surface a useful recovery/backup message; **Storage degradation behaviour covered in PR #40; user-facing message still to assess.**
-- verify backup restore never imports authentication/sync ownership from another account; **Done: PR #40.**
+- multiple tabs/windows policy and enforcement; **Done: PR #54; see `MULTI-WINDOW-SAFETY.md`.**
+- rapid repeated add/edit/delete cannot overwrite newer local data; **Done: PR #40.**
+- corrupted/partially valid stored data normalises/falls back safely; **Done: PR #40.**
+- storage-write failure preserves the last durable snapshot and surfaces recovery/backup actions; **Done: PR #52.**
+- backup restore never imports authentication/sync ownership from another account; **Done: PR #40.**
 - add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests;
-- prove sign-out, local reset and cloud deletion remain three distinct operations. **Done: PR #40.**
+- prove sign-out, local reset and cloud deletion remain distinct operations; **Done: PR #40.**
 
 **Exit:** interruption, concurrency or malformed local state cannot silently discard a completed session.
 
@@ -85,6 +88,7 @@ Automated PWA coverage remains necessary but is not enough for installed mobile 
 - Record device, OS, browser/PWA mode, commit and result in `DEVICE-TEST-MATRIX.md`.
 
 **Exit:** the real-device matrix contains evidence for iOS and Android, with any OS limitation explicitly documented rather than assumed away.
+
 
 ## H5 — Account and sync operational validation
 
@@ -117,7 +121,7 @@ Hardening work:
 - confirm preview/app/API noindex behaviour;
 - keep workflow permissions minimal and secrets out of logs/generated config; **Step-scoped secrets and immutable action revisions added in the passwordless/security hardening PR.**
 - review dependencies and keep lockfile-driven installs reproducible; **Dependabot configuration added; lockfile installs retained.**
-- confirm analytics never receives dog names, notes, outcomes, durations or training history;
+- confirm the retired product-event analytics pipeline has not been reintroduced; **Retirement completed in PR #55; keep this as a regression boundary.**
 - review CSP exceptions such as `style-src 'unsafe-inline'` before beta and retain only what the UI requires.
 
 **Exit:** known security boundaries are executable tests where practical, not just assumptions in documentation.
@@ -135,18 +139,17 @@ Only after the reliability gates above are substantially green:
 
 Do not use training outcomes as an efficacy claim.
 
+
 ## Immediate order
 
-1. ~~Finish and merge PR #34 (E2E typecheck).~~ Done.
-2. ~~Finish PR #35: reproducible builds with pinned Node + `npm ci`.~~ Done.
-3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run when justified.~~ Done: PR #36.
-4. ~~Split E2E specs to reduce conflict risk.~~ Done: PR #37.
-5. ~~Add the missing critical-flow browser journeys from H2.~~ Core tranche done: PR #38; only smaller error-boundary/navigation edge cases remain.
-6. ~~Run the repository storage/concurrency pass from H3.~~ Done: PR #40; multi-tab policy and user-facing degraded-storage messaging remain.
-7. Complete PWA/device lifecycle gates, including real iPhone return-alert evidence and the installed Android matrix.
-8. Finish the remaining storage/account operational evidence: multi-tab policy, two-device sync/offline/conflict checks and degraded-storage messaging.
-9. Close the remaining security/privacy assertions and provider-retention wording.
-10. Clear qualified behaviour-professional review and public-beta essentials, then begin a small invited beta.
+1. ~~E2E typecheck, reproducible builds, targeted browser CI and spec split.~~ Done: PRs #34–#37.
+2. ~~Critical-flow browser coverage and repository storage/concurrency baseline.~~ Done: PRs #38 and #40.
+3. ~~Storage-failure recovery, stale-tab export identity, single-window ownership and analytics retirement.~~ Done: PRs #52–#55.
+4. Complete installed iOS/Android lifecycle gates, including update/notification/background-return evidence.
+5. Complete real two-device sync/offline/conflict and live OTP/rate-limit checks.
+6. Add the remaining browser-level sync conflict/recovery and security/privacy assertions.
+7. Clear qualified behaviour-professional review and public-beta contact/accessibility/assets/provider wording.
+8. Begin a deliberately small invited beta, then widen only after reliability/friction evidence is acceptable.
 
 ## Public-beta release gate
 
@@ -162,3 +165,12 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 - privacy/account copy matches actual behaviour;
 - qualified behaviour-professional review recorded;
 - rollback/export/recovery paths are understood.
+
+### H3 follow-up — storage failure recovery (21 September, merged PR #52)
+
+`fix/storage-fallback-recovery` preserves the last successful IndexedDB snapshot when a later
+operation fails, reports checkpoint-only storage degradation, and puts a saved-training backup
+action on a cross-screen recovery notice. Memory-only storage also suppresses the PWA update
+prompt. Browser regressions cover a stale fallback retaining history/ownership, and full storage
+failure during a session followed by save/export. PR #54 subsequently closed the local multi-window policy/guard. Divergent populated stores across
+visits, cross-device conflicts and real-device release gates remain.

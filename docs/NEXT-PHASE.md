@@ -1,22 +1,23 @@
 # SettledSolo next phase — Beta readiness after accounts
 
-Date: 21 September 2026
+Date: 22 September 2026
+
 
 ## Current work — post-account hardening and beta readiness
 
-The optional account/sync baseline is now **implemented and activated in both preview and
-production**. Better Auth email OTP, isolated D1 databases, Resend delivery, local-first sync,
-cloud export/deletion and deployment verification are live. PRs #49 and #50 closed the final
-production-deployment/configuration regressions by preserving the live account bindings and
-passing the expected account state into post-deploy verification.
+The optional account/sync baseline is implemented and active in both preview and production:
+Better Auth email OTP, isolated D1 databases, verified Resend delivery, local-first sync, cloud
+export/deletion and deployment verification are live. PRs #49 and #50 closed the final production
+deployment/configuration regressions.
 
 Account setup is therefore no longer the active development phase. Remaining account work is
-release evidence and operational validation (real two-device/offline/conflict checks, provider
-retention/privacy details and abuse/rate-limit observation), not another provisioning milestone.
+release evidence and operational validation: real two-device/offline/conflict checks, provider
+retention/privacy details and abuse/rate-limit observation.
 
-The active development phase is now **release hardening → small beta readiness**. Use
-`HANDOVER.md` and `HARDENING-ROADMAP.md` for the current implementation order. Physical-device
-and qualified behaviour-professional release gates remain open.
+Since that activation, PRs #52–#55 have also hardened storage fallback, stale-tab account export,
+single-window write ownership and removed the old product-event analytics pipeline. The active
+development phase is now **release hardening → small beta readiness**. Physical-device and
+qualified behaviour-professional release gates remain open.
 
 ## Current position
 
@@ -32,8 +33,8 @@ Real iPhone testing has now confirmed the core live-session resilience path:
 - closing/reopening does not lose the session;
 - the session chime works on the tested device.
 
-With accounts now active, the next phase shifts fully toward device lifecycle proof, remaining
-recovery/security edge cases, public-beta essentials and a deliberately small beta cohort.
+With accounts now active, the next phase is device lifecycle proof, real two-device/recovery evidence,
+remaining security/privacy closure and public-beta essentials.
 
 ## Phase A — Release Candidate
 
@@ -122,24 +123,20 @@ Still required:
 - metadata/social-image finalisation;
 - final account/privacy language once the sync provider is deployed.
 
-### A5. Cutover
 
-When A1-A4 are satisfied:
+### A5. Cutover — complete baseline
 
-1. Select the verified main commit and record the existing production commit for rollback.
-2. Deploy the merged build to `settledsolo`.
-3. Connect the canonical domain.
-4. Preserve legacy import compatibility.
-5. Keep analytics/events on its separate Worker.
-6. Treat this build as the rollback point before accounts/sync.
+The modern app is already the production baseline on `settledsolo`, the canonical domain is live,
+accounts are active, and the legacy product-event analytics Worker has been retired. Preserve legacy
+import compatibility and use the current production commit/history as the rollback reference for
+future release work.
 
 ## Phase B — Optional Accounts ✅ baseline complete
 
 Goal: protect progress without changing the first-run experience.
 
-**Status (21 September 2026):** the current scoped account baseline is implemented and active in
-preview and production. Passkeys remain intentionally deferred. Manual multi-device/offline/conflict
-proof remains a release-validation task rather than an account-setup blocker.
+**Status:** the scoped account baseline is active in preview and production. Passkeys remain
+intentionally deferred. Manual multi-device/offline/conflict proof remains a release-validation task.
 
 ### Architecture
 
@@ -250,16 +247,11 @@ Do not use training outcomes as an efficacy claim.
 
 ## Suggested implementation PR sequence from here
 
-1. **PWA/device lifecycle hardening** — update safety, installed iOS/Android checks and native
-   return-alert evidence.
-2. **Remaining storage/account edge cases** — multi-tab policy, browser-level conflict recovery
-   and degraded-storage messaging.
-3. **Security/privacy closure** — executable XSS/noindex/analytics assertions plus provider
-   retention/privacy wording.
-4. **Public-beta essentials** — feedback/contact route, accessibility pass, real product
-   screenshots and social metadata.
-5. **Small beta** — invite a limited cohort, record friction/failures and measure activation,
-   repeat use and sync reliability without making efficacy claims.
+1. **Installed-device lifecycle evidence** — iOS/Android update, notification, background-return and offline checks.
+2. **Real account recovery evidence** — two-device initial import, offline/reconnect, conflicts, OTP errors and rate limits.
+3. **Remaining browser/security closure** — sync conflict journeys, XSS/noindex assertions and provider retention/privacy wording.
+4. **Public-beta essentials** — feedback/contact, accessibility, real product screenshots and social metadata.
+5. **Small beta** — invite a limited cohort, record friction/failures and measure registered-account adoption plus sync reliability.
 
-Passkeys, admin metrics and collaboration features stay behind this baseline rather than becoming
+Passkeys, collaboration features and extra telemetry stay behind this baseline rather than becoming
 the next immediate feature tranche.

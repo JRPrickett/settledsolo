@@ -66,6 +66,22 @@ afterEach(() => {
 });
 
 describe("repository hardening", () => {
+  it("reports checkpoint-only storage failures and unsubscribes cleanly", async () => {
+    const harness = storageHarness();
+    memoryOnly(harness.storage);
+    const repository = createAppRepository();
+    const listener = vi.fn();
+    const unsubscribe = repository.subscribeStorageMode(listener);
+    expect(listener).toHaveBeenLastCalledWith("localstorage");
+    harness.failWrites();
+    await repository.clearActiveSession();
+    expect(listener).toHaveBeenLastCalledWith("memory");
+    expect(listener).toHaveBeenCalledTimes(2);
+    unsubscribe();
+    await repository.saveSetup("Mabel", 5, "known-duration");
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+
   it("serializes rapid local mutations so later operations do not overwrite earlier ones", async () => {
     memoryOnly();
     const repository = createAppRepository();

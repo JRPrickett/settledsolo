@@ -1,49 +1,31 @@
 # SettledSolo handover
 
-**Last updated:** 21 September 2026 (account phase complete; beta-readiness handover)
+**Last updated:** 22 September 2026 (account phase complete; hardening/beta-readiness handover)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `8116985`
+**Reviewed main:** `bf5fbec` (through PR #55, before this documentation merge)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
+
 ## Executive status
 
-PRs #34–#42 and the account activation/deployment fixes through PR #50 are merged. PR #36
-reduces CI spend by running Chromium/WebKit/PWA checks only for browser-impacting changes, while
-fast verification continues broadly. PR #37 split the former 727-line `core-flow.spec.ts` into
-focused specs, and PR #38 added browser regressions for History CRUD, early return, Progress,
-settings and backup/restore.
+Main is current through PR #55 before this documentation refresh. PRs #52–#55 closed the
+storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
+and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
-The optional-account setup phase is now **complete**. The active development phase is
-**post-account production hardening and small-beta readiness**: close the remaining device
-lifecycle, recovery, security/privacy and public-beta gates rather than adding discretionary
-features. The physical-device and qualified behaviour-professional release gates still apply.
+The optional-account setup phase is **complete**. Accounts and sync are active in preview and
+production with separate D1 databases, Better Auth email OTP, verified Resend delivery, local-first
+sync, recoverable conflicts, cloud export/deletion and post-deploy verification. Guest training
+remains local-first and usable offline.
 
-Accounts and sync are active in preview and production. The implementation covers Better Auth
-email OTP, verified Resend delivery, optional account UI, explicit guest-log import, local outbox,
-revision-based incremental sync, recoverable conflicts, cloud export/deletion and isolated D1
-deployment tooling. PR #49 made the live production Wrangler config safe for direct Cloudflare
-builds, and PR #50 fixed post-deploy verification so enabled environments are checked against
-`available:true`. Guest training remains local-first and usable offline.
+The active development phase is **release hardening → small-beta readiness**. Remaining priorities
+are real installed-device lifecycle evidence, real two-device sync/offline/conflict proof, the
+remaining security/privacy checks, qualified behaviour-professional review and public-beta
+essentials. Avoid discretionary feature expansion until those release gates are clear.
 
-Recent hardening work adds truthful sign-in-or-sign-up copy, hides onboarding account
-prompts until session state is known, explains passwordless sessions and junk/spam delivery,
-adds independent account/OTP/push rate limits, crypto-backed record IDs, stricter Worker/browser
-boundaries, immutable workflow dependencies and step-scoped secrets. It also disables the
-production `workers.dev` hostname, documents D1 Time Travel recovery and enables GitHub
-dependency alerts, automated security fixes and CodeQL default scanning.
-
-See `SECURITY.md` for the threat boundaries, incident response and recovery runbook. Re-run
-**Provision isolated account database** only when rebuilding an environment; it is idempotent and
-reuses an existing database, so UUIDs are deliberately not recorded in this repository.
-
-Separately, `docs/SA-QUALITY-ROADMAP.md` **items 1-5 are now complete**, including all three of
-item 5's sub-items. The behaviour-quality thread has no queued work; what remains there is the
-qualified behaviour-professional review gate, not implementation.
-
-See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activation runbook,
-and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
-provider evidence.
+The custom product-event analytics Worker/database has been retired. Registered Better Auth
+account totals are now the canonical user-count metric; an exact PWA-install count is not inferred
+from persistent device identifiers.
 
 ## PR #41 — native background return alerts — merged
 
@@ -348,6 +330,21 @@ Do not blur those two categories in UI, marketing or documentation.
 
 ## Storage and data architecture
 
+### 21 September — account export identity guard (merged, PR #53)
+
+Branch `fix/account-export-identity` closes a stale-tab gap found in the post-account
+security review of main `8116985`. The UI already sends its displayed account ID when
+exporting; the API now requires it to match the authenticated session before reading
+private records. A missing/mismatched ID returns a private/no-store 409 response without
+user or training data. Sync and deletion already enforced this check.
+
+Local Worker TypeScript and `npm run test:accounts` pass (11 Worker tests, plus account
+tooling tests), including both directions of a two-account mismatch, missing identity,
+and the existing successful complete export. GitHub fast CI remains the review gate.
+No schema, cookie, UI or deployment changes; browser checks are not required for this
+server-only guard. This does not replace real two-device release evidence.
+
+
 ### Current private training data
 
 The active app is local-first.
@@ -369,12 +366,14 @@ Legacy migration key:
 
 The reset flow deliberately clears the legacy migration key as well as modern persisted state.
 
+
 ### Accounts / cloud data
 
 Active in both preview and production. Preview and production use distinct account D1 databases;
 the production Wrangler config carries the live non-secret account bindings so direct Cloudflare
 repository builds cannot silently disable accounts. Secrets remain Worker/GitHub environment
-secrets. Private account data stays separate from the analytics Worker/database.
+secrets. Private account data stays within the isolated account databases; no separate
+product-event analytics database is used.
 
 - Better Auth 1.7.5 + hashed email OTP, secure HTTP-only cookies.
 - Generated auth migration + per-user sync records/change log with delete cascades.
@@ -384,40 +383,24 @@ secrets. Private account data stays separate from the analytics Worker/database.
 - Sign-out pauses sync; reset only clears the device; cloud deletion requires recent sign-in.
 - Conflicts retain both versions and an exportable archive. Passkeys remain future work.
 
-## Analytics and the "how many users?" requirement
+## Usage metrics and the "how many users?" requirement
 
-The separate `cloudflare-worker/` event service currently accepts only:
+The custom `threshold-events` Worker / `threshold-analytics` D1 product-event pipeline is
+retired. The modern app does not need app-open, session or device-level telemetry to operate.
 
-- `app_open`
-- `session_started`
-- `session_saved`
+**Canonical user metric:** registered Better Auth accounts. Use the manual
+**Count registered accounts** GitHub workflow (production or preview), or run
+`npm run accounts:count -- production` with the Cloudflare credentials and D1 IDs available.
+The query returns only a count from Better Auth's `user` table.
 
-It stores basic app/platform metadata only. It must not receive dog names, notes, outcomes, durations or training history.
+An exact cross-platform PWA-install count is not available from browser APIs, so SettledSolo
+does not manufacture one with a persistent installation identifier. Cloudflare Web Analytics
+may still provide directional aggregate web traffic where enabled, but that is not the same as
+registered users or installed apps.
 
-**Current limitation:** app-open counts are not a trustworthy unique-user/member count because there is no persistent anonymous user/install identifier.
-
-For the production roadmap distinguish:
-
-- **registered members/users:** exact count from account D1 once accounts exist;
-- **active registered users:** activity/last-active measure after account implementation;
-- **anonymous installations/guest active users:** only countable if a privacy-conscious random installation ID is deliberately added and disclosed.
-
-Do not advertise raw event totals as "users".
-
-A private internal admin dashboard remains a planned item, ideally protected by Cloudflare Access rather than a custom app password.
-
-Suggested future metrics:
-
-- total registered accounts;
-- new accounts 7/30d;
-- active accounts 7/30d;
-- anonymous installations if implemented;
-- account conversion;
-- onboarding completion;
-- starting-path split;
-- sessions started/saved/completed;
-- departure-cue usage;
-- sync/API reliability.
+After this cleanup is merged, the unused `threshold-events` Worker and
+`threshold-analytics` D1 database can be deleted from Cloudflare after any final export worth
+keeping.
 
 ## Cloudflare/deployment position
 
@@ -428,7 +411,7 @@ Modern production config:
 - canonical `SITE_URL`: `https://settledsolo.com`
 
 The previous `settledsolo-web` app name is retired and must not be used as a
-deployment target. The separate analytics Worker remains independent.
+deployment target. The retired `threshold-events` Worker is not part of the modern app.
 
 Preview config:
 
@@ -538,35 +521,30 @@ Before a broad public beta, remaining work includes:
 
 Do not use training outcomes as an efficacy claim.
 
+
 ## Recommended next sequence
 
 Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 
-1. ~~Close the E2E typecheck gap so broken Playwright specs fail during `verify`.~~ Done: PR #34.
-2. ~~Pin the build Node version, use lockfile-strict `npm ci`, and establish the hardening roadmap.~~ Done: PR #35.
-3. ~~Land targeted browser-CI gating so expensive browser/PWA checks only run for relevant changes.~~ Done: PR #36.
-4. ~~Split the large E2E spec into focused files and retain the same behavioural coverage.~~ Done: PR #37.
-5. ~~Add missing critical-flow journeys: history add/edit/delete, explicit early return and next
-   plan, progress after mixed outcomes, backup export/restore round-trip, and settings flows.~~ Done: PR #38.
-6. Harden local storage/concurrency and browser-level account conflict recovery. Prefer fast unit/integration coverage where browser behaviour is not material. **Repository concurrency/recovery tests in review.**
-7. Complete PWA update-safety and the real iOS/Android/desktop device gates.
-8. In parallel, configure verified email delivery and activate **preview accounts only**; then
-   prove real OTP and two-device sync/recovery before production.
-9. Clear the qualified behaviour-professional review and public-beta contact/privacy/assets gates.
-10. Activate production accounts only after the hardening, preview and release evidence is recorded.
-11. Add user-count/admin metrics and optional passkeys only after the baseline is stable.
+1. ~~Storage fallback/recovery and actionable backup messaging.~~ Done: PR #52.
+2. ~~Reject stale-tab cloud exports after an account switch.~~ Done: PR #53.
+3. ~~Protect training/sync from competing app windows.~~ Done: PR #54.
+4. ~~Retire legacy product analytics and replace it with registered-account counts.~~ Done: PR #55.
+5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
+6. Finish the remaining browser-level conflict/recovery and security/privacy assertions.
+7. Clear qualified behaviour-professional review plus feedback/contact, accessibility, product
+   screenshots and final social/privacy/provider wording.
+8. Start with a deliberately small invited beta and measure adoption/reliability without efficacy claims.
+
 
 ## Known documentation debt
 
-Several older documents were written before the latest merges.
+The roadmap documents now reflect live account activation and the move to beta readiness.
+`README.md` still contains long legacy development-history sections that are useful context but
+are not the best source for today's priority.
 
-In particular:
-
-- `docs/NEXT-PHASE.md` still contains historical wording such as "Merge PR #11" and should not be used literally for current PR state.
-- `docs/PRODUCT-PLAN.md` still describes some modern-app cutover work as future even though the current Cloudflare build uses `app-v2`.
-- `README.md` contains long legacy development-history sections that are useful context but are not the best source for today's priority.
-
-Use this handover for current status and `docs/HARDENING-ROADMAP.md` for the active implementation sequence. Update the older roadmap docs opportunistically when touching the relevant area.
+Use this handover for current status and `docs/HARDENING-ROADMAP.md` for the active implementation
+sequence.
 
 ## How the next agent should begin
 
@@ -593,3 +571,45 @@ After a meaningful merge, update at least:
 - architecture/data/deployment notes if affected.
 
 The goal is that a fresh agent can continue the project from the repository alone, without needing the previous chat history.
+
+## 21 September 2026 — post-account storage recovery pass (merged, PR #52)
+
+Reviewed main `8116985`: production and preview deployment runs and CI passed. Accounts
+are active. PR #51 (`docs/complete-account-phase`) remains open and owns the broad
+roadmap/status refresh; its changes are not yet on main. Open PRs #44–#46 are GitHub
+Actions major-version dependency updates. No competing runtime hardening PR was open.
+
+Branch `fix/storage-fallback-recovery` addresses the next H3 recovery gap:
+
+- retain the latest successful IndexedDB read in the fallback, including account ownership,
+  unsynced changes and a recovered active checkpoint;
+- report storage-mode changes from all repository operations, including timer checkpoints;
+- show an actionable recovery notice across app screens and training, with saved-data backup;
+- withhold the PWA update notice while data is only in memory, to avoid inviting a data-losing reload.
+
+No D1 migration, remote data mutation, auth change or deployment is involved. Guest/offline
+training and training recommendations are unchanged. JSON backups still exclude sync ownership.
+
+Local TypeScript, unit/legacy/Worker tests and production build passed (115 modern tests and
+11 Worker tests). Browser installation failed against the Playwright CDN, so the two new
+real-storage browser journeys require GitHub CI. Worker dry-run verification is being checked
+separately; do not treat a partial local verification run as the complete release gate.
+
+Next: review CI for this PR, then complete multi-tab/live-session ownership policy and
+real-device/two-device account evidence. Broader roadmap priorities remain in PR #51.
+
+## Single-window training guard — merged PR #54
+
+PR #54 adds an app-entry guard before repository/account hooks mount. Only a window holding
+`settledsolo-app-window` can run the app. A competing window presents a return/close/retry flow,
+then mounts fresh and reads current persisted data. No timeout, hidden-tab takeover or forced
+handover is used. Missing or denied Web Locks requires an explicit one-window compatibility
+confirmation; that mode retains local serialization but cannot guarantee cross-window exclusion.
+
+Unit/browser coverage verifies ownership lifetime, contention, cleanup/Strict Mode, no account
+traffic from blocked windows, latest-data handover, timer recovery and one saved session. Installed
+phone lifecycle testing remains outstanding.
+
+Next: record real installed-device window/suspension checks, then harden real two-device sync
+conflicts/reconnect. Do not treat the local-window policy as cross-device coordination or proof of
+all PWA update/notification gates.

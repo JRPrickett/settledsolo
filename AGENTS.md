@@ -20,7 +20,6 @@ Older planning documents may contain completed or superseded steps. Never assume
 - `wrangler.app.jsonc` — production Worker configuration (`settledsolo`).
 - `wrangler.preview.jsonc` — preview Worker configuration (`settledsolo-web-preview`).
 - `migrations/accounts/` and `scripts/account*` — account D1 migrations and the provisioning, preflight, deployment and endpoint-verification tooling. See `docs/ACCOUNTS-DEPLOYMENT.md`.
-- `cloudflare-worker/` — separate privacy-limited analytics event Worker/database.
 - root `js/`, `css/`, `tests/`, legacy PWA files — retained for regression and migration compatibility. Do not remove or casually rewrite them.
 - `docs/` — product, evidence, release, account/sync and handover documentation.
 
@@ -67,11 +66,10 @@ Substantive behaviour/protocol changes should remain subject to the qualified be
 Training data is private user data.
 
 - Do not send dog names, scenario names, notes, outcomes, ratings, planned/actual durations or training history to product analytics.
-- The analytics Worker is separate from future account/private-data storage.
-- Current product analytics are limited to `app_open`, `session_started` and `session_saved` plus basic platform/app metadata.
-- Do not call raw event counts "users".
-- Registered account count can become an exact user/member metric once accounts exist.
-- If anonymous guest/installation counting is added, use a privacy-conscious random installation identifier, document it in privacy copy, and keep it separate from training content.
+- The custom app-open/session/device event pipeline is retired; do not reintroduce it without a new privacy/product decision.
+- Registered Better Auth account count is the canonical user/member metric.
+- Do not claim an exact cross-platform PWA install count: browsers do not expose one reliably.
+- If anonymous guest/installation counting is ever proposed, it needs an explicit privacy review and must remain separate from training content.
 - Never log request bodies containing private training/account content.
 - Export and restore must remain available. Future account deletion/export controls are release requirements.
 
@@ -115,6 +113,13 @@ SettledSolo is mobile-first.
 
 ## 8. Live-session resilience rules
 
+- The modern app must mount behind `SingleWindowGuard`. Its window-lifetime Web
+  Lock is distinct from the repository mutation lock. Never steal/release ownership
+  merely because a phone window is hidden or suspended. See `docs/MULTI-WINDOW-SAFETY.md`.
+- The explicit one-window compatibility option preserves local use when locking is
+  unavailable; it does not promise automatic multi-tab protection. Server account
+  identity/origin checks remain required regardless of local-window ownership.
+
 The live session is the highest-risk product path.
 
 - The clock is timestamp-derived; interval ticks are presentation only.
@@ -136,7 +141,6 @@ The modern app is built to `dist-v2` and served by `worker/index.ts`.
 - Production canonical URL in config: `https://settledsolo.com`.
 - Production deployment is a manual GitHub Actions workflow dispatch from `main`.
 - Preview and production must never share future account D1 databases.
-- Do not overwrite or merge the separate analytics Worker/database into the app Worker.
 - Preserve CSP/security headers and the noindex rule for preview/app routes unless there is a deliberate SEO/security change.
 - Prefer GitHub + Cloudflare deployment. Do not move this product to ChatGPT Sites, Wix or WordPress.
 
@@ -149,7 +153,7 @@ When extending that work:
 
 - Keep guest/local mode as the default.
 - Use separate preview and production account D1 databases.
-- Keep account/private training data separate from analytics.
+- Keep account/private training data out of aggregate usage metrics; account-count tooling may query only the Better Auth user total.
 - Better Auth + email OTP is the planned first auth path; optional passkeys may follow successful sign-in.
 - Use same-origin routes under `/api/auth/*`, `/api/sync/*`, `/api/account/export`, `/api/account/delete`.
 - UI writes locally first. Sync is asynchronous.
@@ -186,5 +190,5 @@ For relevant changes, done means:
 - Offline/local-data safety is preserved.
 - Accessibility is not knowingly degraded.
 - Behavioural claims remain evidence-aware.
-- Analytics/privacy boundaries remain intact.
+- Privacy/usage-metric boundaries remain intact.
 - Docs/handover are updated when project state materially changed.
