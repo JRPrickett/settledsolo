@@ -262,6 +262,7 @@ export function PublicSite() {
           <span className="marketing-footer-links">
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
+            <a href="/contact">Contact</a>
             <a href="/help">Help</a>
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>

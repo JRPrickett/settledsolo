@@ -171,6 +171,11 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Verify product
+        env:
+          # Public, non-secret build-time links. Both stay hidden unless set as
+          # GitHub environment variables; see app-v2/.env.example.
+          VITE_SUPPORT_URL: ${{ vars.VITE_SUPPORT_URL }}
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
         run: npm run verify
 
       - name: Deploy preview Worker

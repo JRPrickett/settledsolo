@@ -1,6 +1,16 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { PUBLIC_PAGE_PATHS } from "./src/public/routes";
+
+// Offline navigations resolve only for real pages; anything else reaches the
+// network, where the Worker returns a proper 404.
+const offlineNavigationRoutes = [
+  /^\/app\/?$/,
+  ...PUBLIC_PAGE_PATHS.map((path) =>
+    path === "/" ? /^\/$/ : new RegExp(`^${path}\\/?$`)
+  )
+];
 
 export default defineConfig({
   plugins: [
@@ -34,7 +44,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         importScripts: ["push-sw.js"],
         navigateFallback: "/index.html",
-        navigateFallbackAllowlist: [/^\/$/, /^\/app\/?$/, /^\/privacy\/?$/, /^\/terms\/?$/, /^\/help\/?$/, /^\/resources\/?$/, /^\/evidence\/?$/]
+        navigateFallbackAllowlist: offlineNavigationRoutes
       }
     })
   ],

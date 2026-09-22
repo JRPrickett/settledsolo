@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
 import { OptionalSupportCard } from "./PublicSupport";
+import { contactEmail, feedbackMailto } from "./contact";
+import { isPublicPagePath, normalisePublicPath } from "./routes";
 
 const CANONICAL_ORIGIN = "https://settledsolo.com";
 const DEFAULT_DESCRIPTION =
@@ -19,8 +21,13 @@ function setMeta(attribute: "name" | "property", key: string, content: string) {
   meta.content = content;
 }
 
+function setRobots(content: string) {
+  setMeta("name", "robots", content);
+}
+
 function setPublicMetadata(title: string, description: string, path: string) {
   document.title = title;
+  setRobots("index,follow");
   setMeta("name", "description", description);
   setMeta("property", "og:title", title);
   setMeta("property", "og:description", description);
@@ -89,6 +96,7 @@ function InfoPage({
           <span className="marketing-footer-links">
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
+            <a href="/contact">Contact</a>
             <a href="/help">Help</a>
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
@@ -153,6 +161,12 @@ function PrivacyPage() {
         does not erase logs already downloaded on your devices. Use the separate local
         reset on each device if you want to remove those too. Resolved conflict versions
         remain on the device and can be exported or cleared with local reset.
+      </p>
+      <h2>Questions about your data</h2>
+      <p>
+        Export, restore, local reset and account deletion are self-service in the app,
+        so you never need to ask permission to take or remove your record. For anything
+        else about this notice, see <a href="/contact">contact and feedback</a>.
       </p>
     </InfoPage>
   );
@@ -470,8 +484,81 @@ function ResourcesPage() {
   );
 }
 
+function ContactPage() {
+  return (
+    <InfoPage title="Tell us what would make training calmer.">
+      <p>
+        SettledSolo is in a small beta. Reports of anything confusing, broken or
+        stressful to use help decide what to fix first.
+      </p>
+      {contactEmail ? (
+        <>
+          <h2>Send feedback</h2>
+          <p>
+            Email <a href={feedbackMailto(contactEmail)}>{contactEmail}</a>. It is
+            most useful to know what you were trying to do, what happened and which
+            device you were using.
+          </p>
+          <a className="marketing-primary info-cta" href={feedbackMailto(contactEmail)}>
+            Email feedback
+          </a>
+        </>
+      ) : (
+        <>
+          <h2>Feedback</h2>
+          <p>
+            A direct feedback inbox is not open yet. The self-service controls below
+            cover your data, and the help pages cover training questions.
+          </p>
+        </>
+      )}
+      <h2>Please do not send training records</h2>
+      <p>
+        You never need to include your dog&apos;s name, notes or session history to
+        report a problem. If a screenshot helps, check it first for anything you would
+        rather keep private.
+      </p>
+      <h2>Your data, without asking</h2>
+      <p>
+        In the app, <strong>More → Your data</strong> downloads a complete backup or a
+        CSV history at any time. <strong>More → Account &amp; backup</strong> provides
+        cloud export, sign-out and account deletion. Local reset on each device removes
+        the copy stored there. See the <a href="/privacy">privacy notice</a> for what is
+        stored where.
+      </p>
+      <h2>If your dog is struggling now</h2>
+      <p>
+        SettledSolo cannot give individual advice. For self-injury, escape attempts or
+        distress that keeps escalating, pause timed departures and contact your vet or
+        a qualified behaviour professional.
+      </p>
+      <a className="marketing-secondary info-cta" href="/help">Read the training help</a>
+    </InfoPage>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <InfoPage title="This page is not here.">
+      <p>
+        The address may be mistyped, or the page may have moved. Your training record is
+        unaffected; it lives in the app on your device.
+      </p>
+      <a className="marketing-primary info-cta" href="/app/">Open SettledSolo</a>
+      <a className="marketing-secondary info-cta" href="/">Go to the home page</a>
+    </InfoPage>
+  );
+}
+
 export function PublicRouter() {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const path = normalisePublicPath(window.location.pathname);
+
+  if (!isPublicPagePath(path)) {
+    document.title = "Page not found — SettledSolo";
+    setRobots("noindex,follow");
+    document.head.querySelector('link[rel="canonical"]')?.remove();
+    return <NotFoundPage />;
+  }
 
   if (path === "/privacy") {
     setPublicMetadata("Privacy — SettledSolo", "How SettledSolo handles local training records, optional accounts and sync.", path);
@@ -488,6 +575,10 @@ export function PublicRouter() {
   if (path === "/resources") {
     setPublicMetadata("Dog separation anxiety resources | SettledSolo", "Owned FAQs, printable checklists and observation tools for gradual dog separation anxiety training.", path);
     return <ResourcesPage />;
+  }
+  if (path === "/contact") {
+    setPublicMetadata("Contact and feedback — SettledSolo", "How to send beta feedback and manage your SettledSolo data yourself.", path);
+    return <ContactPage />;
   }
   if (path === "/evidence") {
     setPublicMetadata("Evidence-informed dog separation training | SettledSolo", "The research, safety boundaries and product heuristics behind SettledSolo.", path);

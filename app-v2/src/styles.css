@@ -5793,3 +5793,64 @@ a:focus-visible {
   color: var(--ink);
   line-height: 1.5;
 }
+
+.help-feedback-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.help-feedback-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8f6f1;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.help-feedback-links a:focus-visible,
+.help-feedback-send:focus-visible {
+  outline: 3px solid var(--sea-dark);
+  outline-offset: 2px;
+}
+
+.help-feedback-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+/*
+ * Owner-entered names and notes can be long unbroken strings. Wrap them instead of
+ * widening the mobile layout, which would push navigation off-screen.
+ */
+.app-shell,
+.setup-shell,
+.live-shell,
+.cue-shell {
+  overflow-wrap: anywhere;
+}
+
+.app-header .dog-chip {
+  display: block;
+  min-width: 0;
+  max-width: min(55%, 240px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header .app-brand-link {
+  flex-shrink: 0;
+  overflow-wrap: normal;
+  white-space: nowrap;
+}

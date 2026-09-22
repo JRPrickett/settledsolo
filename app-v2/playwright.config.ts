@@ -31,6 +31,8 @@ export default defineConfig({
   webServer: {
     command: "npm run dev:v2 -- --host 127.0.0.1 --port 4173",
     url: "http://127.0.0.1:4173",
+    // Exercise the configured feedback path with a non-routable placeholder inbox.
+    env: { VITE_CONTACT_EMAIL: "beta-feedback@example.test" },
     reuseExistingServer: !process.env.CI
   }
 });

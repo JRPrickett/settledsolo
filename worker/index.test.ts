@@ -76,3 +76,40 @@ describe("worker security boundary", () => {
     expect(response.headers.get("content-security-policy")).toBeTruthy();
   });
 });
+
+describe("unknown public paths", () => {
+  const html = () =>
+    envWithAssets(async () =>
+      new Response("<html>shell</html>", {
+        headers: { "Content-Type": "text/html" },
+      }),
+    );
+
+  it("serves the app shell with a real 404 status and noindex", async () => {
+    const response = await handleRequest(
+      new Request("https://settledsolo.com/no-such-page"),
+      html(),
+    );
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe("<html>shell</html>");
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+    expect(response.headers.get("content-security-policy")).toBeTruthy();
+  });
+
+  it("keeps known public pages, the app and static files at 200", async () => {
+    for (const path of ["/", "/help/", "/contact", "/privacy", "/app/", "/app/today"]) {
+      const response = await handleRequest(
+        new Request(`https://settledsolo.com${path}`),
+        html(),
+      );
+      expect(response.status, path).toBe(200);
+    }
+    const asset = await handleRequest(
+      new Request("https://settledsolo.com/robots.txt"),
+      envWithAssets(async () =>
+        new Response("User-agent: *", { headers: { "Content-Type": "text/plain" } }),
+      ),
+    );
+    expect(asset.status).toBe(200);
+  });
+});
