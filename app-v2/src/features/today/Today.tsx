@@ -321,7 +321,7 @@ export function Today({
                 disabled={starting}
                 onClick={() => void beginSession()}
               >
-                {starting ? "Checking today’s ceiling…" : "Start today’s session"}
+                {starting ? "Checking today's ceiling…" : "Start today's session"}
               </button>
               <p className="ceiling-note">
                 The target is a ceiling, not a quota. Returning early is always okay.
