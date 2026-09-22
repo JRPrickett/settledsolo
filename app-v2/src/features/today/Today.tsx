@@ -40,7 +40,7 @@ export function Today({
   storageMode: StorageMode;
   celebration: { milestones: EarnedMilestone[]; achievements: Achievement[] } | null;
   onDismissCelebration: () => void;
-  onStart: (target: number, warmupSeed: number) => void;
+  onStart: (target: number, warmupSeed: number) => Promise<boolean>;
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
   onRecordObservation: (
@@ -58,6 +58,8 @@ export function Today({
     [scenario.cuePractice]
   );
   const [warmupSeed, setWarmupSeed] = useState(newWarmupSeed);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState("");
   const practice = buildPracticeDepartures(
     recommendation.targetSeconds,
     warmupSeed,
@@ -67,6 +69,7 @@ export function Today({
   const capReached = isDailyCapReached(data, effectiveDailyCap(data));
   const [restDayOverride, setRestDayOverride] = useState(false);
   useEffect(() => setRestDayOverride(false), [scenario.id]);
+  useEffect(() => setStartError(""), [scenario.id, data.dailyCap]);
 
   const cueFirstRoute =
     data.onboarding?.startingPath === "departure-cues" &&
@@ -84,6 +87,20 @@ export function Today({
   );
   const showRestDayCard =
     recommendation.restDayRecommended && !capReached && !restDayOverride;
+  async function beginSession() {
+    setStarting(true);
+    setStartError("");
+    try {
+      const started = await onStart(recommendation.targetSeconds, warmupSeed);
+      if (!started) {
+        setStartError(
+          "Another training session has already used today's ceiling. Refreshing your plan is the safest next step."
+        );
+      }
+    } finally {
+      setStarting(false);
+    }
+  }
   const planReason = firstMicroObservation
     ? "There is no known-comfortable absence yet, so the first departure is intentionally tiny and should be adjusted from what you observe."
     : cueReady
@@ -202,7 +219,10 @@ export function Today({
             </div>
           )}
 
-          {practice.length > 0 && !capReached && !showRestDayCard && (
+          {practice.length > 0 &&
+            !capReached &&
+            !showRestDayCard &&
+            !recommendation.highRiskFlag && (
             <div className="practice-preview">
               <div className="practice-preview-heading">
                 <span>Before the main departure</span>
@@ -231,6 +251,7 @@ export function Today({
 
           {recommendation.supportFlag &&
             !showRestDayCard &&
+            !recommendation.highRiskFlag &&
             !recommendation.referralSuggested && (
               <div className="support-card">
                 Several recent sessions showed concern. Make things easier and consider
@@ -239,7 +260,7 @@ export function Today({
               </div>
             )}
 
-          {recommendation.referralSuggested && (
+          {recommendation.referralSuggested && !recommendation.highRiskFlag && (
             <div className="support-card referral-card">
               <strong>Worth involving a vet at this point.</strong>
               <p>
@@ -257,12 +278,22 @@ export function Today({
             </div>
           )}
 
-          {capReached ? (
+          {recommendation.highRiskFlag ? (
+            <div className="support-card referral-card" role="alert">
+              <strong>Pause timed departures.</strong>
+              <p>
+                A high-risk sign is recorded in this track. Do not run another timed
+                absence just to collect more app data. Speak with your vet or a
+                qualified behaviour professional, and use management to avoid another
+                difficult absence where practical.
+              </p>
+            </div>
+          ) : capReached ? (
             <div className="support-card daily-cap-card">
-              {sessionsToday(data)} main departure{sessionsToday(data) === 1 ? "" : "s"} logged
-              today — that&apos;s today&apos;s ceiling. Separation training consolidates in the gaps
-              between sessions, and cramming in another attempt tends to set a dog back
-              rather than speed things up. Departure-cue practice below is still available.
+              {sessionsToday(data)} timed training session{sessionsToday(data) === 1 ? "" : "s"} logged
+              today — that&apos;s today&apos;s ceiling. More attempts are not automatically
+              better, especially if {data.dogName} is not comfortably settled between
+              them. Departure-cue practice below is still available.
             </div>
           ) : showRestDayCard ? (
             <div className="support-card rest-day-card">
@@ -280,11 +311,17 @@ export function Today({
             </div>
           ) : (
             <>
+              {startError && (
+                <div className="support-card" role="alert">
+                  {startError}
+                </div>
+              )}
               <button
                 className="primary-button start-button"
-                onClick={() => onStart(recommendation.targetSeconds, warmupSeed)}
+                disabled={starting}
+                onClick={() => void beginSession()}
               >
-                Start today&apos;s session
+                {starting ? "Checking today’s ceiling…" : "Start today’s session"}
               </button>
               <p className="ceiling-note">
                 The target is a ceiling, not a quota. Returning early is always okay.

@@ -24,6 +24,7 @@ import { LiveSession } from "./features/session/LiveSession";
 import { BrandMark, BrandWordmark } from "./brand/BrandMark";
 import type { Celebration } from "./features/progress/MilestoneBanner";
 import { newlyEarnedAchievements, newlyEarnedMilestones } from "./domain/milestones";
+import { effectiveDailyCap, isDailyCapReached } from "./domain/dailyCap";
 
 type Screen = "today" | "progress" | "history" | "more";
 
@@ -191,13 +192,17 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
             celebration={celebration}
             onDismissCelebration={() => setCelebration(null)}
             onStart={async (target, warmupSeed) => {
-              account.pauseForTraining();
               const latest = await repository.loadAppData();
               setData(latest);
+              if (isDailyCapReached(latest, effectiveDailyCap(latest))) {
+                return false;
+              }
+              account.pauseForTraining();
               setCelebration(null);
               setRestoredState(undefined);
               setLiveWarmupSeed(warmupSeed);
               setLiveTarget(target);
+              return true;
             }}
             onRecordObservation={async (outcome, findings) => {
               setData(

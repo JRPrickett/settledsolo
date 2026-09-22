@@ -205,7 +205,7 @@ test("fallback history and an active session survive IndexedDB becoming availabl
   await page.getByRole("button", { name: "I'm back" }).click();
   await page.getByRole("button", { name: /Relaxed/ }).click();
   await page.getByRole("button", { name: "Save session" }).click();
-  await expect(page.getByText(/2 main departures logged today/)).toBeVisible();
+  await expect(page.getByText(/2 timed training sessions logged today/)).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("Relaxed", { exact: true })).toHaveCount(2);

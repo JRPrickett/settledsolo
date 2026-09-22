@@ -2,11 +2,13 @@ import type { AppData } from "./types";
 
 /**
  * Two main departures is the default ceiling, not a target. Separation-anxiety work
- * consolidates in the gaps between sessions, and cramming more attempts
- * into one day reliably sets a dog back rather than speeding things up.
+ * needs comfortable gaps between sessions; more attempts are not automatically
+ * better, particularly if the dog is not settled between them.
  * Counted across every training track, because it's the same dog doing
- * all of them. Departure-cue practice doesn't count — it never leaves the
- * dog alone, so it doesn't carry the same recovery cost.
+ * all of them. A timed session that ends during a warm-up still uses one
+ * allowance: it involved a real departure and should not be repeated just to
+ * reach the main step. Departure-cue practice doesn't count — it never leaves
+ * the dog alone.
  *
  * The product allows a deliberately narrow 1–3 range. Published guidance does
  * not establish a universal daily number, so this is a conservative planning

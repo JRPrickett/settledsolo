@@ -30,7 +30,9 @@ export function DepartureCuePracticeView({
 
   function record(relaxed: boolean) {
     if (complete) return;
-    setRep((value) => value + 1);
+    // A concern ends the set immediately. The owner should not have to complete
+    // the remaining repetitions after the dog has told them the cue is too hard.
+    setRep((value) => relaxed ? value + 1 : CUE_REPETITIONS);
     if (relaxed) setRelaxedReps((value) => value + 1);
     else setConcernReps((value) => value + 1);
   }
@@ -87,7 +89,8 @@ export function DepartureCuePracticeView({
 
             <p className="cue-instruction">
               Present the cue once, then return to normal. Do not leave. Give your dog time
-              to settle before the next repetition.
+              to settle before the next repetition. If concern appears, end this set
+              immediately rather than completing the remaining repetitions.
             </p>
 
             <div className="cue-actions">

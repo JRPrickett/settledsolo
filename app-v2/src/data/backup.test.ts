@@ -88,7 +88,11 @@ describe("backup restore", () => {
             signals: ["pacing", "invalid"],
             tags: ["after-a-walk", "invalid-tag"],
             stopReason: "doorbell rang",
-            note: "calm"
+            note: "calm",
+            practiceReviews: [
+              { targetSeconds: 5, actualSeconds: 5, outcome: "relaxed" },
+              { targetSeconds: 10, actualSeconds: 7, outcome: "concern" }
+            ]
           }],
           warmupCount: 1,
           shuffleWarmups: false,
@@ -105,6 +109,10 @@ describe("backup restore", () => {
       completedAt: 12345
     });
     expect(data.scenarios[0].sessions[0].signals).toEqual(["pacing"]);
+    expect(data.scenarios[0].sessions[0].practiceReviews).toEqual([
+      { targetSeconds: 5, actualSeconds: 5, outcome: "relaxed" },
+      { targetSeconds: 10, actualSeconds: 7, outcome: "concern" }
+    ]);
     expect(
       parseBackupText(
         JSON.stringify({

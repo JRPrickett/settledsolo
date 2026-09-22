@@ -164,8 +164,8 @@ export function More({
           <p>
             Short sessions use four warm-ups by default. Each stays at or below
             one minute, and targets under two minutes keep warm-ups to half the
-            target at most. Use Shuffle on Today whenever you want a fresh set of
-            brief, varied warm-up durations.
+            target at most. Use Shuffle on Today to change the order of the same
+            bounded, brief warm-up set without changing the main target.
           </p>
         </div>
         <div className="track-form">
@@ -222,6 +222,13 @@ export function More({
               <span>seconds</span>
             </div>
           </label>
+          {(warmupCount === 0 || restSeconds === 0) && (
+            <p className="field-help">
+              These are advanced choices. Zero warm-ups removes the short practice
+              checks, and zero settle time removes the app&apos;s suggested pause; keep
+              the defaults if you are unsure.
+            </p>
+          )}
           <button
             className="secondary-button"
             onClick={() =>
@@ -242,17 +249,18 @@ export function More({
       <section className="settings-card">
         <div>
           <p className="kicker">Daily ceiling</p>
-          <h2>How many main departures per day, at most.</h2>
+          <h2>How many timed sessions per day, at most.</h2>
           <p>
             Counted across every training track, since it's the same dog. Separation
-            training consolidates between sessions — more attempts in one day is not
-            faster progress. Two is the default; three is the absolute maximum and
-            remains a ceiling, not a target.
+            training needs comfortable gaps between sessions. More attempts in one day
+            are not automatically better. Two is the default; three is the absolute
+            maximum and remains a ceiling, not a target. This is a SettledSolo safety
+            limit, not a universal clinical dosage.
           </p>
         </div>
         <div className="track-form">
           <label>
-            Main departures per day
+            Timed sessions per day
             <input
               aria-label="Daily main-departure cap"
               type="number"

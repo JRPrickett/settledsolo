@@ -811,6 +811,11 @@ textarea:focus-visible {
   margin: 0 auto;
 }
 
+.practice-checkin {
+  align-content: start;
+  overflow-y: auto;
+}
+
 .live-target,
 .live-clock,
 .review-time {

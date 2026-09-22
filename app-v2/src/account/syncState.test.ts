@@ -39,6 +39,22 @@ describe("sync accepts every observed signal", () => {
   });
 });
 
+describe("sync preserves warm-up observations", () => {
+  it("accepts and flattens structured practice reviews", () => {
+    const data = guest();
+    data.scenarios[0].sessions[0].practiceReviews = [
+      { targetSeconds: 5, actualSeconds: 5, outcome: "relaxed" },
+      { targetSeconds: 10, actualSeconds: 7, outcome: "concern" }
+    ];
+
+    const value = flatten(data)["session:training:first"];
+    expect(value).toMatchObject({
+      practiceReviews: data.scenarios[0].sessions[0].practiceReviews
+    });
+    expect(valueSchema.safeParse(value).success).toBe(true);
+  });
+});
+
 const guest = (): AppData => ({
   dogName: "Mabel",
   activeScenarioId: "training",

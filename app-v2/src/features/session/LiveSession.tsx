@@ -5,7 +5,10 @@ import type {
   SessionTag,
   TrainingSession
 } from "../../domain/types";
-import { observedSignalOptions } from "../../domain/observedSignals";
+import {
+  hasHighRiskSignals,
+  observedSignalOptions
+} from "../../domain/observedSignals";
 import { SESSION_TAG_OPTIONS } from "../../domain/sessionTags";
 import { ProgressRing } from "../../components/ProgressRing";
 import {
@@ -111,6 +114,13 @@ export function LiveSession({
   } | null>(null);
   const runningStandalone = isStandalone();
   const iosDevice = isIOS();
+  const reviewIsPractice = (state.reviewKind ?? "main") === "practice";
+
+  useEffect(() => {
+    if (state.phase === "review" && state.reviewOutcome) {
+      setOutcome(state.reviewOutcome);
+    }
+  }, [state.phase, state.reviewOutcome]);
 
   useEffect(() => {
     const theme =
@@ -243,8 +253,17 @@ export function LiveSession({
         stoppedEarly,
         signals,
         tags,
-        stopReason: stoppedEarly ? stopReason.trim().slice(0, 80) : "",
-        note: note.trim()
+        stopReason: stoppedEarly
+          ? stopReason.trim().slice(0, 80) ||
+            (reviewIsPractice
+              ? "A warm-up showed concern, so the session stopped before the main departure."
+              : "")
+          : "",
+        note: note.trim(),
+        practiceReviews:
+          state.practiceReviews && state.practiceReviews.length > 0
+            ? state.practiceReviews
+            : undefined
       });
     } catch {
       saveInFlight.current = false;
@@ -318,12 +337,19 @@ export function LiveSession({
           <span />
         </header>
         <main className="review-content">
-          <p className="kicker light">You came back at</p>
+          <p className="kicker light">
+            {reviewIsPractice ? "Session stopped after" : "You came back at"}
+          </p>
           <div className="review-time">{formatDuration(state.mainActualSeconds ?? 0)}</div>
-          <h1>How was {dogName} while you were away?</h1>
+          <h1>
+            {reviewIsPractice
+              ? `That warm-up was enough for today.`
+              : `How was ${dogName} while you were away?`}
+          </h1>
           <p className="outcome-help">
-            Rate what you actually saw, not whether you reached the timer target. Coming back
-            at the first meaningful sign of concern is a good outcome, not a failure.
+            {reviewIsPractice
+              ? `A practice departure showed concern, so the main departure was not attempted. Rate what you actually saw, then save this shorter observation — stopping early is the safe outcome.`
+              : "Rate what you actually saw, not whether you reached the timer target. Coming back at the first meaningful sign of concern is a good outcome, not a failure."}
           </p>
           <div className="outcome-grid">
             {([
@@ -368,6 +394,17 @@ export function LiveSession({
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {hasHighRiskSignals(signals) && (
+            <div className="support-card referral-card" role="alert">
+              <strong>Pause timed departures.</strong>
+              <p>
+                Self-injury, escape attempts or damaging barriers need prompt advice
+                from your vet or a qualified behaviour professional. Do not run another
+                timed absence just to gather more app data.
+              </p>
             </div>
           )}
 
@@ -427,6 +464,63 @@ export function LiveSession({
   }
 
   if (state.phase === "between") {
+    const practiceReturned =
+      step.kind === "practice" && state.returnedAt !== null;
+    const practiceOutcomeRecorded = state.practiceOutcome != null;
+
+    if (practiceReturned && !practiceOutcomeRecorded) {
+      return (
+        <div className="live-shell">
+          <header className="live-header">
+            <button className="text-button" onClick={() => void onClose()}>End session</button>
+            <span>Practice check-in</span>
+            <span />
+          </header>
+          <main className="live-centre practice-checkin">
+            <p className="kicker light">You came back at</p>
+            <div className="live-target">
+              {formatDuration(state.currentActualSeconds ?? elapsedSeconds(state, state.returnedAt ?? Date.now()))}
+            </div>
+            <h1>How did {dogName} stay?</h1>
+            <p className="live-copy">
+              Record each short departure before deciding whether to continue. If there
+              was concern, SettledSolo will stop the session before the main departure.
+            </p>
+            <div className="outcome-grid practice-outcome-grid">
+              {([
+                [
+                  "relaxed",
+                  "Relaxed",
+                  "Settled quickly, with no meaningful worry."
+                ],
+                [
+                  "concern",
+                  "Some concern",
+                  "There were mild or early signs of worry. Stop and make the next plan easier."
+                ],
+                [
+                  "distressed",
+                  "Distressed",
+                  "Sustained or escalating signs. Stop timed departures and seek support if needed."
+                ]
+              ] as const).map(([value, label, detail]) => (
+                <button
+                  key={value}
+                  className="outcome-button"
+                  onClick={() =>
+                    dispatch({ type: "RECORD_PRACTICE_OUTCOME", outcome: value })
+                  }
+                >
+                  <strong>{label}</strong>
+                  <span>{detail}</span>
+                </button>
+              ))}
+            </div>
+          </main>
+        </div>
+      );
+    }
+
     return (
       <div className="live-shell">
         <header className="live-header">
@@ -447,6 +541,10 @@ export function LiveSession({
                 : `Settled for ${formatDuration(restElapsed)} · suggested ${formatDuration(restSeconds)}`}
             </p>
           )}
+          <p className="ceiling-note">
+            This departure was marked relaxed. Continue only if {dogName} is comfortably
+            settled again.
+          </p>
           <button
             className="live-primary"
             onClick={() => dispatch({ type: "NEXT_STEP" })}
@@ -478,8 +576,8 @@ export function LiveSession({
             </p>
             <div className="live-target">{formatDuration(step.targetSeconds)}</div>
             <p className="live-copy">
-              Watch {dogName} on your camera. Come back at the first meaningful sign
-              of concern — you never need to finish the clock.
+              Observe {dogName} if that is useful — a camera is optional. Come back at
+              the first meaningful sign of concern; you never need to finish the clock.
             </p>
             {step.kind === "main" && (
               <div className="return-alert" role="status" aria-live="polite">

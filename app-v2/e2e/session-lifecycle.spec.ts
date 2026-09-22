@@ -20,6 +20,29 @@ test("first session can be completed and appears in history", async ({ page }) =
   await expect(page.getByText("target 1s")).toBeVisible();
 });
 
+test("a warm-up concern stops the session before the main departure", async ({ page }) => {
+  await completeSetup(page, 30);
+
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await expect(page.getByText(/Practice 1 of/)).toBeVisible();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.waitForTimeout(1_100);
+  await page.getByRole("button", { name: "I'm back" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "How did Mabel stay?" })
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Some concern/ }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "That warm-up was enough for today." })
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Save session" }).click();
+
+  await page.getByRole("button", { name: "History" }).click();
+  await expect(page.getByText("Some concern", { exact: true })).toBeVisible();
+});
+
 test("a running session survives a reload and keeps its original timer", async ({ page }) => {
   await completeSetup(page, 5);
 

@@ -20,6 +20,13 @@ describe("live session state machine", () => {
     state = liveSessionReducer(state, { type: "START_STEP", now: 1_000 });
     state = liveSessionReducer(state, { type: "RETURN", now: 6_000 });
     expect(state.phase).toBe("between");
+    state = liveSessionReducer(state, {
+      type: "RECORD_PRACTICE_OUTCOME",
+      outcome: "relaxed"
+    });
+    expect(state.practiceReviews).toEqual([
+      { targetSeconds: 5, actualSeconds: 5, outcome: "relaxed" }
+    ]);
     state = liveSessionReducer(state, { type: "NEXT_STEP" });
     expect(state.stepIndex).toBe(1);
     expect(state.phase).toBe("idle");
@@ -54,9 +61,33 @@ describe("session alert state", () => {
     state = liveSessionReducer(state, { type: "START_STEP", now: 1_000 });
     state = liveSessionReducer(state, { type: "MARK_TARGET_ISSUED" });
     state = liveSessionReducer(state, { type: "RETURN", now: 6_000 });
+    state = liveSessionReducer(state, {
+      type: "RECORD_PRACTICE_OUTCOME",
+      outcome: "relaxed"
+    });
     state = liveSessionReducer(state, { type: "NEXT_STEP" });
 
     expect(state.warningIssued).toBe(false);
     expect(state.targetIssued).toBe(false);
+  });
+
+  it("stops before the main departure when a warm-up shows concern", () => {
+    let state = initialLiveSession([
+      { kind: "practice", targetSeconds: 5 },
+      { kind: "main", targetSeconds: 20 }
+    ]);
+    state = liveSessionReducer(state, { type: "START_STEP", now: 1_000 });
+    state = liveSessionReducer(state, { type: "RETURN", now: 4_000 });
+    state = liveSessionReducer(state, {
+      type: "RECORD_PRACTICE_OUTCOME",
+      outcome: "concern"
+    });
+
+    expect(state.phase).toBe("review");
+    expect(state.reviewKind).toBe("practice");
+    expect(state.mainActualSeconds).toBe(3);
+    expect(state.practiceReviews).toEqual([
+      { targetSeconds: 5, actualSeconds: 3, outcome: "concern" }
+    ]);
   });
 });

@@ -15,7 +15,10 @@ export type ObservedSignal =
   | "whining"
   | "barking-howling"
   | "unable-to-settle"
-  | "food-refusal";
+  | "food-refusal"
+  | "self-injury"
+  | "escape-attempt"
+  | "destructive-escape";
 
 export type SessionTag =
   | "morning"
@@ -40,6 +43,14 @@ export interface TrainingSession {
   tags: SessionTag[];
   stopReason: string;
   note: string;
+  /** Outcomes recorded for the short departures that preceded the main one. */
+  practiceReviews?: PracticeDepartureReview[];
+}
+
+export interface PracticeDepartureReview {
+  targetSeconds: number;
+  actualSeconds: number;
+  outcome: Outcome;
 }
 
 export interface DepartureCueSession {
@@ -82,6 +93,8 @@ export interface Recommendation {
   restDayRecommended: boolean;
   /** Difficulty has persisted without progress for long enough to suggest involving a vet or veterinary behaviourist. */
   referralSuggested: boolean;
+  /** A high-risk sign was logged; timed absences should pause pending professional advice. */
+  highRiskFlag: boolean;
 }
 
 export interface AppData {

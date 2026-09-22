@@ -1,6 +1,6 @@
 # SettledSolo handover
 
-**Last updated:** 22 September 2026 (account phase complete; hardening/beta-readiness handover)
+**Last updated:** 22 September 2026 (account phase complete; separation-training safety hardening)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `bf5fbec` (through PR #55, before this documentation merge)
 
@@ -26,6 +26,34 @@ essentials. Avoid discretionary feature expansion until those release gates are 
 The custom product-event analytics Worker/database has been retired. Registered Better Auth
 account totals are now the canonical user-count metric; an exact PWA-install count is not inferred
 from persistent device identifiers.
+
+See `SECURITY.md` for the threat boundaries, incident response and recovery runbook. Re-run
+**Provision isolated account database** only when rebuilding an environment; it is idempotent and
+reuses an existing database, so UUIDs are deliberately not recorded in this repository.
+
+Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 September
+follow-up safety hardening now also applied. The remaining behaviour-quality release gates are
+qualified behaviour-professional review and real-device testing.
+
+### 22 September — warm-up and red-flag safety hardening
+
+The live session now records every real warm-up departure before allowing the next step. A
+relaxed warm-up moves to the settle break; concern or distress ends the session before the main
+departure and saves the shorter observation. Warm-up reviews persist with the saved session,
+backup/restore and account sync.
+
+The app now recognises self-injury, escape attempts and destructive escape behaviour as high-risk
+signals. Any such signal pauses timed training and points the owner to a vet or qualified
+behaviour professional instead of waiting for the normal repeated-difficulty threshold.
+
+The one-time pre-protocol observation is no longer offered to known-duration users and its copy
+requires an already-safe absence; it does not ask owners to leave for a few minutes to discover
+a limit. Today Shuffle now changes the order of a fixed bounded warm-up set, and the daily
+ceiling is described as a SettledSolo safety limit rather than clinical dosage.
+
+See `ACCOUNTS-DEPLOYMENT.md` for the current state table and the ordered activation runbook,
+and `ACCOUNTS-REVIEW.md` for review results, test coverage and outstanding real-device and
+provider evidence.
 
 ## PR #41 — native background return alerts — merged
 
@@ -288,15 +316,15 @@ The modern PWA currently includes:
 - Today / Progress / History / More navigation;
 - adaptive next-session recommendation engine;
 - departure-cue practice ladder;
-- configurable/variable warm-up departures;
+- configurable warm-up departures with an explicit outcome check for every real practice step;
 - default four warm-ups for targets under 10 minutes;
 - warm-ups capped at one minute and, for targets under two minutes, at no more than 50% of target;
-- warm-up shuffle option;
+- Today-page Shuffle, which changes the order of a fixed bounded warm-up set;
 - live departure timer with progress circle;
 - timestamp-based reload/interruption recovery;
-- behavioural outcome + observed-signal recording;
+- behavioural outcome + observed-signal recording, including high-risk escalation;
 - session context tags including confinement/free-roam;
-- daily main-departure ceiling;
+- daily timed-session ceiling;
 - milestones/achievements and progress views;
 - JSON backup/restore;
 - CSV export;

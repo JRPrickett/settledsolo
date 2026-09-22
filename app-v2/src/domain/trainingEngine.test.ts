@@ -130,13 +130,23 @@ describe("recommendNext", () => {
     expect(result.restDayRecommended).toBe(true);
   });
 
-  it("does not recommend a rest day for an isolated distressed session", () => {
+  it("recommends a rest day after an isolated distressed session", () => {
     const result = recommendNext(
       [session(), session(), session({ outcome: "distressed" })],
       5
     );
     expect(result.supportFlag).toBe(false);
-    expect(result.restDayRecommended).toBe(false);
+    expect(result.restDayRecommended).toBe(true);
+  });
+
+  it("pauses timed training after a high-risk observation", () => {
+    const result = recommendNext(
+      [session({ outcome: "distressed", signals: ["escape-attempt"] })],
+      5
+    );
+    expect(result.highRiskFlag).toBe(true);
+    expect(result.referralSuggested).toBe(true);
+    expect(result.direction).toBe("reduce");
   });
 });
 
@@ -173,6 +183,9 @@ describe("buildPracticeDepartures", () => {
 
     expect(sameSeed).toEqual(first);
     expect(second).not.toEqual(first);
+    expect([...second].sort((a, b) => a - b)).toEqual(
+      [...first].sort((a, b) => a - b)
+    );
     expect(new Set(first).size).toBe(first.length);
     expect(new Set(second).size).toBe(second.length);
   });

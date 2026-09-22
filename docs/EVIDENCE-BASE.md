@@ -125,11 +125,12 @@ matters more than occasional long sessions; her podcast guidance also emphasises
 frequency and the importance of days off. Those are practitioner guidance, not a clinical dosage
 rule.
 
-SettledSolo therefore uses **two main departures as the default daily ceiling**, with **three as
-the absolute product maximum**. This is a conservative planning boundary, counted across all
-training tracks for the same dog. It is a ceiling rather than a quota: a user can choose one, and
-the app's rest-day and observation guidance can still recommend doing less. Warm-up departures
-inside one session do not count as additional main departures.
+SettledSolo therefore uses **two timed training sessions as the default daily ceiling**, with
+**three as the absolute product maximum**. This is a conservative planning boundary, counted
+across all training tracks for the same dog. It is a ceiling rather than a quota: a user can
+choose one, and the app's rest-day and observation guidance can still recommend doing less. A
+session that ends during a warm-up still uses one allowance because it involved a real departure;
+departure-cue practice does not count because the owner never leaves.
 
 Sources:
 
@@ -137,14 +138,18 @@ Sources:
   https://julienaismith.com/faq/
 - Julie Naismith, *Episode 63: Answered! Your Most Frequently Asked Questions (Part 1)* —
   https://julienaismith.com/podcast/episode-63/
+- Julie Naismith, *Be Right Back* baseline assessment worksheets —
+  https://julienaismith.com/book-resource/
 
 ### Warm-up variation
 
-No source establishes a precise number or percentage of warm-up departures. SettledSolo keeps the
-existing conservative bounds — brief steps, no longer than one minute, and no more than half of a
-target below two minutes — while the Today-page **Shuffle** action chooses a fresh set of distinct
-durations. Variation is a product heuristic intended to prevent the warm-up becoming a predictable
-staircase; it is not presented as a clinically validated formula.
+No source establishes a precise number or percentage of warm-up departures. Julie's published
+baseline worksheets do show varied, non-monotonic short-step sequences before a final target, but
+those examples are not a universal dosage formula. SettledSolo keeps its conservative product
+bounds — brief steps, no longer than one minute, and no more than half of a target below two
+minutes — and the Today-page **Shuffle** action changes the order of a fixed, bounded set rather
+than inventing arbitrary durations. Variation remains a product heuristic, not a clinically
+validated formula.
 
 ## Practitioner credentials and clinical guidance
 
@@ -181,12 +186,13 @@ peer-reviewed sources higher in this document. It's the source for one product-r
 before starting a structured protocol, video-recording the dog alone once can help rule out
 confinement anxiety or incomplete housetraining being mistaken for separation anxiety.
 
-SettledSolo implements this as a one-time observation step offered before a track's first
-timed departure. Two parts of it are **product choices, not clinical rules**: the timing
-(before the first timed departure, and never while a cue-first plan still excludes departures)
-and the specific list of things the owner is asked to look for. Bain supports the rule-out
-itself, not those choices. A camera is suggested and never required — listening from another
-room is offered as an equally valid alternative — and the step never blocks training.
+SettledSolo implements this as an optional one-time observation before a micro-departure track's
+first timed departure. Users who already supplied a known-comfortable duration are not asked to
+stage another absence, and cue-first users are not asked to leave while their plan excludes
+departures. The observation must use an absence already known to be safe; the app must never ask
+someone to leave for “a few minutes” to discover a limit. These timing and finding-list choices
+are product choices, not clinical rules. A camera is suggested and never required — listening
+from another room is offered as an alternative — and the step never blocks training.
 
 ## First-run routing and starting assessment
 
@@ -257,7 +263,20 @@ The production recommendation engine follows these principles:
    veterinary behaviourist can prescribe or manage medication, which is why that tier names a
    vet rather than a separation-anxiety trainer.
 
-8. **Duration is not the only outcome**
+   High-risk observations — self-injury, escape attempts or destructive escape behaviour —
+   override the normal history thresholds. SettledSolo pauses timed departures and tells the
+   owner to contact a vet or qualified behaviour professional rather than asking for more app
+   data.
+
+8. **Every real practice departure gets an outcome**
+
+   Warm-ups are not treated as invisible preparation. Each one is recorded as relaxed, some
+   concern or distressed before the owner can continue. Any non-relaxed warm-up ends the session
+   before the main departure, and the structured warm-up observations remain attached to the
+   saved record. This is a SettledSolo safety/state-machine rule, not a published clinical
+   dosage.
+
+9. **Duration is not the only outcome**
    The app can optionally record observed signs such as pacing, panting, exit-watching, whining,
    barking/howling, inability to settle and refusal of food or treats.
 
@@ -267,7 +286,7 @@ The production recommendation engine follows these principles:
    only meaningful when food was actually offered, so it stays optional like every other signal
    and is never required to complete a session.
 
-9. **Explain every recommendation**
+10. **Explain every recommendation**
    The UI must show why a target was held, increased or reduced.
 
 ## Product heuristic: the referral threshold
