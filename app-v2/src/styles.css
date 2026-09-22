@@ -244,10 +244,33 @@ textarea:focus-visible {
   background: #f4f4ef;
 }
 
+.practice-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .practice-preview span,
 .practice-preview small {
   color: var(--muted);
   font-size: 12px;
+}
+
+.shuffle-button {
+  flex: 0 0 auto;
+  border: 1px solid rgba(47, 101, 91, .16);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, .72);
+  color: var(--sea-dark);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.shuffle-button:hover {
+  background: rgba(255, 255, 255, .96);
 }
 
 .practice-preview strong {
@@ -786,6 +809,11 @@ textarea:focus-visible {
   padding: 28px 22px calc(32px + env(safe-area-inset-bottom));
   width: min(100%, 620px);
   margin: 0 auto;
+}
+
+.practice-checkin {
+  align-content: start;
+  overflow-y: auto;
 }
 
 .live-target,

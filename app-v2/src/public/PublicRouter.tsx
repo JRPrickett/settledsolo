@@ -172,6 +172,43 @@ function EvidencePage() {
         product heuristics. They are deliberately explainable and are not described as a
         clinically validated dose of training.
       </p>
+      <h2>Frequency and warm-up variation</h2>
+      <p>
+        There is no published universal number of timed departures to perform each day.
+        SettledSolo uses two timed sessions as its default daily ceiling and three as its
+        absolute maximum; a session that stops during a warm-up still uses one allowance.
+        Departure-cue practice does not count because the owner never leaves. This is a
+        conservative product boundary, not a clinical prescription.
+      </p>
+      <p>
+        Julie Naismith&apos;s public guidance emphasises regular, realistic practice and rest
+        days. Her current FAQ and podcast are useful background reading:
+        {" "}
+        <a href="https://julienaismith.com/faq/" target="_blank" rel="noreferrer">
+          FAQ
+        </a>{" "}
+        and{" "}
+        <a href="https://julienaismith.com/podcast/episode-63/" target="_blank" rel="noreferrer">
+          episode 63
+        </a>.
+        {" "}
+        Her{" "}
+        <a href="https://julienaismith.com/book-resource/" target="_blank" rel="noreferrer">
+          Be Right Back baseline worksheets
+        </a>{" "}
+        show varied short steps, but they are examples rather than a universal formula.
+      </p>
+      <p>
+        The Today-page Shuffle action changes the order of a fixed, bounded set of brief
+        warm-up durations within the app&apos;s safety bounds. That variation is a usability
+        heuristic, not a clinically validated formula.
+      </p>
+      <h2>High-risk signs</h2>
+      <p>
+        Self-injury, escape attempts or damaging doors, windows or barriers are not a reason
+        to collect more app data. Pause timed departures and contact your vet or a qualified
+        behaviour professional.
+      </p>
       <h2>Professional review</h2>
       <p>
         The training wording and heuristics are scheduled for review by an appropriately
@@ -191,8 +228,9 @@ function HelpPage() {
       </p>
       <h2>Use a camera when you can</h2>
       <p>
-        Direct observation is more useful than guessing what happened while you were
-        out of sight.
+        Direct observation is more useful than guessing what happened while you were out of
+        sight, but a camera is optional. Do not keep monitoring if it increases your own
+        anxiety or changes how you interact with your dog.
       </p>
       <h2>Returning early is okay</h2>
       <p>

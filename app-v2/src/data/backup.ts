@@ -3,6 +3,7 @@ import type {
   DepartureCueSession,
   ObservedSignal,
   Outcome,
+  PracticeDepartureReview,
   Scenario,
   SessionTag,
   TrainingSession
@@ -15,6 +16,7 @@ import { readLegacyAppData } from "./legacyImport";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 // Derived rather than duplicated: a new signal is accepted by restore automatically.
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { clampDailyCap } from "../domain/dailyCap";
 
 const outcomes: Outcome[] = ["relaxed", "concern", "distressed"];
 
@@ -91,6 +93,29 @@ function cleanTags(value: unknown): SessionTag[] {
   )];
 }
 
+function cleanPracticeReviews(
+  value: unknown
+): PracticeDepartureReview[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const reviews = value.slice(0, 4).flatMap((item) => {
+    if (!isRecord(item)) return [];
+    return [
+      {
+        targetSeconds: Math.max(
+          1,
+          Math.round(finiteNumber(item.targetSeconds, 1))
+        ),
+        actualSeconds: Math.max(
+          1,
+          Math.round(finiteNumber(item.actualSeconds, 1))
+        ),
+        outcome: cleanOutcome(item.outcome)
+      }
+    ];
+  });
+  return reviews.length ? reviews : undefined;
+}
+
 function cleanSession(value: unknown, index: number): TrainingSession | null {
   if (!isRecord(value)) return null;
 
@@ -110,7 +135,8 @@ function cleanSession(value: unknown, index: number): TrainingSession | null {
     signals: cleanSignals(value.signals),
     tags: cleanTags(value.tags),
     stopReason: String(value.stopReason || "").slice(0, 80),
-    note: String(value.note || "").slice(0, 2000)
+    note: String(value.note || "").slice(0, 2000),
+    practiceReviews: cleanPracticeReviews(value.practiceReviews)
   };
 }
 
@@ -233,7 +259,7 @@ export function sanitiseImportedAppData(value: unknown): AppData {
     dailyCap:
       value.dailyCap == null
         ? undefined
-        : Math.max(1, Math.min(10, Math.round(finiteNumber(value.dailyCap, 2))))
+        : clampDailyCap(finiteNumber(value.dailyCap, 2))
   };
 }
 

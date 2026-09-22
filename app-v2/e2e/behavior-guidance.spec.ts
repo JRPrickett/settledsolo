@@ -31,9 +31,9 @@ test("departure cue practice only advances after repeated calm sets", async ({ p
 });
 
 test("a one-time observation runs before duration training and is not asked again", async ({ page }) => {
-  await completeSetup(page, 1);
+  await completeSetup(page, 1, false);
 
-  const card = page.getByRole("heading", { name: "Watch Mabel alone once" });
+  const card = page.getByRole("heading", { name: "Observe one known-safe absence" });
   await expect(card).toBeVisible();
   // The step never blocks training.
   await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
@@ -57,9 +57,9 @@ test("a one-time observation runs before duration training and is not asked agai
 });
 
 test("skipping the one-time observation is remembered across a reload", async ({ page }) => {
-  await completeSetup(page, 1);
+  await completeSetup(page, 1, false);
 
-  const card = page.getByRole("heading", { name: "Watch Mabel alone once" });
+  const card = page.getByRole("heading", { name: "Observe one known-safe absence" });
   await expect(card).toBeVisible();
   await page.getByRole("button", { name: "Skip this step" }).click();
   await expect(card).toBeHidden();
@@ -79,7 +79,14 @@ test("a cue-first plan is not asked to leave the dog alone to observe", async ({
 
   await expect(page.getByRole("heading", { name: "Departure cues first" })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Watch Mabel alone once" })
+    page.getByRole("heading", { name: "Observe one known-safe absence" })
+  ).toBeHidden();
+});
+
+test("known-duration onboarding does not stage an unnecessary observation", async ({ page }) => {
+  await completeSetup(page, 30);
+  await expect(
+    page.getByRole("heading", { name: "Observe one known-safe absence" })
   ).toBeHidden();
 });
 
@@ -103,6 +110,47 @@ test("food refusal can be recorded as an observed signal and reaches history", a
 
   await page.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("Refused food or treats")).toBeVisible();
+});
+
+test("a high-risk observation pauses timed training immediately", async ({ page }) => {
+  await completeSetup(page, 1);
+  await page.getByRole("button", { name: "More" }).click();
+
+  const backup = {
+    schemaVersion: 1,
+    exportedAt: "2026-09-18T00:00:00.000Z",
+    appData: {
+      dogName: "Mabel",
+      activeScenarioId: "training",
+      scenarios: [{
+        id: "training",
+        label: "Home alone",
+        startSeconds: 1,
+        sessions: [{
+          id: "high-risk",
+          at: Date.UTC(2026, 8, 20, 12, 0, 0),
+          targetSeconds: 1,
+          actualSeconds: 1,
+          outcome: "distressed",
+          stoppedEarly: false,
+          signals: ["escape-attempt"],
+          tags: [],
+          stopReason: "",
+          note: ""
+        }]
+      }]
+    }
+  };
+
+  await page.getByLabel("Choose backup file").setInputFiles({
+    name: "high-risk.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup))
+  });
+  await page.getByRole("button", { name: "Restore this backup" }).click();
+
+  await expect(page.getByText("Pause timed departures.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeHidden();
 });
 
 test("persistent difficulty without progress suggests involving a vet, without prescribing", async ({ page }) => {

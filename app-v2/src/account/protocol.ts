@@ -7,9 +7,15 @@ import type {
   DepartureCueSession,
 } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { MAX_DAILY_CAP } from "../domain/dailyCap";
 const id = z.string().min(1).max(100);
 const seconds = z.number().int().min(0).max(86400);
 const outcome = z.enum(["relaxed", "concern", "distressed"]);
+const practiceReview = z.object({
+  targetSeconds: seconds.min(1),
+  actualSeconds: seconds.min(1),
+  outcome,
+});
 // Derived from the domain list so a new observed signal cannot be rejected here.
 const signalValues = OBSERVED_SIGNAL_VALUES as [ObservedSignal, ...ObservedSignal[]];
 const profile = z
@@ -17,7 +23,7 @@ const profile = z
     kind: z.literal("profile"),
     dogId: id,
     dogName: z.string().max(40),
-    dailyCap: z.number().int().min(1).max(10).optional(),
+    dailyCap: z.number().int().min(1).max(MAX_DAILY_CAP).optional(),
     onboarding: z
       .object({
         version: z.literal(2),
@@ -75,6 +81,7 @@ const session = z
       .max(10),
     stopReason: z.string().max(2000),
     note: z.string().max(10000),
+    practiceReviews: z.array(practiceReview).max(4).optional(),
   })
   .strict();
 const cue = z

@@ -15,8 +15,19 @@ isn't repeated here.
 
 ## Status
 
-Items 1-4 are shipped on `claude/sa-quality-improvements`. Item 5's three sub-items are not
-started.
+Items 1-5 are shipped. The follow-up safety hardening below was implemented on 22 September
+2026 after reviewing Julie Naismith's FAQ, podcast and *Be Right Back* baseline worksheets:
+
+- every timed warm-up now requires an observed outcome before the session can continue;
+- concern or distress during a warm-up ends the session before the main departure and is saved;
+- high-risk signals pause timed training and point directly to a vet or qualified behaviour
+  professional;
+- known-duration users are not asked to stage an unnecessary observation, and unknown-duration
+  observation copy no longer asks them to leave for “a few minutes”;
+- Today Shuffle changes the order of a fixed bounded set rather than sampling arbitrary values;
+- the daily ceiling is described as a SettledSolo safety limit rather than clinical dosage.
+
+The remaining release gates are qualified behaviour-professional review and real-device testing.
 
 ## Priority order and why
 
@@ -67,11 +78,13 @@ saying so plainly in product copy (landing/terms), not new billing engineering.
   sync. Sourced to CSAT practitioner practice in the evidence base, not to a controlled study.
 - ~~A one-time "record the dog alone" pre-protocol step before starting duration training
   (Bain 2025), to help rule out confinement anxiety/noise phobia/incomplete housetraining
-  being mistaken for separation anxiety.~~ **Done.** Offered on Today before the first timed
-  departure of a track, never twice, and never while a cue-first plan has no departure in it.
-  A camera is suggested but explicitly optional, the step never blocks training, and the
-  guidance names alternative explanations without diagnosing or prescribing. A confinement
-  observation points at the free-roam comparison tags from item 3.
+  being mistaken for separation anxiety.~~ **Done.** Offered on the unknown-duration/micro
+  route before the first timed departure, never twice, and never for known-duration users or
+  while a cue-first plan has no departure in it. It uses an already-safe absence rather than
+  asking the owner to leave for a few minutes to find a limit. A camera is suggested but
+  explicitly optional, the step never blocks training, and the guidance names alternative
+  explanations without diagnosing or prescribing. A confinement observation points at the
+  free-roam comparison tags from item 3.
 - ~~A non-prescriptive medication-referral nudge ("ask your vet or a DACVB about medication as
   an adjunct") after repeated stalled/distressed sessions — mirrors real referral norms
   without prescribing anything.~~ **Done.** A second support tier above the existing one, fired

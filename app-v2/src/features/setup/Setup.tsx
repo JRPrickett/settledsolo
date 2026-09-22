@@ -145,6 +145,15 @@ export function Setup({
               ))}
             </div>
 
+            <div className="setup-camera-note" role="note">
+              <strong>Important safety check.</strong>
+              <span>
+                If {dogName} has injured themselves, tried to escape through a barrier,
+                or damaged doors or windows while alone, pause timed departures and
+                speak to your vet or a qualified behaviour professional.
+              </span>
+            </div>
+
             <div className="setup-actions">
               <button className="setup-back" type="button" onClick={back}>Back</button>
               <button

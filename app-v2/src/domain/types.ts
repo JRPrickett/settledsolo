@@ -15,7 +15,10 @@ export type ObservedSignal =
   | "whining"
   | "barking-howling"
   | "unable-to-settle"
-  | "food-refusal";
+  | "food-refusal"
+  | "self-injury"
+  | "escape-attempt"
+  | "destructive-escape";
 
 export type SessionTag =
   | "morning"
@@ -40,6 +43,14 @@ export interface TrainingSession {
   tags: SessionTag[];
   stopReason: string;
   note: string;
+  /** Outcomes recorded for the short departures that preceded the main one. */
+  practiceReviews?: PracticeDepartureReview[];
+}
+
+export interface PracticeDepartureReview {
+  targetSeconds: number;
+  actualSeconds: number;
+  outcome: Outcome;
 }
 
 export interface DepartureCueSession {
@@ -64,7 +75,10 @@ export interface Scenario {
   cuePractice?: DepartureCuePractice;
   /** Number of short practice departures before the main one. Defaults to four below ten minutes. */
   warmupCount?: number;
-  /** Vary the warm-up order from session to session when enabled. */
+  /**
+   * Legacy persisted preference. The current app exposes a per-session shuffle
+   * action on Today instead of a permanent setting.
+   */
   shuffleWarmups?: boolean;
   /** Suggested minimum settle time between departures, in seconds. Defaults to 60 when unset. */
   restSeconds?: number;
@@ -79,6 +93,8 @@ export interface Recommendation {
   restDayRecommended: boolean;
   /** Difficulty has persisted without progress for long enough to suggest involving a vet or veterinary behaviourist. */
   referralSuggested: boolean;
+  /** A high-risk sign was logged; timed absences should pause pending professional advice. */
+  highRiskFlag: boolean;
 }
 
 export interface AppData {
@@ -91,6 +107,6 @@ export interface AppData {
   preProtocolObservation?: import("./preProtocolObservation").PreProtocolObservation;
   activeScenarioId: string;
   scenarios: Scenario[];
-  /** Main departures allowed per day, counted across every scenario. Defaults to 2 when unset. */
+  /** Main departures allowed per day, counted across every scenario. Defaults to 2 and is capped at 3. */
   dailyCap?: number;
 }

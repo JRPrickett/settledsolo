@@ -13,7 +13,7 @@ import {
   defaultWarmupCount,
   formatDuration
 } from "../../domain/trainingEngine";
-import { effectiveDailyCap } from "../../domain/dailyCap";
+import { effectiveDailyCap, MAX_DAILY_CAP } from "../../domain/dailyCap";
 import {
   alertCapabilities,
   prepareBackgroundReturnAlerts,
@@ -42,8 +42,7 @@ export function More({
     label: string,
     startSeconds: number,
     warmupCount: number,
-    restSeconds: number,
-    shuffleWarmups: boolean
+    restSeconds: number
   ) => Promise<void>;
   onUpdateDailyCap: (cap: number) => Promise<void>;
   onRestoreBackup: (data: AppData) => Promise<void>;
@@ -59,9 +58,6 @@ export function More({
   const [trackStart, setTrackStart] = useState(scenario.startSeconds);
   const [warmupCount, setWarmupCount] = useState(
     scenario.warmupCount ?? defaultWarmupCount(scenario.startSeconds)
-  );
-  const [shuffleWarmups, setShuffleWarmups] = useState(
-    scenario.shuffleWarmups ?? true
   );
   const [restSeconds, setRestSeconds] = useState(
     scenario.restSeconds ?? DEFAULT_REST_SECONDS
@@ -135,7 +131,6 @@ export function More({
                 setWarmupCount(
                   next.warmupCount ?? defaultWarmupCount(next.startSeconds)
                 );
-                setShuffleWarmups(next.shuffleWarmups ?? true);
                 setRestSeconds(next.restSeconds ?? DEFAULT_REST_SECONDS);
               }
               void onSelectScenario(nextId);
@@ -169,7 +164,8 @@ export function More({
           <p>
             Short sessions use four warm-ups by default. Each stays at or below
             one minute, and targets under two minutes keep warm-ups to half the
-            target at most.
+            target at most. Use Shuffle on Today to change the order of the same
+            bounded, brief warm-up set without changing the main target.
           </p>
         </div>
         <div className="track-form">
@@ -212,18 +208,6 @@ export function More({
               onChange={(event) => setWarmupCount(Number(event.target.value))}
             />
           </label>
-          <label className="warmup-option">
-            <span>
-              Shuffle warm-up steps
-              <small>Vary their order from session to session.</small>
-            </span>
-            <input
-              aria-label="Shuffle warm-up steps"
-              type="checkbox"
-              checked={shuffleWarmups}
-              onChange={(event) => setShuffleWarmups(event.target.checked)}
-            />
-          </label>
           <label>
             Suggested settle time between departures
             <div className="duration-input">
@@ -238,6 +222,13 @@ export function More({
               <span>seconds</span>
             </div>
           </label>
+          {(warmupCount === 0 || restSeconds === 0) && (
+            <p className="field-help">
+              These are advanced choices. Zero warm-ups removes the short practice
+              checks, and zero settle time removes the app&apos;s suggested pause; keep
+              the defaults if you are unsure.
+            </p>
+          )}
           <button
             className="secondary-button"
             onClick={() =>
@@ -246,8 +237,7 @@ export function More({
                 trackLabel,
                 trackStart,
                 warmupCount,
-                restSeconds,
-                shuffleWarmups
+                restSeconds
               )
             }
           >
@@ -259,21 +249,23 @@ export function More({
       <section className="settings-card">
         <div>
           <p className="kicker">Daily ceiling</p>
-          <h2>How many main departures per day, at most.</h2>
+          <h2>How many timed sessions per day, at most.</h2>
           <p>
             Counted across every training track, since it's the same dog. Separation
-            training consolidates between sessions — more attempts in one day is not
-            faster progress.
+            training needs comfortable gaps between sessions. More attempts in one day
+            are not automatically better. Two is the default; three is the absolute
+            maximum and remains a ceiling, not a target. This is a SettledSolo safety
+            limit, not a universal clinical dosage.
           </p>
         </div>
         <div className="track-form">
           <label>
-            Main departures per day
+            Timed sessions per day
             <input
               aria-label="Daily main-departure cap"
               type="number"
               min={1}
-              max={10}
+              max={MAX_DAILY_CAP}
               value={dailyCap}
               onChange={(event) => setDailyCap(Number(event.target.value))}
             />

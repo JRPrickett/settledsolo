@@ -7,9 +7,10 @@ import {
 } from "../../domain/preProtocolObservation";
 
 /**
- * A one-time observation before duration training starts. Watching the dog alone
- * once helps separate confinement anxiety, noise sensitivity and incomplete
- * housetraining from separation-related distress, which otherwise look alike.
+ * A one-time observation before duration training starts. Watching an already
+ * safe absence once helps separate confinement anxiety, noise sensitivity and
+ * incomplete housetraining from separation-related distress, which otherwise
+ * look alike.
  *
  * A camera is helpful but never required, and the step is always skippable.
  */
@@ -113,33 +114,33 @@ export function PreProtocolObservationCard({
       <p className="kicker">Before you start</p>
       <div className="starting-route-heading">
         <div>
-          <h1>Watch {dogName} alone once</h1>
+          <h1>Observe one known-safe absence</h1>
           <p>A one-time step, then it is done.</p>
         </div>
         <span className="direction direction-repeat">Optional</span>
       </div>
 
       <p className="starting-route-copy">
-        Before any duration training, it helps to see what actually happens when
-        {" "}
-        {dogName} is alone. Confinement, noises outside and incomplete
+        Before any duration training, it can help to observe what actually happens
+        when {dogName} is alone. Confinement, noises outside and incomplete
         housetraining can all look like distress at being left, and a single
-        observation is the cheapest way to tell them apart.
+        observation can help separate them.
       </p>
 
       <div className="starting-observation-note">
         <strong>How to do it</strong>
         <p>
-          Leave {dogName} as you normally would for a few minutes and watch on a
-          camera or spare phone. No camera? Step outside the door or into another
-          room and listen instead — that works too.
+          Use an absence you already know {dogName} can manage comfortably — do not
+          extend it to find a limit — and watch on a camera or spare phone. If you
+          do not know a safe absence yet, skip this step and start with the cautious
+          plan instead. No camera? Step outside the door or into another room only
+          for the same already-safe duration.
         </p>
       </div>
 
       <p className="ceiling-note">
-        Clinical guidance (Bain, 2025) suggests one recording before starting a
-        structured protocol. It is a rule-out step, not a test, and not a
-        diagnosis.
+        This is an optional rule-out step, not a test of how long {dogName} can
+        cope and not a diagnosis.
       </p>
 
       <button

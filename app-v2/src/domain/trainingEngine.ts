@@ -1,4 +1,5 @@
 import type { Recommendation, TrainingSession } from "./types";
+import { hasHighRiskSignals } from "./observedSignals";
 
 export function stepSize(seconds: number): number {
   if (seconds < 10) return 1;
@@ -88,20 +89,23 @@ export function recommendNext(
         "Start with a duration you have already seen your dog manage comfortably. This is a starting point, not a test of their limit.",
       supportFlag: false,
       restDayRecommended: false,
-      referralSuggested: false
+      referralSuggested: false,
+      highRiskFlag: false
     };
   }
 
   const last = sessions[sessions.length - 1];
   const supportFlag = needsSupport(sessions);
-  const referral = referralSuggested(sessions);
+  const highRiskFlag = sessions.some((session) =>
+    hasHighRiskSignals(session.signals)
+  );
+  const referral = highRiskFlag || referralSuggested(sessions);
   /**
-   * A single distressed session already softens the next target. When that
-   * distress lands on top of a broader recent pattern of difficulty, the
-   * better call is to skip training entirely today rather than just make it
-   * easier — the pattern most separation-anxiety protocols call a setback.
+   * A single distressed session already softens the next target. SettledSolo
+   * also suggests a rest day as a cautious product choice; it is not a clinical
+   * rule and the owner can choose to make the next session easier instead.
    */
-  const restDayRecommended = supportFlag && last.outcome === "distressed";
+  const restDayRecommended = last.outcome === "distressed";
 
   if (last.outcome === "distressed") {
     const previousRelaxed = latestRelaxedBefore(sessions, sessions.length - 1);
@@ -126,7 +130,8 @@ export function recommendNext(
         : "The last session showed clear distress, so the next plan returns to a known comfortable starting point.",
       supportFlag,
       restDayRecommended,
-      referralSuggested: referral
+      referralSuggested: referral,
+      highRiskFlag
     };
   }
 
@@ -151,7 +156,8 @@ export function recommendNext(
         : "There was some concern last time, so the next plan is easier rather than asking for another increase.",
       supportFlag,
       restDayRecommended,
-      referralSuggested: referral
+      referralSuggested: referral,
+      highRiskFlag
     };
   }
 
@@ -163,7 +169,8 @@ export function recommendNext(
         "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
       supportFlag,
       restDayRecommended,
-      referralSuggested: referral
+      referralSuggested: referral,
+      highRiskFlag
     };
   }
 
@@ -176,7 +183,8 @@ export function recommendNext(
         "One relaxed session is useful evidence. Repeat this duration once before making it harder.",
       supportFlag,
       restDayRecommended,
-      referralSuggested: referral
+      referralSuggested: referral,
+      highRiskFlag
     };
   }
 
@@ -187,7 +195,8 @@ export function recommendNext(
     reason: `Recent sessions were relaxed, so the next plan adds a small ${increment}-second step.`,
     supportFlag,
     restDayRecommended,
-    referralSuggested: referral
+    referralSuggested: referral,
+    highRiskFlag
   };
 }
 
@@ -200,12 +209,37 @@ export function defaultWarmupCount(targetSeconds: number): number {
     : LONG_SESSION_WARMUP_COUNT;
 }
 
+function seededRandom(seed: number): () => number {
+  let state = (Math.trunc(seed) >>> 0) || 0x6d2b79f5;
+  return () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffled<T>(values: T[], seed: number): T[] {
+  const result = [...values];
+  const random = seededRandom(seed);
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
 /**
- * `variabilitySeed` (typically how many main departures have already been
- * logged) varies the practice order so a dog can't learn the shape of the
- * warm-up and anticipate what's coming next. Short targets default to four
- * warm-ups; longer targets keep two. Every warm-up is capped at one minute,
- * and targets below two minutes also cap warm-ups at half the main target.
+ * `variabilitySeed` is a per-session seed. It changes the order of a fixed,
+ * conservative set of brief durations; it does not invent a new duration on
+ * every tap. That keeps Shuffle useful without creating an unbounded random
+ * progression. Short targets default to four warm-ups; longer targets keep
+ * two. Every warm-up is capped at one minute, and targets below two minutes
+ * also cap warm-ups at half the main target.
+ *
+ * The count, shape and ceiling remain SettledSolo product heuristics rather
+ * than Julie Naismith's published baseline plans. The safety rule is that every
+ * practice departure stays below the main ceiling and remains brief.
  */
 export function buildPracticeDepartures(
   targetSeconds: number,
@@ -230,22 +264,25 @@ export function buildPracticeDepartures(
   const actualCount = Math.min(count, available);
   if (actualCount === 0) return [];
 
+  const shapes: Record<number, number[]> = {
+    1: [0.5],
+    2: [0.32, 0.78],
+    3: [0.16, 0.52, 0.84],
+    4: [0.16, 0.46, 0.68, 0.9]
+  };
   const values: number[] = [];
-  for (let index = 0; index < actualCount; index += 1) {
-    const fraction = actualCount === 1 ? 0.5 : index / (actualCount - 1);
-    let seconds = Math.round(
-      minimum + (maximum - minimum) * fraction
-    );
-    if (index > 0 && seconds <= values[index - 1]) {
-      seconds = values[index - 1] + 1;
+  for (const fraction of shapes[actualCount]) {
+    let seconds = Math.round(minimum + (maximum - minimum) * fraction);
+    while (values.includes(seconds) && seconds < maximum) seconds += 1;
+    if (values.includes(seconds)) {
+      seconds = minimum;
+      while (values.includes(seconds) && seconds < maximum) seconds += 1;
     }
-    values.push(Math.min(maximum, seconds));
+    values.push(seconds);
   }
 
-  if (!shuffleWarmups || values.length <= 1) return values;
-
-  const rotation = Math.abs(Math.round(variabilitySeed)) % values.length;
-  return [...values.slice(rotation), ...values.slice(0, rotation)];
+  const ordered = [...values].sort((a, b) => a - b);
+  return shuffleWarmups ? shuffled(ordered, variabilitySeed) : ordered;
 }
 
 export function formatDuration(totalSeconds: number): string {

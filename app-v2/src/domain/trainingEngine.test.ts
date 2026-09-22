@@ -130,13 +130,23 @@ describe("recommendNext", () => {
     expect(result.restDayRecommended).toBe(true);
   });
 
-  it("does not recommend a rest day for an isolated distressed session", () => {
+  it("recommends a rest day after an isolated distressed session", () => {
     const result = recommendNext(
       [session(), session(), session({ outcome: "distressed" })],
       5
     );
     expect(result.supportFlag).toBe(false);
-    expect(result.restDayRecommended).toBe(false);
+    expect(result.restDayRecommended).toBe(true);
+  });
+
+  it("pauses timed training after a high-risk observation", () => {
+    const result = recommendNext(
+      [session({ outcome: "distressed", signals: ["escape-attempt"] })],
+      5
+    );
+    expect(result.highRiskFlag).toBe(true);
+    expect(result.referralSuggested).toBe(true);
+    expect(result.direction).toBe("reduce");
   });
 });
 
@@ -166,13 +176,18 @@ describe("buildPracticeDepartures", () => {
     expect(practice.every((seconds) => seconds < 120)).toBe(true);
   });
 
-  it("alternates practice order so the sequence isn't always the same shape", () => {
-    const evenSeed = buildPracticeDepartures(120, 0);
-    const oddSeed = buildPracticeDepartures(120, 1);
-    expect(oddSeed).not.toEqual(evenSeed);
-    expect([...oddSeed].sort((a, b) => a - b)).toEqual(
-      [...evenSeed].sort((a, b) => a - b)
+  it("uses a seed to create deterministic but different warm-up durations", () => {
+    const first = buildPracticeDepartures(120, 1);
+    const sameSeed = buildPracticeDepartures(120, 1);
+    const second = buildPracticeDepartures(120, 2);
+
+    expect(sameSeed).toEqual(first);
+    expect(second).not.toEqual(first);
+    expect([...second].sort((a, b) => a - b)).toEqual(
+      [...first].sort((a, b) => a - b)
     );
+    expect(new Set(first).size).toBe(first.length);
+    expect(new Set(second).size).toBe(second.length);
   });
 
   it("respects a configured warm-up count", () => {
@@ -206,10 +221,10 @@ describe("buildPracticeDepartures", () => {
     expect(practice).toEqual([...practice].sort((a, b) => a - b));
   });
 
-  it("rotates practice order for counts above two", () => {
-    const seedZero = buildPracticeDepartures(300, 0, 3, true);
-    const seedOne = buildPracticeDepartures(300, 1, 3, true);
-    expect(seedOne).toEqual([...seedZero.slice(1), seedZero[0]]);
+  it("keeps every shuffled duration within the brief safety bounds", () => {
+    const practice = buildPracticeDepartures(119, 1234, 4, true);
+    expect(practice).toHaveLength(4);
+    expect(practice.every((seconds) => seconds >= 2 && seconds <= 59)).toBe(true);
   });
 });
 

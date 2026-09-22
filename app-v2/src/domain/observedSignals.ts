@@ -13,7 +13,10 @@ const OBSERVED_SIGNAL_LABELS: Record<ObservedSignal, string> = {
   "unable-to-settle": "Unable to settle",
   // Refusing food that would normally be taken is a practitioner-recognised sign
   // that a dog is above threshold. Only meaningful when food was actually left.
-  "food-refusal": "Refused food or treats"
+  "food-refusal": "Refused food or treats",
+  "self-injury": "Self-injury or injury risk",
+  "escape-attempt": "Escape attempt",
+  "destructive-escape": "Damaging doors, windows or barriers to escape"
 };
 
 export const OBSERVED_SIGNAL_VALUES = Object.keys(
@@ -27,6 +30,18 @@ export const observedSignalOptions: Array<{
   value,
   label: OBSERVED_SIGNAL_LABELS[value]
 }));
+
+export const HIGH_RISK_SIGNALS: ObservedSignal[] = [
+  "self-injury",
+  "escape-attempt",
+  "destructive-escape"
+];
+
+export function hasHighRiskSignals(
+  signals: readonly ObservedSignal[]
+): boolean {
+  return signals.some((signal) => HIGH_RISK_SIGNALS.includes(signal));
+}
 
 export function observedSignalLabel(signal: ObservedSignal): string {
   return OBSERVED_SIGNAL_LABELS[signal];

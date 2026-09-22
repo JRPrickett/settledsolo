@@ -32,6 +32,7 @@ export function makeSessionsCsv(data: AppData): string {
       "stop_reason",
       "observed_signals",
       "context_tags",
+      "warmup_reviews",
       "note"
     ]
   ];
@@ -48,6 +49,9 @@ export function makeSessionsCsv(data: AppData): string {
         session.stopReason,
         session.signals.join("; "),
         session.tags.map((tag) => tagLabel.get(tag) ?? tag).join("; "),
+        (session.practiceReviews ?? [])
+          .map((review) => `${review.actualSeconds}s ${review.outcome}`)
+          .join("; "),
         session.note
       ]);
     }

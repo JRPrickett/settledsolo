@@ -47,6 +47,22 @@ describe("pre-protocol observation eligibility", () => {
     ).toBe(false);
   });
 
+  it("does not ask known-duration users to stage another absence", () => {
+    expect(
+      shouldOfferPreProtocolObservation(
+        data({
+          onboarding: {
+            version: 2,
+            startingPath: "known-duration",
+            completedAt: 1
+          }
+        }),
+        scenario(),
+        true
+      )
+    ).toBe(false);
+  });
+
   it("is not offered while the plan has no departure yet", () => {
     expect(shouldOfferPreProtocolObservation(data(), scenario(), false)).toBe(
       false

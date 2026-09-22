@@ -24,6 +24,7 @@ import { LiveSession } from "./features/session/LiveSession";
 import { BrandMark, BrandWordmark } from "./brand/BrandMark";
 import type { Celebration } from "./features/progress/MilestoneBanner";
 import { newlyEarnedAchievements, newlyEarnedMilestones } from "./domain/milestones";
+import { effectiveDailyCap, isDailyCapReached } from "./domain/dailyCap";
 
 type Screen = "today" | "progress" | "history" | "more";
 
@@ -40,6 +41,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   const [storageMode, setStorageMode] = useState<StorageMode>("indexeddb");
   const [screen, setScreen] = useState<Screen>("today");
   const [liveTarget, setLiveTarget] = useState<number | null>(null);
+  const [liveWarmupSeed, setLiveWarmupSeed] = useState<number | null>(null);
   const [cuePracticeOpen, setCuePracticeOpen] = useState(false);
   const [restoredState, setRestoredState] =
     useState<PersistedLiveSession["state"] | undefined>(undefined);
@@ -64,6 +66,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
       ) {
         setData({ ...loadedData, activeScenarioId: active.scenarioId });
         setLiveTarget(active.targetSeconds);
+        setLiveWarmupSeed(null);
         setRestoredState(active.state);
       }
     });
@@ -133,14 +136,16 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
         targetSeconds={liveTarget}
         dogName={data.dogName}
         initialState={restoredState}
-        variabilitySeed={activeScenario(data).sessions.length}
+        variabilitySeed={
+          liveWarmupSeed ?? activeScenario(data).sessions.length
+        }
         warmupCount={activeScenario(data).warmupCount}
-        shuffleWarmups={activeScenario(data).shuffleWarmups}
         restSeconds={activeScenario(data).restSeconds ?? 60}
         onPersist={persistLiveSession}
         onClose={async () => {
           await repository.clearActiveSession();
           setLiveTarget(null);
+          setLiveWarmupSeed(null);
           setRestoredState(undefined);
         }}
         onSaved={async (session) => {
@@ -153,6 +158,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
           setStorageMode(repository.storageMode());
           await repository.clearActiveSession();
           setLiveTarget(null);
+          setLiveWarmupSeed(null);
           setRestoredState(undefined);
           setScreen("today");
 
@@ -185,13 +191,18 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
             storageMode={storageMode}
             celebration={celebration}
             onDismissCelebration={() => setCelebration(null)}
-            onStart={async (target) => {
-              account.pauseForTraining();
+            onStart={async (target, warmupSeed) => {
               const latest = await repository.loadAppData();
               setData(latest);
+              if (isDailyCapReached(latest, effectiveDailyCap(latest))) {
+                return false;
+              }
+              account.pauseForTraining();
               setCelebration(null);
               setRestoredState(undefined);
+              setLiveWarmupSeed(warmupSeed);
               setLiveTarget(target);
+              return true;
             }}
             onRecordObservation={async (outcome, findings) => {
               setData(
@@ -242,8 +253,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               label,
               startSeconds,
               warmupCount,
-              restSeconds,
-              shuffleWarmups
+              restSeconds
             ) => {
               setData(
                 await repository.updateScenario(
@@ -251,8 +261,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
                   label,
                   startSeconds,
                   warmupCount,
-                  restSeconds,
-                  shuffleWarmups
+                  restSeconds
                 )
               );
               setStorageMode(repository.storageMode());
@@ -268,6 +277,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               setStorageMode(repository.storageMode());
               setRestoredState(undefined);
               setLiveTarget(null);
+              setLiveWarmupSeed(null);
               setCelebration(null);
               setScreen("today");
             }}
@@ -277,6 +287,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               setStorageMode(repository.storageMode());
               setRestoredState(undefined);
               setLiveTarget(null);
+              setLiveWarmupSeed(null);
               setCuePracticeOpen(false);
               setCelebration(null);
               setScreen("today");

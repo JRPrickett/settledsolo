@@ -83,7 +83,9 @@ export function Progress({ data }: { data: AppData }) {
           </div>
         ) : (
           <p className="milestone-longest">
-            Every milestone earned. That's a dog who can be left alone.
+            Every milestone logged. These are comfortable durations recorded in the
+            tracks and contexts you have used — not a general measure of what your dog
+            can manage everywhere.
           </p>
         )}
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DAILY_CAP, isDailyCapReached, sessionsToday } from "./dailyCap";
+import {
+  DEFAULT_DAILY_CAP,
+  MAX_DAILY_CAP,
+  clampDailyCap,
+  isDailyCapReached,
+  sessionsToday
+} from "./dailyCap";
 import type { AppData, Scenario, TrainingSession } from "./types";
 
 function session(at: number): TrainingSession {
@@ -67,5 +73,11 @@ describe("isDailyCapReached", () => {
     const now = Date.now();
     const data = appData([scenario({ sessions: [session(now)] })]);
     expect(isDailyCapReached(data, 1, now)).toBe(true);
+  });
+
+  it("keeps custom caps inside the supported product range", () => {
+    expect(clampDailyCap(0)).toBe(1);
+    expect(clampDailyCap(MAX_DAILY_CAP + 10)).toBe(MAX_DAILY_CAP);
+    expect(clampDailyCap(Number.NaN)).toBe(DEFAULT_DAILY_CAP);
   });
 });

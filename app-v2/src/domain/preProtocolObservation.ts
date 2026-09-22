@@ -40,8 +40,9 @@ export interface PreProtocolObservation {
  * interrupted by it, and it is never shown twice.
  *
  * A cue-first plan deliberately has no departures yet, so asking the owner to
- * leave and watch would contradict the plan they were just given. Those users
- * see it once their plan includes a real departure.
+ * leave and watch would contradict the plan they were just given. Known-duration
+ * users already supplied an observed starting ceiling, so they do not need this
+ * extra absence either.
  */
 export function shouldOfferPreProtocolObservation(
   data: AppData,
@@ -50,6 +51,9 @@ export function shouldOfferPreProtocolObservation(
 ): boolean {
   if (data.preProtocolObservation) return false;
   if (!departurePlanned) return false;
+  // A known-comfortable absence has already supplied the safe starting point;
+  // asking the owner to stage another observation adds no useful information.
+  if (data.onboarding?.startingPath === "known-duration") return false;
   return scenario.sessions.length === 0;
 }
 

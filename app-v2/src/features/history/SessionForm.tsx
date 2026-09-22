@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from "react";
 import type { ObservedSignal, Outcome, SessionTag, TrainingSession } from "../../domain/types";
-import { observedSignalOptions } from "../../domain/observedSignals";
+import {
+  hasHighRiskSignals,
+  observedSignalOptions
+} from "../../domain/observedSignals";
 import { SESSION_TAG_OPTIONS } from "../../domain/sessionTags";
 import { createOpaqueId } from "../../domain/ids";
 
@@ -144,6 +147,16 @@ export function SessionForm({
           ))}
         </div>
       </div>
+
+      {hasHighRiskSignals(signals) && (
+        <div className="support-card referral-card" role="alert">
+          <strong>Pause timed departures.</strong>
+          <p>
+            This record includes a high-risk sign. Do not use it to justify another
+            timed absence; contact your vet or a qualified behaviour professional.
+          </p>
+        </div>
+      )}
 
       <div className="signals-section">
         <span>Context <small>Optional</small></span>
