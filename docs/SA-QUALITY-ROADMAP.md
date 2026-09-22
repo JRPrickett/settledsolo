@@ -16,7 +16,7 @@ isn't repeated here.
 ## Status
 
 Items 1-5 are shipped. The follow-up safety hardening below was implemented on 22 September
-2026 after reviewing Julie Naismith's FAQ, podcast and *Be Right Back* baseline worksheets:
+2026 after an additional evidence and practitioner-guidance pass:
 
 - every timed warm-up now requires an observed outcome before the session can continue;
 - concern or distress during a warm-up ends the session before the main departure and is saved;
@@ -27,7 +27,8 @@ Items 1-5 are shipped. The follow-up safety hardening below was implemented on 2
 - Today Shuffle changes the order of a fixed bounded set rather than sampling arbitrary values;
 - the daily ceiling is described as a SettledSolo safety limit rather than clinical dosage.
 
-The remaining release gates are qualified behaviour-professional review and real-device testing.
+The remaining release gate is real-device testing. SettledSolo does not claim professional review
+or endorsement; its product heuristics remain explicitly labelled as heuristics.
 
 ## Priority order and why
 

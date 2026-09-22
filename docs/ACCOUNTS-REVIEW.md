@@ -62,5 +62,5 @@ Live activation is also complete:
 - Sender reputation/junk placement plus wrong/expired-code, resend and live rate-limit behaviour.
 - Two physical devices syncing real data, including offline/reconnect and conflict recovery.
 - Installed iOS/Android offline lifecycle, safe updates, alerts and device-copy deletion behaviour.
-- Final privacy/contact/provider-retention information; physical-device and professional
-  behavioural-review gates remain open from the earlier roadmap.
+- Final privacy/contact/provider-retention information and the owned resources/SEO pass; the
+  remaining behaviour-quality evidence is real-device validation, not a professional-review claim.

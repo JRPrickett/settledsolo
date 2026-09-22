@@ -52,8 +52,8 @@ var TAGS=["Morning","Afternoon","Evening","Not walked yet","After a walk","Befor
 /* ================= door is a bore =================
    For dogs who aren't ready for any absence at all. The door itself has become
    the frightening part, so nothing is timed: you work through door cues until
-   they predict nothing. This is a generic version of the idea — Julie Naismith's
-   full protocol is in "Be Right Back!" and is worth reading properly. */
+   they predict nothing. This is a generic departure-cue exercise, kept separate from
+   timed absences so the owner can practise without leaving. */
 var CUES=[
   "Walk toward the door, then turn and come back",
   "Stand by the door a moment, then walk away",
@@ -279,9 +279,9 @@ function render(){
       "Time to start timed absences — this scenario will begin at 3 seconds.";
     coach.className="note"; coach.hidden=false;
   } else if(mode(s)==="door"&&phase==="idle"){
-    coach.textContent="Door is a Bore is Julie Naismith's exercise from Be Right Back!, for dogs who "+
-      "can't yet cope with any absence. Nothing is timed — you're just making door cues boring. "+
-      "The steps here are a plain version of the idea; her book has the full protocol.";
+    coach.textContent="Departure-cue practice is for dogs who become worried before you have "+
+      "properly left. Nothing is timed — you're just making door cues boring. The steps here "+
+      "are a short, plain-language exercise kept separate from timed absences.";
     coach.className="note"; coach.hidden=false;
   } else if(phase==="idle"&&capped()){
     coach.textContent=dailyCap()===1

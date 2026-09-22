@@ -39,13 +39,14 @@ accounts/local-first sync are live. Account activation is complete in both previ
 isolated D1 databases, Better Auth email OTP, verified Resend delivery, sync, cloud export/deletion
 and deployment verification are configured.
 
-Recent hardening through PR #55 also covers storage-failure recovery, stale-tab export identity,
+Recent hardening through PR #56 also covers storage-failure recovery, stale-tab export identity,
 single-window write ownership and retirement of the legacy product-event analytics pipeline.
 Registered Better Auth account totals are the canonical user-count metric.
 
 The phase lists below describe product scope rather than implying every bullet is still open.
 The active development focus is **release hardening and small-beta readiness**, while physical-device
-and qualified behaviour-professional review gates remain open. Use `HANDOVER.md`,
+and beta-essentials gates remain open. SettledSolo does not claim professional review or endorsement.
+Use `HANDOVER.md`,
 `HARDENING-ROADMAP.md` and `NEXT-PHASE.md` for the current sequence.
 
 ## Production phases
@@ -72,7 +73,7 @@ and qualified behaviour-professional review gates remain open. Use `HANDOVER.md`
 - Finish the remaining iOS matrix: offline relaunch, notification-denial path and update safety.
 - Complete the Android installed-PWA matrix.
 - Run desktop sanity checks.
-- Get qualified behaviour-professional review of training wording/heuristics.
+- Maintain the evidence/heuristic boundary and publish owned guidance for users.
 - Complete formal name/trademark checks and domain connection.
 - Finish public-site beta essentials: feedback route, real product screenshots, social image and final privacy/terms wording.
 - The modern PWA is already merged; clear and record remaining release gates before broad public beta.
@@ -99,6 +100,7 @@ Already present: landing page, app route, help, privacy and terms.
 Next work:
 - finish remaining installed-device lifecycle and recovery/security gates;
 - add a clear feedback/contact route;
+- publish the owned resources/FAQ/cheatsheet pages and complete the SEO pass;
 - complete accessibility and final privacy/provider wording;
 - use real product screenshots and final social-share metadata;
 - run a small invited beta cohort before widening access;

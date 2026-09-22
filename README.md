@@ -5,8 +5,8 @@ training. **Calm starts with small steps.** The repository and production produc
 migration identifiers are retained where changing them could risk existing user data.
 
 A user can start without creating an account. The modern application keeps training local
-and usable offline, with optional free account backup/cross-device sync planned after the
-local product completes its production device gates.
+and usable offline, with optional free account backup/cross-device sync available after
+explicit connection.
 
 > **Your progress is currently saved on this device.**  
 > Create a free account to back it up and use SettledSolo on your other devices.
@@ -62,6 +62,8 @@ Account sync remains a separate authenticated data path and is optional.
 - `docs/PRODUCT-PLAN.md` — product principles and phased roadmap
 - `docs/BRAND-DECISION.md` — SettledSolo name and brand system
 - `docs/EVIDENCE-BASE.md` — research basis and product-heuristic boundaries
+- `docs/SETTLEDSOLO-RESOURCES.md` — owned practical guidance, FAQs and session cheatsheet
+- `docs/BETA-ROADMAP.md` — small-beta, SEO and monetisation roadmap
 - `docs/DEVICE-TEST-MATRIX.md` — real-device release gate
 - `docs/ACCOUNT-SYNC.md` — account, cloud-data and offline-sync architecture
 - `ANALYTICS-SETUP.md` — usage metrics and retired analytics cleanup

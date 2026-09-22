@@ -2,6 +2,67 @@ import type { ReactNode } from "react";
 import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
 
+const CANONICAL_ORIGIN = "https://settledsolo.com";
+const DEFAULT_DESCRIPTION =
+  "Free dog separation anxiety training tool for gradual, observable alone-time practice, with a reliable timer, private history and evidence-informed guidance.";
+
+function setMeta(attribute: "name" | "property", key: string, content: string) {
+  let meta = document.head.querySelector<HTMLMetaElement>(
+    `meta[${attribute}="${key}"]`
+  );
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute(attribute, key);
+    document.head.appendChild(meta);
+  }
+  meta.content = content;
+}
+
+function setPublicMetadata(title: string, description: string, path: string) {
+  document.title = title;
+  setMeta("name", "description", description);
+  setMeta("property", "og:title", title);
+  setMeta("property", "og:description", description);
+  setMeta("property", "og:url", `${CANONICAL_ORIGIN}${path}`);
+  setMeta("property", "og:site_name", "SettledSolo");
+  setMeta("property", "og:image", `${CANONICAL_ORIGIN}/photos/hero-settled-at-home-v2.webp`);
+  setMeta("property", "og:image:alt", "A relaxed dog resting comfortably at home.");
+  setMeta("name", "twitter:title", title);
+  setMeta("name", "twitter:description", description);
+  setMeta("name", "twitter:image", `${CANONICAL_ORIGIN}/photos/hero-settled-at-home-v2.webp`);
+
+  let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = `${CANONICAL_ORIGIN}${path}`;
+}
+
+function PublicNavigation() {
+  return (
+    <nav aria-label="Public site">
+      <div className="marketing-desktop-links">
+        <a href="/">Home</a>
+        <a href="/help">Help</a>
+        <a href="/resources">Resources</a>
+        <a href="/evidence">Evidence</a>
+      </div>
+      <details className="marketing-mobile-menu">
+        <summary>Explore</summary>
+        <div>
+          <a href="/">Home</a>
+          <a href="/help">Help</a>
+          <a href="/resources">Resources</a>
+          <a href="/evidence">Evidence</a>
+        </div>
+      </details>
+      <a href="/app/" className="marketing-nav-cta">Open app</a>
+    </nav>
+  );
+}
+
 function InfoPage({
   title,
   children
@@ -15,15 +76,25 @@ function InfoPage({
         <a className="marketing-brand" href="/" aria-label="SettledSolo home">
           <BrandWordmark compact light />
         </a>
-        <nav aria-label="Public site">
-          <a href="/">Home</a>
-          <a href="/app/" className="marketing-nav-cta">Open app</a>
-        </nav>
+        <PublicNavigation />
       </header>
       <main className="info-page">
         <h1>{title}</h1>
         <div className="info-page-copy">{children}</div>
       </main>
+      <footer className="marketing-footer">
+        <BrandWordmark compact light />
+        <div>
+          <span className="marketing-footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/help">Help</a>
+            <a href="/resources">Resources</a>
+            <a href="/evidence">Evidence</a>
+          </span>
+          <span>SettledSolo is a training and record-keeping aid, not a diagnosis.</span>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -33,9 +104,9 @@ function PrivacyPage() {
     <InfoPage title="Your training record belongs to you.">
       <h2>Local-first by default</h2>
       <p>
-        SettledSolo currently stores your dog name, training tracks, session history,
-        notes and observed signals on your device. You can use the core app without
-        creating an account.
+        SettledSolo stores your dog name, training tracks, session history, notes and
+        observed signals on your device. You can use the core app without creating an
+        account.
       </p>
       <h2>Background return alerts</h2>
       <p>
@@ -48,10 +119,10 @@ function PrivacyPage() {
       </p>
       <h2>Product analytics are separate</h2>
       <p>
-        Limited aggregate analytics may count events such as app opens and whether a
-        session was started or saved, together with basic browser/device information.
-        Private training details such as dog names, notes, ratings, durations and
-        training history are not sent as product analytics.
+        SettledSolo does not send app-open, session or device-level product events to a
+        separate analytics database. Registered-account totals are the canonical user
+        metric; aggregate web traffic may still be measured separately by Cloudflare Web
+        Analytics.
       </p>
       <h2>Backups and exports</h2>
       <p>
@@ -63,28 +134,24 @@ function PrivacyPage() {
         Where accounts are enabled, you can sign in using an email code. Cloudflare
         hosts the account service and its separate private database. Resend delivers
         sign-in codes to your email address; it does not receive your training log.
-        Signing in alone does not upload existing local history. The app shows an
-        import summary and asks before connecting your log.
+        Signing in alone does not upload existing local history. The app shows an import
+        summary and asks before connecting your log.
       </p>
       <h2>Sync and account controls</h2>
       <p>
         After you connect, dog names, tracks, session observations, notes and settings
-        are stored with your account for backup and cross-device sync. Essential
-        secure cookies keep you signed in. Account/session records may contain IP
-        address and browser information for authentication and abuse protection.
-        Deleted training records remain as sync deletion markers and may appear in
-        change history until the account is deleted.
+        are stored with your account for backup and cross-device sync. Essential secure
+        cookies keep you signed in. Account/session records may contain IP address and
+        browser information for authentication and abuse protection. Deleted training
+        records remain as sync deletion markers and may appear in change history until
+        the account is deleted.
       </p>
       <p>
         More → Account &amp; backup provides cloud export, sign-out and account deletion.
-        Deleting an account removes its active account and cloud training records;
-        it does not erase logs already downloaded on your devices. Use the separate
-        local reset on each device if you want to remove those too. Resolved conflict
-        versions remain on the device and can be exported or cleared with local reset.
-      </p>
-      <p className="info-note">
-        This privacy summary is part of the public beta preparation and will receive a
-        final legal review before general launch.
+        Deleting an account removes its active account and cloud training records; it
+        does not erase logs already downloaded on your devices. Use the separate local
+        reset on each device if you want to remove those too. Resolved conflict versions
+        remain on the device and can be exported or cleared with local reset.
       </p>
     </InfoPage>
   );
@@ -100,47 +167,42 @@ function TermsPage() {
       </p>
       <h2>Pricing and billing</h2>
       <p>
-        Core training is free, with no signup wall. There is no trial that silently converts
-        to a paid subscription. If optional paid features are introduced, enrolment will
-        require clear, explicit opt-in and cancellation will not require contacting support.
+        Core training is free, with no signup wall. There is no trial that silently
+        converts to a paid subscription. If optional paid features are introduced,
+        enrolment will require clear, explicit opt-in and cancellation will not require
+        contacting support.
       </p>
       <h2>What it does not do</h2>
       <p>
-        It does not diagnose separation anxiety, provide veterinary care or guarantee
-        a behavioural outcome, and it is not a substitute for an accredited separation
-        anxiety specialist (such as a Certified Separation Anxiety Trainer) or a
-        veterinary behaviourist. Generated targets are planning suggestions and can be
-        made easier at any time.
+        It does not diagnose separation anxiety, provide veterinary care or guarantee a
+        behavioural outcome, and it is not a substitute for an accredited separation
+        anxiety specialist or a veterinary behaviourist. Generated targets are planning
+        suggestions and can be made easier at any time.
       </p>
       <h2>Use observation first</h2>
       <p>
-        Return early when your dog shows meaningful concern. Do not use a timer target
-        as a reason to continue an absence that is becoming difficult.
+        Return early when your dog shows meaningful concern. Do not use a timer target as
+        a reason to continue an absence that is becoming difficult.
       </p>
       <h2>Professional support</h2>
       <p>
-        Seek support from an accredited separation anxiety specialist (such as a
-        Certified Separation Anxiety Trainer) or a veterinary behaviourist for severe,
-        escalating or persistent distress, self-injury risk, destructive escape
-        behaviour or whenever you are unsure how to proceed safely. A veterinarian or
-        veterinary behaviourist is the right contact if medication may help.
-      </p>
-      <p className="info-note">
-        Full launch terms will be finalised before public beta accounts or paid
-        features are introduced.
+        Seek support from an accredited separation anxiety specialist or a veterinary
+        behaviourist for severe, escalating or persistent distress, self-injury risk,
+        destructive escape behaviour or whenever you are unsure how to proceed safely. A
+        veterinarian or veterinary behaviourist is the right contact if medication may
+        help.
       </p>
     </InfoPage>
   );
 }
-
 
 function EvidencePage() {
   return (
     <InfoPage title="Principles first. False precision never.">
       <p>
         SettledSolo is built around gradual systematic desensitisation: begin with an
-        absence mild enough not to evoke meaningful distress, observe the dog, and
-        adapt difficulty to the individual rather than forcing a fixed timetable.
+        absence mild enough not to evoke meaningful distress, observe the dog, and adapt
+        difficulty to the individual rather than forcing a fixed timetable.
       </p>
       <h2>Systematic desensitisation</h2>
       <p>
@@ -181,38 +243,23 @@ function EvidencePage() {
         conservative product boundary, not a clinical prescription.
       </p>
       <p>
-        Julie Naismith&apos;s public guidance emphasises regular, realistic practice and rest
-        days. Her current FAQ and podcast are useful background reading:
-        {" "}
-        <a href="https://julienaismith.com/faq/" target="_blank" rel="noreferrer">
-          FAQ
-        </a>{" "}
-        and{" "}
-        <a href="https://julienaismith.com/podcast/episode-63/" target="_blank" rel="noreferrer">
-          episode 63
-        </a>.
-        {" "}
-        Her{" "}
-        <a href="https://julienaismith.com/book-resource/" target="_blank" rel="noreferrer">
-          Be Right Back baseline worksheets
-        </a>{" "}
-        show varied short steps, but they are examples rather than a universal formula.
-      </p>
-      <p>
-        The Today-page Shuffle action changes the order of a fixed, bounded set of brief
-        warm-up durations within the app&apos;s safety bounds. That variation is a usability
-        heuristic, not a clinically validated formula.
+        SettledSolo&apos;s practical guidance also favours short, realistic practice,
+        enough recovery between repetitions, management that avoids rehearsing panic and
+        regular easier days. Those are an independent synthesis for this product, not a
+        universal dosage or guarantee.
       </p>
       <h2>High-risk signs</h2>
       <p>
-        Self-injury, escape attempts or damaging doors, windows or barriers are not a reason
-        to collect more app data. Pause timed departures and contact your vet or a qualified
-        behaviour professional.
+        Self-injury, escape attempts or damaging doors, windows or barriers are not a
+        reason to collect more app data. Pause timed departures and contact your vet or a
+        qualified behaviour professional.
       </p>
-      <h2>Professional review</h2>
       <p>
-        The training wording and heuristics are scheduled for review by an appropriately
-        qualified canine behaviour professional before general public launch.
+        The peer-reviewed sources and product boundary notes are collected in the
+        <a href="/resources">SettledSolo resources</a> and the project&apos;s
+        <a href="https://github.com/JRPrickett/settledsolo/blob/main/docs/EVIDENCE-BASE.md" target="_blank" rel="noreferrer">
+          evidence-base notes
+        </a>.
       </p>
     </InfoPage>
   );
@@ -226,23 +273,101 @@ function HelpPage() {
         Do not deliberately leave until your dog becomes distressed to discover a
         maximum. Start from a duration you have already observed them cope with calmly.
       </p>
+      <h2>Manage the gaps</h2>
+      <p>
+        During early training, use a sitter, daycare, schedule change or another safe
+        arrangement when possible so your dog is not repeatedly practising panic between
+        planned sessions.
+      </p>
       <h2>Use a camera when you can</h2>
       <p>
-        Direct observation is more useful than guessing what happened while you were out of
-        sight, but a camera is optional. Do not keep monitoring if it increases your own
-        anxiety or changes how you interact with your dog.
+        Direct observation is more useful than guessing what happened while you were out
+        of sight, but a camera is optional. Do not keep monitoring if it increases your
+        own anxiety or changes how you interact with your dog.
       </p>
       <h2>Returning early is okay</h2>
       <p>
         The target is a ceiling, not a quota. A shorter relaxed session is useful
-        training information.
+        training information. If concern appears, end the absence and make the next
+        session easier.
       </p>
-      <h2>If concern appears</h2>
+      <h2>Know when to pause</h2>
       <p>
-        End the absence and make the next session easier. Repeated difficult sessions
-        are a reason to reduce difficulty and consider professional support, not to
-        push the plan harder.
+        Repeated difficult sessions, escalating distress, self-injury or destructive
+        escape behaviour are reasons to pause timed departures and consider professional
+        support, not to push the plan harder.
       </p>
+      <a className="marketing-primary info-cta" href="/resources">Read the practical resources</a>
+      <a className="marketing-secondary info-cta" href="/app/">Open SettledSolo</a>
+    </InfoPage>
+  );
+}
+
+function ResourcesPage() {
+  return (
+    <InfoPage title="Dog separation anxiety resources you can use.">
+      <p>
+        These are SettledSolo&apos;s own plain-language notes for planning calm alone-time
+        practice. They combine the evidence listed on the <a href="/evidence">evidence
+        page</a> with cautious product heuristics. They are not a diagnosis, a
+        replacement for veterinary care or a promise of a particular result.
+      </p>
+      <h2>One-session cheat sheet</h2>
+      <ol>
+        <li>Choose a duration your dog has already handled comfortably.</li>
+        <li>Keep the departure ordinary and use observation if available.</li>
+        <li>Return early if meaningful concern appears; the target is never a quota.</li>
+        <li>Let your dog settle before deciding whether to repeat or make it easier.</li>
+        <li>Record what you saw, not only how long the absence lasted.</li>
+      </ol>
+      <h2>If a session goes badly</h2>
+      <ul>
+        <li>End the absence and help your dog return to a calm state.</li>
+        <li>Make the next planned step shorter and simpler.</li>
+        <li>Check for context such as illness, noise, confinement or a changed routine.</li>
+        <li>Pause timed departures and seek help if distress is escalating, persistent or unsafe.</li>
+      </ul>
+      <h2>What is useful to record</h2>
+      <p>
+        Note the duration, the first observable change, what happened between repetitions,
+        the environment and whether your dog recovered normally. A camera can help, but
+        constant monitoring is not required.
+      </p>
+      <h2>Common questions</h2>
+      <div className="faq-list">
+        <details>
+          <summary>How many sessions should I do?</summary>
+          <p>
+            SettledSolo uses a conservative daily ceiling, not a required quota. A
+            shorter session or a rest day can be the right choice when your dog or
+            circumstances need it.
+          </p>
+        </details>
+        <details>
+          <summary>Is a crate always the right place to practise?</summary>
+          <p>
+            No. If distress appears only with confinement, treat that as important
+            information and avoid assuming it is purely separation-related. Use a setup
+            your dog can already manage safely and ask for support if unsure.
+          </p>
+        </details>
+        <details>
+          <summary>What if I miss a day?</summary>
+          <p>
+            Nothing needs catching up. Resume with an easy, familiar step rather than
+            increasing difficulty to compensate.
+          </p>
+        </details>
+        <details>
+          <summary>When should I stop and ask for help?</summary>
+          <p>
+            Pause timed practice for self-injury, destructive escape attempts, rapidly
+            escalating distress or repeated sessions that cannot stay manageable. A vet
+            or qualified behaviour professional can help you work out the safest next
+            step.
+          </p>
+        </details>
+      </div>
       <a className="marketing-primary info-cta" href="/app/">Open SettledSolo</a>
     </InfoPage>
   );
@@ -252,22 +377,26 @@ export function PublicRouter() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
 
   if (path === "/privacy") {
-    document.title = "Privacy — SettledSolo";
+    setPublicMetadata("Privacy — SettledSolo", "How SettledSolo handles local training records, optional accounts and sync.", path);
     return <PrivacyPage />;
   }
   if (path === "/terms") {
-    document.title = "Terms — SettledSolo";
+    setPublicMetadata("Terms — SettledSolo", "The scope, limits and free-core principles for SettledSolo.", path);
     return <TermsPage />;
   }
   if (path === "/help") {
-    document.title = "Help — SettledSolo";
+    setPublicMetadata("Help — dog separation anxiety training | SettledSolo", "Practical help for calm, gradual dog separation anxiety training with SettledSolo.", path);
     return <HelpPage />;
   }
+  if (path === "/resources") {
+    setPublicMetadata("Dog separation anxiety resources | SettledSolo", "Owned checklists, FAQs and practical resources for gradual dog separation anxiety training.", path);
+    return <ResourcesPage />;
+  }
   if (path === "/evidence") {
-    document.title = "Evidence — SettledSolo";
+    setPublicMetadata("Evidence-informed dog separation training | SettledSolo", "The research, safety boundaries and product heuristics behind SettledSolo.", path);
     return <EvidencePage />;
   }
 
-  document.title = "SettledSolo — dog separation training";
+  setPublicMetadata("Free dog separation anxiety training tool | SettledSolo", DEFAULT_DESCRIPTION, "/");
   return <PublicSite />;
 }

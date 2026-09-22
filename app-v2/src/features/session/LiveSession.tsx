@@ -568,7 +568,7 @@ export function LiveSession({
         <span />
       </header>
 
-      <main className="live-centre">
+      <main className={`live-centre ${state.phase === "running" ? "live-running" : ""}`}>
         {state.phase === "idle" ? (
           <>
             <p className="kicker light">

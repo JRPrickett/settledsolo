@@ -44,6 +44,23 @@ test("history supports add, edit and confirmed delete without leaving stale reco
   ).toBeVisible();
 });
 
+test("history editor stays inside a narrow mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await completeSetup(page, 5);
+  await page.getByRole("button", { name: "History" }).click();
+  await page.getByRole("button", { name: "Log a past session" }).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  await page.getByRole("button", { name: "Edit" }).click();
+  await expect(page.getByRole("button", { name: "Delete session" })).toBeVisible();
+
+  const viewport = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth
+  }));
+  expect(viewport.scrollWidth).toBeLessThanOrEqual(viewport.clientWidth + 1);
+});
+
 test("downloaded backup can restore the exact earlier local state", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(window, "__settledsoloDownloadText", {

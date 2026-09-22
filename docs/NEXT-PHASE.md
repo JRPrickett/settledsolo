@@ -14,10 +14,11 @@ Account setup is therefore no longer the active development phase. Remaining acc
 release evidence and operational validation: real two-device/offline/conflict checks, provider
 retention/privacy details and abuse/rate-limit observation.
 
-Since that activation, PRs #52–#55 have also hardened storage fallback, stale-tab account export,
+Since that activation, PRs #52–#56 have also hardened storage fallback, stale-tab account export,
 single-window write ownership and removed the old product-event analytics pipeline. The active
 development phase is now **release hardening → small beta readiness**. Physical-device and
-qualified behaviour-professional release gates remain open.
+public-beta evidence gates remain open; the product does not claim professional review or
+endorsement.
 
 ## Current position
 
@@ -80,19 +81,14 @@ Desktop:
 - legacy restore;
 - training-track switching.
 
-### A2. Behaviour/content review
+### A2. Evidence and owned content
 
-Before public beta, have an appropriately qualified canine behaviour professional review:
+The product does not claim professional review or endorsement. Instead:
 
-- outcome wording;
-- observed signs;
-- progression/setback explanations;
-- departure-cue ladder;
-- repeated-distress support wording;
-- statements on the public evidence/help pages.
-
-Any requested changes should alter wording/heuristics without weakening the core rule that the
-target is a ceiling, not a quota.
+- maintain the evidence page and evidence-base notes as the source boundary for the product;
+- label progression, warm-up and referral thresholds as SettledSolo product heuristics;
+- keep the owned help, FAQ, cheatsheet and resource pages aligned with that boundary;
+- retain clear referral wording for veterinary or qualified behaviour support when safety requires it.
 
 ### A3. Brand/domain launch readiness
 

@@ -25,6 +25,20 @@ export function History({
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  async function deleteSession(session: TrainingSession) {
+    const date = new Date(session.at).toLocaleDateString();
+    if (
+      !window.confirm(
+        `Delete the ${formatDuration(session.actualSeconds)} session from ${date}? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    await onDeleteSession(scenario.id, session.id);
+    setEditingId((current) => (current === session.id ? null : current));
+  }
+
   return (
     <div className="screen-stack">
       <section className="page-heading">
@@ -67,11 +81,7 @@ export function History({
                     await onUpdateSession(scenario.id, updated);
                     setEditingId(null);
                   }}
-                  onDelete={async () => {
-                    if (!confirm("Delete this session?")) return;
-                    await onDeleteSession(scenario.id, session.id);
-                    setEditingId(null);
-                  }}
+                  onDelete={() => void deleteSession(session)}
                 />
               </article>
             ) : (
@@ -113,13 +123,22 @@ export function History({
                 <div className="history-meta">
                   <span>{new Date(session.at).toLocaleDateString()}</span>
                   <small>target {formatDuration(session.targetSeconds)}</small>
-                  <button
-                    type="button"
-                    className="history-edit"
-                    onClick={() => setEditingId(session.id)}
-                  >
-                    Edit
-                  </button>
+                  <div className="history-actions">
+                    <button
+                      type="button"
+                      className="history-edit"
+                      onClick={() => setEditingId(session.id)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="history-delete"
+                      onClick={() => void deleteSession(session)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </article>
             )
