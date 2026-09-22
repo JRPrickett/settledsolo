@@ -267,3 +267,26 @@ test("returning early while relaxed makes the next plan easier without treating 
     page.getByText(/returned early while things were still relaxed/)
   ).toBeVisible();
 });
+
+test("an unanswered notification prompt never delays the departure timer", async ({ page, browserName }) => {
+  test.skip(browserName === "webkit", "iOS Safari tabs do not prompt from the departure tap");
+  await page.addInitScript(() => {
+    // Model an owner who walks out while the browser prompt is still open.
+    class PendingNotification {
+      static permission = "default";
+      static requestPermission() {
+        return new Promise(() => {});
+      }
+    }
+    Object.defineProperty(window, "Notification", { configurable: true, value: PendingNotification });
+  });
+  await completeSetup(page, 5);
+
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await expect(page.getByRole("button", { name: "I'm back" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "I'm back" })).toBeVisible();
+  await expect(page.getByText(/away · target 5s/)).toBeVisible();
+});

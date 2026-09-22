@@ -42,6 +42,18 @@ import {
   type SessionStep
 } from "../../session/sessionMachine";
 
+interface PendingReturnAlert {
+  token: string;
+  /** Set when the departure ends before scheduling finishes. */
+  cancelled: boolean;
+  scheduled: Promise<boolean>;
+}
+
+function cancelPendingReturnAlert(pending: PendingReturnAlert) {
+  pending.cancelled = true;
+  void pending.scheduled.finally(() => cancelBackgroundReturnAlert(pending.token));
+}
+
 export function LiveSession({
   scenarioId,
   scenarioLabel,
@@ -108,10 +120,7 @@ export function LiveSession({
   const [backgroundAlertsReady, setBackgroundAlertsReady] = useState<boolean | null>(
     () => (alertCapabilities().push ? null : false)
   );
-  const pushScheduleRef = useRef<{
-    token: string;
-    scheduled: Promise<boolean>;
-  } | null>(null);
+  const pushScheduleRef = useRef<PendingReturnAlert | null>(null);
   const runningStandalone = isStandalone();
   const iosDevice = isIOS();
   const reviewIsPractice = (state.reviewKind ?? "main") === "practice";
@@ -142,11 +151,7 @@ export function LiveSession({
     if (state.phase !== "running") {
       const pendingPush = pushScheduleRef.current;
       pushScheduleRef.current = null;
-      if (pendingPush) {
-        void pendingPush.scheduled.finally(() =>
-          cancelBackgroundReturnAlert(pendingPush.token)
-        );
-      }
+      if (pendingPush) cancelPendingReturnAlert(pendingPush);
       stopSessionAlerts();
       return;
     }
@@ -159,11 +164,7 @@ export function LiveSession({
       removeWakeRecovery();
       const pendingPush = pushScheduleRef.current;
       pushScheduleRef.current = null;
-      if (pendingPush) {
-        void pendingPush.scheduled.finally(() =>
-          cancelBackgroundReturnAlert(pendingPush.token)
-        );
-      }
+      if (pendingPush) cancelPendingReturnAlert(pendingPush);
       stopSessionAlerts();
     };
   }, [state.phase]);
@@ -285,42 +286,54 @@ export function LiveSession({
     return ready;
   }
 
-  async function startDeparture() {
-    // Permission may still need the user's direct tap. Network/subscription
-    // work must not delay the timestamp-derived training timer.
-    let permission = notificationPermission;
-    if (
-      permission === "default" &&
-      (!iosDevice || runningStandalone)
-    ) {
-      permission = await requestNotificationPermission();
-      setNotificationPermission(permission);
-      if (permission !== "granted") setBackgroundAlertsReady(false);
-    }
-
+  function startDeparture() {
+    // Start the timestamp-derived timer on the tap itself. An owner may walk out
+    // while a permission prompt is still open, so neither the prompt nor any
+    // network/subscription work may delay or block the departure.
     const started = Date.now();
     prepareSessionAudio();
     setNow(started);
     dispatch({ type: "START_STEP", now: started });
 
-    if (step.kind === "main" && permission === "granted") {
-      const token = createReturnAlertToken();
-      const scheduled = (async () => {
-        const ready =
-          backgroundAlertsReady === true
-            ? true
-            : await prepareBackgroundReturnAlerts();
-        setBackgroundAlertsReady(ready);
-        if (!ready) return false;
+    // Ask within the same tap so browsers still treat it as user-initiated.
+    const permissionRequest =
+      notificationPermission === "default" && (!iosDevice || runningStandalone)
+        ? requestNotificationPermission().then((result) => {
+            setNotificationPermission(result);
+            if (result !== "granted") setBackgroundAlertsReady(false);
+            return result;
+          })
+        : null;
 
-        return scheduleBackgroundReturnAlert(
-          started + step.targetSeconds * 1000,
-          token
-        );
-      })();
+    if (step.kind !== "main") return;
+    if (!permissionRequest && notificationPermission !== "granted") return;
 
-      pushScheduleRef.current = { token, scheduled };
-    }
+    const pending: PendingReturnAlert = {
+      token: createReturnAlertToken(),
+      cancelled: false,
+      scheduled: Promise.resolve(false)
+    };
+    pending.scheduled = (async () => {
+      const permission = permissionRequest
+        ? await permissionRequest
+        : notificationPermission;
+      // The owner may already be back before a late permission answer arrives.
+      if (permission !== "granted" || pending.cancelled) return false;
+
+      const ready =
+        backgroundAlertsReady === true
+          ? true
+          : await prepareBackgroundReturnAlerts();
+      setBackgroundAlertsReady(ready);
+      if (!ready || pending.cancelled) return false;
+
+      return scheduleBackgroundReturnAlert(
+        started + step.targetSeconds * 1000,
+        pending.token
+      );
+    })();
+
+    pushScheduleRef.current = pending;
   }
 
   const restElapsed = restStartedAt
@@ -612,7 +625,7 @@ export function LiveSession({
             )}
             <button
               className="live-primary"
-              onClick={() => void startDeparture()}
+              onClick={startDeparture}
             >
               I'm leaving now
             </button>
