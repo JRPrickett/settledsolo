@@ -16,8 +16,8 @@ export async function completeSetup(
   await page.getByRole("button", { name: "Continue" }).click();
   if (knownComfortable) {
     await page.getByLabel("Comfortable duration").fill(String(seconds));
+    await page.getByRole("button", { name: "See my starting plan" }).click();
   }
-  await page.getByRole("button", { name: "See my starting plan" }).click();
   await page.getByRole("button", { name: "Use this starting plan" }).click();
   await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
 }
