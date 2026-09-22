@@ -17,27 +17,55 @@ const OUTCOME_LABEL: Record<TrainingSession["outcome"], string> = {
 const WINDOW = 14;
 const CHART_HEIGHT = 120;
 const BAR_GAP = 4;
+type TrendFilter = "all" | TrainingSession["outcome"];
+
+const FILTERS: Array<{ value: TrendFilter; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "relaxed", label: "Relaxed" },
+  { value: "concern", label: "Concern" },
+  { value: "distressed", label: "Distressed" }
+];
 
 export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] }) {
-  const recent = sessions.slice(-WINDOW);
-  const [selected, setSelected] = useState(recent.length - 1);
-  const active = recent.length ? Math.min(selected, recent.length - 1) : -1;
+  const [filter, setFilter] = useState<TrendFilter>("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const recent = sessions
+    .filter((session) => filter === "all" || session.outcome === filter)
+    .slice(-WINDOW);
 
   if (recent.length === 0) return null;
 
   const maxSeconds = Math.max(...recent.map((session) => session.actualSeconds), 1);
   const barWidth = 100 / recent.length;
-  const activeSession = active >= 0 ? recent[active] : null;
+  const activeSession = recent.find((session) => session.id === selectedId) ?? recent.at(-1)!;
 
   return (
     <section className="pattern-card">
       <div>
         <p className="kicker">Duration over time</p>
-        <h2>Your last {recent.length} main departures.</h2>
+        <h2>{filter === "all" ? "Your recent main departures." : `${OUTCOME_LABEL[filter]} sessions.`}</h2>
         <p>
           Bar height is how long they actually stayed away for, not the target —
           colour is what happened while they were.
         </p>
+      </div>
+
+      <div className="trend-filters" role="tablist" aria-label="Filter duration chart">
+        {FILTERS.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            role="tab"
+            aria-selected={filter === item.value}
+            className={filter === item.value ? "selected" : ""}
+            onClick={() => {
+              setFilter(item.value);
+              setSelectedId(null);
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       <svg
@@ -45,7 +73,7 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
         viewBox={`0 0 100 ${CHART_HEIGHT}`}
         preserveAspectRatio="none"
         role="img"
-        aria-label={`Duration of the last ${recent.length} main departures, coloured by outcome`}
+        aria-label={`Duration of ${recent.length} ${filter === "all" ? "recent main departures" : `${OUTCOME_LABEL[filter].toLowerCase()} sessions`}, coloured by outcome`}
       >
         {recent.map((session, index) => {
           const heightRatio = session.actualSeconds / maxSeconds;
@@ -53,6 +81,7 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
           const x = index * barWidth + BAR_GAP / 2;
           const width = Math.max(1, barWidth - BAR_GAP);
           const y = CHART_HEIGHT - barHeight;
+          const isActive = session.id === activeSession.id;
 
           return (
             <rect
@@ -63,13 +92,16 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
               height={barHeight}
               rx={Math.min(2, width / 2)}
               fill={OUTCOME_COLOR[session.outcome]}
-              opacity={index === active ? 1 : 0.55}
-              onClick={() => setSelected(index)}
+              opacity={isActive ? 1 : 0.55}
+              onClick={() => setSelectedId(session.id)}
               tabIndex={0}
               role="button"
               aria-label={`${formatDuration(session.actualSeconds)}, ${OUTCOME_LABEL[session.outcome]}, ${new Date(session.at).toLocaleDateString()}`}
               onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") setSelected(index);
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelectedId(session.id);
+                }
               }}
             >
               <title>

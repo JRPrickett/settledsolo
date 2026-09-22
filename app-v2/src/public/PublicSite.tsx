@@ -1,5 +1,6 @@
 import { BrandMark, BrandWordmark } from "../brand/BrandMark";
 import { PublicInstallAction } from "./PublicInstall";
+import { OptionalSupportCard } from "./PublicSupport";
 
 function ArrowIcon() {
   return (
@@ -251,6 +252,8 @@ export function PublicSite() {
           <p>Your first plan takes less than a minute to set up. No account required.</p>
           <a className="marketing-primary" href="/app/">Begin your first plan</a>
         </section>
+
+        <OptionalSupportCard />
       </main>
 
       <footer className="marketing-footer">

@@ -106,6 +106,7 @@ export function Today({
     : cueReady
       ? "Repeated calm practice at the most departure-like doorway cue suggests it is reasonable to try one very brief departure."
       : recommendation.reason;
+  const lastSession = scenario.sessions.at(-1);
 
   return (
     <div className="screen-stack">
@@ -195,6 +196,23 @@ export function Today({
                     : "Repeat"}
             </span>
           </div>
+
+          {lastSession && (
+            <div className="today-stats-strip" aria-label="Recent and next duration">
+              <div>
+                <span>Last target</span>
+                <strong>{formatDuration(lastSession.targetSeconds)}</strong>
+              </div>
+              <div>
+                <span>Last actual</span>
+                <strong>{formatDuration(lastSession.actualSeconds)}</strong>
+              </div>
+              <div className="today-stats-next">
+                <span>Next target</span>
+                <strong>{formatDuration(recommendation.targetSeconds)}</strong>
+              </div>
+            </div>
+          )}
 
           {firstMicroObservation && (
             <div className="starting-observation-note">
