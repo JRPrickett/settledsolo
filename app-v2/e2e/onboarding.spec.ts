@@ -87,7 +87,7 @@ test("HTML-like dog names are rendered as text and cannot execute", async ({
   await page.getByLabel("Your dog's name").fill(name);
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByText(name, { exact: false })).toBeVisible();
+  await expect(page.getByText(name, { exact: false }).first()).toBeVisible();
   await expect(page.locator('img[src="x"]')).toHaveCount(0);
   expect(
     await page.evaluate(
