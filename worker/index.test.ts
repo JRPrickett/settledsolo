@@ -113,3 +113,20 @@ describe("unknown public paths", () => {
     expect(asset.status).toBe(200);
   });
 });
+
+describe("content security policy", () => {
+  it("allows no inline styles or scripts in production", async () => {
+    const response = await handleRequest(
+      new Request("https://settledsolo.com/"),
+      envWithAssets(async () =>
+        new Response("<html>home</html>", { headers: { "Content-Type": "text/html" } }),
+      ),
+    );
+    const csp = response.headers.get("content-security-policy") ?? "";
+    expect(csp).toContain("style-src 'self'");
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).not.toContain("unsafe-inline");
+    expect(csp).not.toContain("unsafe-eval");
+    expect(csp).toContain("upgrade-insecure-requests");
+  });
+});

@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { PUBLIC_PAGE_PATHS } from "./src/public/routes";
+import { contentSecurityPolicy } from "../worker/csp";
 
 // Offline navigations resolve only for real pages; anything else reaches the
 // network, where the Worker returns a proper 404.
@@ -51,6 +52,13 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["app-v2/src/**/*.test.ts"]
+  },
+  preview: {
+    // Serve the production bundle under the Worker's real policy so the PWA
+    // gate fails on any CSP violation.
+    headers: {
+      "Content-Security-Policy": contentSecurityPolicy({ upgradeInsecureRequests: false })
+    }
   },
   build: {
     outDir: "../dist-v2",

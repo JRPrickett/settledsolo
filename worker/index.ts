@@ -2,6 +2,7 @@ import { handleAccountApi } from "./accounts/api";
 import type { AccountEnv } from "./accounts/auth";
 import { handlePushApi, type PushEnv } from "./push";
 import { isAppPath, isPublicPagePath } from "../app-v2/src/public/routes";
+import { contentSecurityPolicy } from "./csp";
 
 export { ReturnAlertScheduler } from "./push";
 
@@ -11,22 +12,7 @@ export interface Env extends AccountEnv, PushEnv {
   SITE_URL?: string;
 }
 
-const CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
-  "script-src 'self'",
-  "connect-src 'self'",
-  "media-src 'self' data: blob:",
-  "worker-src 'self' blob:",
-  "manifest-src 'self'",
-  "upgrade-insecure-requests"
-].join("; ");
+const CSP = contentSecurityPolicy();
 
 function productionHost(url: URL, env: Env): boolean {
   if (!env.SITE_URL) return false;
