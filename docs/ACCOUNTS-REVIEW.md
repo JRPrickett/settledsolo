@@ -1,7 +1,8 @@
 # Account and sync behaviour review
 
-Reviewed implementation: `feat/accounts-sync`, 19 September 2026. This is a code/test review,
-not evidence of a live production rollout or a physical-device test.
+Reviewed implementation: account/sync baseline through production activation, updated 21 September
+2026. The code/test review is now supplemented by live preview/production activation and real OTP
+delivery. It is still not a substitute for the remaining two-device and installed-PWA release evidence.
 
 ## Intended journeys and safeguards
 
@@ -43,23 +44,23 @@ not evidence of a live production rollout or a physical-device test.
 - Removed the installation-as-backup claim and retained standalone JSON/CSV export.
 - Kept mobile inputs at 16px, wrapping long email addresses and providing explicit error text.
 
+
 ## Validation status
 
-Local: code/type/build/Worker dry-run, legacy regressions, sync model and actual local D1
-integration tests have passed. Browser binaries cannot be downloaded in this workspace;
-GitHub CI supplies the Chromium/WebKit journeys, screenshots and production-PWA checks.
-Record final CI and screenshot-review results in the PR.
+Local/code validation covers type/build/Worker dry-run, legacy regressions, sync model and actual
+local D1 integration. GitHub CI supplies Chromium/WebKit journeys and production-PWA checks.
+
+Live activation is also complete:
+- separate preview and production D1 databases are migrated and bound;
+- Better Auth/Resend secrets and account variables are configured per environment;
+- real OTP email delivery has succeeded;
+- `/api/account/status` reports accounts available on preview and production;
+- post-deploy verification checks the intended enabled state correctly.
 
 ## Remaining release evidence
 
-- Real email delivery from the verified sender; sender reputation/rate-limit behaviour.
-- Remote preview D1 migrations, authentication and two physical devices syncing real data.
+- Sender reputation/junk placement plus wrong/expired-code, resend and live rate-limit behaviour.
+- Two physical devices syncing real data, including offline/reconnect and conflict recovery.
 - Installed iOS/Android offline lifecycle, safe updates, alerts and device-copy deletion behaviour.
 - Final privacy/contact/provider-retention information; physical-device and professional
   behavioural-review gates remain open from the earlier roadmap.
-- Compatibility-storage mode deliberately pauses cloud sync. Export remains available; do not
-  claim that storage fallback reconciles two already-divergent populated local stores.
-- Account UI currently supports one dog per log; records carry a dog ID for future extension.
-- Passkeys, admin metrics and paid features are not in this implementation.
-- Large histories sync in bounded pages; operational retention/compaction of the incremental
-  change log remains a later measured optimisation, not a prerequisite for the small preview cohort.

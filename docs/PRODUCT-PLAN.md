@@ -31,14 +31,22 @@ trainer, veterinary behaviourist or vet.
 8. **Free core.** The core training plan, timer, history and basic progress view should
    remain genuinely useful for free.
 
-## Current delivery status (19 September 2026)
 
-The modern app, Cloudflare Worker configuration, guided onboarding and the first automated
-release-hardening pass are merged through PR #26, and optional accounts and local-first sync
-through PR #28. The phase lists below describe the product scope, not a claim that each entry
-is still unimplemented. Use `HANDOVER.md` and `NEXT-PHASE.md` for the current sequence.
-Accounts are merged but not activated: no verified email sender is configured yet.
-Physical-device and qualified behavioural-review gates remain open.
+## Current delivery status (22 September 2026)
+
+The modern app, production Cloudflare Worker, guided onboarding, hardening work and optional
+accounts/local-first sync are live. Account activation is complete in both preview and production:
+isolated D1 databases, Better Auth email OTP, verified Resend delivery, sync, cloud export/deletion
+and deployment verification are configured.
+
+Recent hardening through PR #55 also covers storage-failure recovery, stale-tab export identity,
+single-window write ownership and retirement of the legacy product-event analytics pipeline.
+Registered Better Auth account totals are the canonical user-count metric.
+
+The phase lists below describe product scope rather than implying every bullet is still open.
+The active development focus is **release hardening and small-beta readiness**, while physical-device
+and qualified behaviour-professional review gates remain open. Use `HANDOVER.md`,
+`HARDENING-ROADMAP.md` and `NEXT-PHASE.md` for the current sequence.
 
 ## Production phases
 
@@ -70,23 +78,31 @@ Physical-device and qualified behavioural-review gates remain open.
 - The modern PWA is already merged; clear and record remaining release gates before broad public beta.
 - Deploy the modern app as `settledsolo`; the legacy analytics/events Worker is retired.
 
-### Phase 2 — free accounts and sync
 
-- Guest/local mode remains the default first-run experience.
-- Optional account creation.
-- Import existing local history into the account after explicit confirmation.
-- Cross-device sync.
-- Account export and deletion.
-- Recovery flow.
-- Offline writes queued and reconciled safely.
+### Phase 2 — free accounts and sync ✅ baseline complete
 
-### Phase 3 — public beta
+- Guest/local mode remains the default first-run experience. **Done.**
+- Optional passwordless account creation/sign-in. **Done.**
+- Import existing local history into the account after explicit confirmation. **Done.**
+- Cross-device sync architecture and incremental sync. **Done.**
+- Account export and deletion. **Done.**
+- Recovery/conflict flow. **Done in implementation; real multi-device evidence remains a release gate.**
+- Offline writes queued and reconciled safely. **Done in implementation; real-device validation remains.**
 
-- New landing page separate from the training interface.
-- Help, privacy and terms pages.
-- Feedback route.
-- Small invited beta cohort followed by public access.
-- Use registered-account totals for adoption; add further product metrics only with an explicit privacy/product decision.
+Passkeys are intentionally deferred and are not required to call the baseline account phase complete.
+
+
+### Phase 3 — public beta ← next product phase
+
+Already present: landing page, app route, help, privacy and terms.
+
+Next work:
+- finish remaining installed-device lifecycle and recovery/security gates;
+- add a clear feedback/contact route;
+- complete accessibility and final privacy/provider wording;
+- use real product screenshots and final social-share metadata;
+- run a small invited beta cohort before widening access;
+- use registered-account totals for adoption and add further product metrics only by explicit privacy/product decision.
 
 ### Phase 4 — useful collaboration
 

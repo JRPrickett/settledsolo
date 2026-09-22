@@ -1,16 +1,23 @@
-# SettledSolo next phase — Release Candidate to Accounts & Sync
+# SettledSolo next phase — Beta readiness after accounts
 
-Date: 18 September 2026
+Date: 22 September 2026
 
-## Current work — account activation
 
-The user explicitly prioritised optional accounts and sync on 19 September 2026. PR #28
-implemented that behind deployment configuration and is now **merged** as `e13f5d4`. The code is
-deployed to the preview Worker with accounts disabled; no account D1 database exists yet and no
-account variables or secrets are configured. The current phase is provisioning and configuration.
-Use `HANDOVER.md`, `ACCOUNTS-DEPLOYMENT.md` and `ACCOUNTS-REVIEW.md` for the current state.
-The earlier numbered plan below is historical scope; guided onboarding and PR #26 hardening
-are already merged. Physical-device and professional-review release gates remain open.
+## Current work — post-account hardening and beta readiness
+
+The optional account/sync baseline is implemented and active in both preview and production:
+Better Auth email OTP, isolated D1 databases, verified Resend delivery, local-first sync, cloud
+export/deletion and deployment verification are live. PRs #49 and #50 closed the final production
+deployment/configuration regressions.
+
+Account setup is therefore no longer the active development phase. Remaining account work is
+release evidence and operational validation: real two-device/offline/conflict checks, provider
+retention/privacy details and abuse/rate-limit observation.
+
+Since that activation, PRs #52–#55 have also hardened storage fallback, stale-tab account export,
+single-window write ownership and removed the old product-event analytics pipeline. The active
+development phase is now **release hardening → small beta readiness**. Physical-device and
+qualified behaviour-professional release gates remain open.
 
 ## Current position
 
@@ -26,8 +33,8 @@ Real iPhone testing has now confirmed the core live-session resilience path:
 - closing/reopening does not lose the session;
 - the session chime works on the tested device.
 
-That means the next phase should shift from timer-risk reduction toward release preparation and
-optional accounts.
+With accounts now active, the next phase is device lifecycle proof, real two-device/recovery evidence,
+remaining security/privacy closure and public-beta essentials.
 
 ## Phase A — Release Candidate
 
@@ -116,20 +123,20 @@ Still required:
 - metadata/social-image finalisation;
 - final account/privacy language once the sync provider is deployed.
 
-### A5. Cutover
 
-When A1-A4 are satisfied:
+### A5. Cutover — complete baseline
 
-1. Select the verified main commit and record the existing production commit for rollback.
-2. Deploy the merged build to `settledsolo`.
-3. Connect the canonical domain.
-4. Preserve legacy import compatibility.
-5. Keep usage metrics privacy-light: registered-account count only; do not restore the retired event Worker.
-6. Treat this build as the rollback point before accounts/sync.
+The modern app is already the production baseline on `settledsolo`, the canonical domain is live,
+accounts are active, and the legacy product-event analytics Worker has been retired. Preserve legacy
+import compatibility and use the current production commit/history as the rollback reference for
+future release work.
 
-## Phase B — Optional Accounts
+## Phase B — Optional Accounts ✅ baseline complete
 
 Goal: protect progress without changing the first-run experience.
+
+**Status:** the scoped account baseline is active in preview and production. Passkeys remain
+intentionally deferred. Manual multi-device/offline/conflict proof remains a release-validation task.
 
 ### Architecture
 
@@ -152,9 +159,9 @@ After meaningful progress:
 First auth flow:
 
 - email OTP;
-- optional passkey registration immediately after successful sign-in;
 - no password requirement;
-- no forced account before training.
+- no forced account before training;
+- passkeys are a later enhancement, not part of the completed baseline.
 
 ### B1. Auth foundation
 
@@ -172,7 +179,7 @@ First auth flow:
 - account status in More;
 - create account/sign in;
 - last sync state;
-- add/manage passkey;
+- passkey management — **deferred beyond the baseline**;
 - sign out;
 - remove local account data without deleting cloud account.
 
@@ -238,14 +245,13 @@ Measure only useful product signals:
 
 Do not use training outcomes as an efficacy claim.
 
-## Suggested implementation PR sequence
+## Suggested implementation PR sequence from here
 
-1. **RC polish and cutover readiness**
-2. **Better Auth + preview D1 + OTP**
-3. **Account UI + passkeys**
-4. **Guest import + local sync metadata**
-5. **Remote sync + conflict/retry tests**
-6. **Export/delete/privacy + beta readiness**
+1. **Installed-device lifecycle evidence** — iOS/Android update, notification, background-return and offline checks.
+2. **Real account recovery evidence** — two-device initial import, offline/reconnect, conflicts, OTP errors and rate limits.
+3. **Remaining browser/security closure** — sync conflict journeys, XSS/noindex assertions and provider retention/privacy wording.
+4. **Public-beta essentials** — feedback/contact, accessibility, real product screenshots and social metadata.
+5. **Small beta** — invite a limited cohort, record friction/failures and measure registered-account adoption plus sync reliability.
 
-Keeping these separate makes the release baseline easy to recover if the first account implementation
-causes regressions.
+Passkeys, collaboration features and extra telemetry stay behind this baseline rather than becoming
+the next immediate feature tranche.
