@@ -67,8 +67,8 @@ The core plan, timer, history, export and basic progress view should remain usef
 Monetisation is deliberately staged:
 
 1. **Beta:** no payment wall. Measure whether the product is useful and reliable.
-2. **Optional support:** before enabling it, add the Ko-fi line to the privacy notice
-   (`PAYMENTS-PLAN.md` Phase 1). The CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
+2. **Optional support:** the privacy notice gains a support-payments section naming the
+   provider whenever the link is configured. The CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
    environment variable (read by both deploy workflows) is
    populated with the confirmed provider URL. Confirm the account, fees, region, payout
    details and privacy terms before enabling it in production. It must be optional and

@@ -139,7 +139,7 @@ Hardening work:
 Only after the reliability gates above are substantially green:
 
 - add a clear feedback/contact route; **Done: `/contact` and More → Help & feedback. Set the `VITE_CONTACT_EMAIL` GitHub environment variable to show the inbox.**
-- finalise privacy/account/provider wording; **the privacy notice does not yet mention Ko-fi. Add that line before `VITE_SUPPORT_URL` is set in production (`PAYMENTS-PLAN.md` Phase 1).**
+- finalise privacy/account/provider wording; **the support-payments privacy section is done and appears only when `VITE_SUPPORT_URL` is set.**
 - replace stale local-only/account-coming-later copy wherever account state can differ;
 - publish the owned resources/FAQ/cheatsheet pages and final SEO metadata; **metadata done: per-page titles, descriptions and share cards served in the HTML (PR #64).**
 - add final real product screenshots and social-share image metadata; **Done: share cards in PR #64; real app screens on the homepage via `npm run product:screens` (release-hardening branch).**
@@ -161,8 +161,8 @@ Do not use training outcomes as an efficacy claim.
 6. ~~Browser-level sync conflict/recovery and security/privacy assertions.~~ Done: PRs #59, #61
    and #63 (mock account server; live evidence stays in step 5).
 7. ~~Contact route, share assets, page metadata and product screenshots.~~ Done: PRs #59, #64 and
-   the release-hardening branch. Still open: the Ko-fi privacy line, final privacy/provider
-   wording, and a manual screen-reader pass (see F3 below).
+   the release-hardening branch, including the support-payments privacy section. Still open:
+   final account/provider wording review and a manual screen-reader pass (see F3 below).
 8. Begin a deliberately small invited beta, then widen only after reliability/friction evidence is acceptable.
 
 ## Suggested further improvements
@@ -170,10 +170,10 @@ Do not use training outcomes as an efficacy claim.
 These come from the 21–23 September hardening passes. They are proposals, not merged work. Each
 should stay small, be tested, and follow the release principles above. Ordered by release value.
 
-**F1 — Ko-fi privacy line (before enabling support).** Owner action, and it blocks production.
-Add one sentence to `/privacy`: Ko-fi and its payment processor handle support payments, and
-SettledSolo never receives card details. Set `VITE_SUPPORT_URL` on preview first, check the card,
-then production.
+**F1 — Enable optional support.** ~~Privacy line~~ done: `/privacy` gains an "Optional support
+payments" section, naming the provider, whenever `VITE_SUPPORT_URL` is set. Remaining owner
+action: set `VITE_SUPPORT_URL` on preview, check the homepage card and `/privacy`, then set it on
+production and redeploy.
 
 **F2 — Update-during-session regression (H4).** Add a PWA-gate spec that installs a build, serves a
 changed service worker while a departure is running, and asserts no update prompt or reload

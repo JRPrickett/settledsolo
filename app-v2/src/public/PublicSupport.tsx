@@ -1,4 +1,4 @@
-import { supportUrl } from "./support";
+import { supportProvider, supportUrl } from "./support";
 
 export function OptionalSupportCard({ compact = false }: { compact?: boolean }) {
   if (!supportUrl) return null;
@@ -11,7 +11,8 @@ export function OptionalSupportCard({ compact = false }: { compact?: boolean }) 
         <p>
           The training plan, timer, history and downloads stay available without payment.
           You can make an optional one-off contribution; it does not unlock app features.
-          Checkout will show the amount and terms before you confirm.
+          Checkout will show the amount and terms before you confirm. Payments are handled
+          by {supportProvider}; SettledSolo never receives your card details.
         </p>
       </div>
       <a
