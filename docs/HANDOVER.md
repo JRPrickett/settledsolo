@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (social share cards, server-side page metadata and payments plan on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (real product screenshots and backup reminder on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `2b65d05` (through PR #63)
+**Reviewed main:** `ae1e760` (through PR #64 and PR #62)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #63. PRs #52–#56 closed the
+Main is current through PR #64 (and PR #62, legal/policy disclosures). PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -36,9 +36,27 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
-### 23 September — social share cards and server-side page metadata (branch `claude/settledsolo-release-hardening-6xkd4v`)
+### 23 September — real product screenshots and backup reminder (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Real product screenshots.** The homepage "quiet guide" section showed hand-built CSS mock
+  phones whose content had drifted from the app (wrong warm-ups, a count-up clock, old button
+  copy). It now shows three real screens (Today, live departure, review) in phone frames, captured
+  from the actual app with a sample dog and history by `npm run product:screens`
+  (`scripts/render-product-screens.mjs`; set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` for a local
+  Chromium). The JPEGs in `app-v2/public/screens/` are committed, carry descriptive alt text and
+  load lazily; the default Workbox globs do not precache them. Re-run the script after visible UI
+  changes to those screens.
+- **Backup reminder for local-only logs.** Downloading a backup now records a device-local
+  timestamp (`settledsolo.last-backup-at.v1`). When a log has 10+ saved sessions, is not syncing
+  to an account, and has no backup in 30 days, Today's storage notice becomes a reminder with
+  **Download backup** and **Remind me later** (14-day snooze,
+  `settledsolo.backup-reminder-snoozed-until.v1`). Both keys are device-local and never exported,
+  synced or restored. Thresholds are product choices, in `app-v2/src/data/backupReminder.ts`.
+  Covered by unit tests and `e2e/backup-reminder.spec.ts`.
+
+### 23 September — social share cards, page metadata, adaptive steps and payments plan — merged (PR #64)
 
 - **Share cards.** Branded 1200x630 PNG cards for home, help, resources and evidence live in
   `app-v2/public/social/` (other public pages use the home card). `npm run social:images`
@@ -704,7 +722,7 @@ Before a broad public beta, remaining work includes:
 - complete the physical-device release gates;
 - publish the owned resources/FAQ/cheatsheet and complete the SEO pass;
 - ~~feedback/contact route~~ done in the release-hardening pass; set `VITE_CONTACT_EMAIL` to open the inbox;
-- final real product screenshots/social metadata;
+- ~~final real product screenshots/social metadata~~ done (PR #64 cards/metadata; screenshots in the release-hardening branch after it);
 - final account/privacy wording once auth/sync exists;
 - confirm formal brand/trademark/domain readiness;
 - small beta cohort and qualitative feedback.
@@ -723,8 +741,8 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
 6. ~~Browser-level sync-conflict assertions~~ done (mock server); real two-device evidence remains in step 5.
 7. Set `VITE_CONTACT_EMAIL` (and `VITE_SUPPORT_URL` when a provider is confirmed) as GitHub
-   environment variables, then clear accessibility, product screenshots and final
-   social/privacy/provider wording.
+   environment variables, then clear accessibility and final privacy/provider wording (Phase 1 of
+   `docs/PAYMENTS-PLAN.md` adds a Ko-fi line to the privacy notice).
 8. Start with a deliberately small invited beta and measure adoption/reliability without efficacy claims.
 
 

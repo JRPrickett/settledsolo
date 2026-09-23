@@ -361,7 +361,7 @@ export function Today({
         </div>
       </section>
 
-      <AccountNotice storageMode={storageMode} onOpenAccount={onOpenAccount} />
+      <AccountNotice data={data} storageMode={storageMode} onOpenAccount={onOpenAccount} />
 
       <section className="cue-entry-card coverage-card">
         <div>

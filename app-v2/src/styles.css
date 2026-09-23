@@ -170,6 +170,30 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.backup-reminder {
+  flex-wrap: wrap;
+}
+
+.backup-reminder > div:first-child {
+  flex: 1 1 220px;
+}
+
+.account-notice .backup-reminder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.backup-reminder .backup-reminder-actions button:first-child {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.backup-reminder .backup-reminder-later {
+  background: transparent;
+  text-decoration: underline;
+}
+
 .today-card {
   background: var(--paper);
   border-radius: 28px;
@@ -3960,202 +3984,54 @@ a:focus-visible {
 }
 
 .marketing-session-visual {
-  position: relative;
-  min-height: 620px;
   margin: 0;
 }
 
-.session-frame {
-  position: absolute;
-  width: min(72%, 330px);
-  min-height: 440px;
-  padding: 26px 22px;
-  border: 8px solid #0B1519;
-  border-radius: 36px;
-  color: var(--ink);
-  background: var(--paper);
-  box-shadow: 0 28px 62px rgba(5,13,16,.38);
-}
-
-.session-plan {
-  left: 0;
-  top: 4px;
-  transform: rotate(-4deg);
-}
-
-.session-live {
-  right: 0;
-  top: 84px;
-  z-index: 2;
-  transform: rotate(4deg);
-  color: #F7EEDF;
-  background:
-    radial-gradient(ellipse at 50% 100%, rgba(242,166,90,.17), transparent 19rem),
-    #15242C;
-}
-
-.session-review {
-  left: 16%;
-  bottom: 0;
-  z-index: 3;
-  min-height: 340px;
-  transform: rotate(-1deg);
-}
-
-.session-frame-top,
-.session-plan-target,
-.session-live-top,
-.session-live-clock {
-  display: grid;
-}
-
-.session-frame-top span,
-.session-plan-target > span,
-.session-live-top span,
-.session-live-clock span {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.session-frame-top strong,
-.session-live-top strong {
-  margin-top: 3px;
-  font-family: var(--display);
-  font-size: 23px;
-  line-height: 1.05;
-}
-
-.session-plan-target {
-  margin-top: 34px;
-  padding: 20px;
-  border-radius: 20px;
-  background: white;
-  box-shadow: 0 14px 30px rgba(21,36,44,.07);
-}
-
-.session-plan-target strong,
-.session-live-clock strong {
-  margin-top: 8px;
-  font-size: 54px;
-  line-height: .9;
-  letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
-}
-
-.session-plan-target small {
-  margin-top: 16px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.session-warmups {
-  margin-top: 18px;
+/* Real app screens (npm run product:screens), fanned out in phone frames. */
+.product-screens {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 10px;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 28px;
 }
 
-.session-warmups span {
+.product-screen {
+  flex: 0 1 38%;
+  max-width: 250px;
+  margin-inline: -3%;
+  overflow: hidden;
+  border: 6px solid #0B1519;
+  border-radius: 28px;
+  background: #0B1519;
+  box-shadow: 0 24px 54px rgba(5,13,16,.4);
+}
+
+.product-screen img {
+  display: block;
   width: 100%;
-  font-weight: 700;
+  height: auto;
+  aspect-ratio: 390 / 700;
+  border-radius: 22px;
 }
 
-.session-warmups b {
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: var(--soft);
-  font-weight: 700;
+.product-screen:first-child {
+  transform: rotate(-4deg);
+  margin-top: 36px;
 }
 
-.session-preview-action,
-.session-return-action {
-  display: grid;
-  place-items: center;
-  margin-top: 22px;
-  min-height: 46px;
-  border-radius: 13px;
-  font-size: 12px;
-  font-weight: 760;
+.product-screen:nth-child(2) {
+  z-index: 1;
+  transform: translateY(-20px);
 }
 
-.session-preview-action {
-  color: #FFF8ED;
-  background: var(--ink);
-}
-
-.session-live-top span {
-  color: var(--glow-soft);
-}
-
-.session-live-top strong {
-  color: #F7EEDF;
-}
-
-.session-live-clock {
-  margin-top: 92px;
-  text-align: center;
-}
-
-.session-live-clock span,
-.session-live-clock small {
-  color: rgba(247,238,223,.58);
-}
-
-.session-live-clock strong {
-  margin: 12px 0 10px;
-  color: #F7EEDF;
-  font-size: 74px;
-}
-
-.session-return-action {
-  margin-top: 88px;
-  color: var(--ink);
-  background: var(--glow);
-}
-
-.session-outcomes {
-  margin-top: 28px;
-  display: grid;
-  gap: 8px;
-}
-
-.session-outcomes > span {
-  display: grid;
-  gap: 3px;
-  padding: 12px 13px;
-  border: 1px solid rgba(21,36,44,.10);
-  border-radius: 13px;
-}
-
-.session-outcomes > span.selected {
-  border-color: rgba(75,102,83,.24);
-  background: var(--sage);
-}
-
-.session-outcomes b {
-  font-size: 12px;
-}
-
-.session-outcomes small {
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.session-review p {
-  margin: 18px 0 0;
-  color: var(--sage-strong);
-  font-size: 11px;
-  line-height: 1.45;
+.product-screen:last-child {
+  transform: rotate(4deg);
+  margin-top: 36px;
 }
 
 .marketing-session-visual figcaption {
-  position: absolute;
-  right: 0;
-  bottom: -34px;
+  margin-top: 22px;
+  text-align: center;
   color: rgba(247,238,223,.52);
   font-size: 11px;
   letter-spacing: .04em;
@@ -4320,6 +4196,7 @@ a:focus-visible {
 
   .marketing-session-visual {
     width: min(100%, 660px);
+    margin-inline: auto;
   }
 }
 
@@ -4406,48 +4283,6 @@ a:focus-visible {
     border-radius: 26px;
   }
 
-  .marketing-session-visual {
-    min-height: 680px;
-  }
-
-  .session-frame {
-    width: min(77%, 310px);
-    min-height: 410px;
-    padding: 22px 18px;
-    border-width: 7px;
-    border-radius: 32px;
-  }
-
-  .session-plan {
-    left: 0;
-  }
-
-  .session-live {
-    right: 0;
-    top: 116px;
-  }
-
-  .session-review {
-    left: 5%;
-    min-height: 320px;
-  }
-
-  .session-plan-target strong {
-    font-size: 48px;
-  }
-
-  .session-live-clock {
-    margin-top: 72px;
-  }
-
-  .session-live-clock strong {
-    font-size: 60px;
-  }
-
-  .session-return-action {
-    margin-top: 72px;
-  }
-
   .marketing-reassurance {
     margin-block: 90px;
     grid-template-columns: 1fr;
@@ -4503,30 +4338,6 @@ a:focus-visible {
     gap: 8px;
   }
 
-  .marketing-session-visual {
-    min-height: 630px;
-  }
-
-  .session-frame {
-    width: 82%;
-  }
-
-  .session-plan {
-    transform: rotate(-3deg) scale(.94);
-    transform-origin: top left;
-  }
-
-  .session-live {
-    top: 108px;
-    transform: rotate(3deg) scale(.94);
-    transform-origin: top right;
-  }
-
-  .session-review {
-    left: 2%;
-    transform: rotate(-1deg) scale(.94);
-    transform-origin: bottom left;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -2,6 +2,22 @@ import { BrandMark, BrandWordmark } from "../brand/BrandMark";
 import { PublicInstallAction } from "./PublicInstall";
 import { OptionalSupportCard } from "./PublicSupport";
 
+// Captured from the real app by `npm run product:screens`.
+const PRODUCT_SCREENS = [
+  {
+    src: "/screens/today.jpg",
+    alt: "Today screen: a 1:05 plan for Biscuit, a small step up from the last 1:02 session, with four short warm-up departures."
+  },
+  {
+    src: "/screens/live.jpg",
+    alt: "Live session: 0:41 remaining of a 1:05 target, with a large I'm back button."
+  },
+  {
+    src: "/screens/review.jpg",
+    alt: "Session review: came back at 1:04, asking how Biscuit was while you were away — relaxed, some concern or distressed."
+  }
+];
+
 function ArrowIcon() {
   return (
     <svg className="marketing-link-arrow" viewBox="0 0 20 20" aria-hidden="true">
@@ -130,29 +146,13 @@ export function PublicSite() {
             <a className="marketing-text-link" href="/app/">Explore the app <ArrowIcon /></a>
           </div>
 
-          <figure className="marketing-session-visual" aria-label="A SettledSolo session from plan to review">
-            <div className="session-frame session-plan">
-              <div className="session-frame-top"><span>Today with</span><strong>You &amp; Biscuit</strong></div>
-              <div className="session-plan-target">
-                <span>Today's plan</span>
-                <strong>1:20</strong>
-                <small>A small step from the last comfortable session.</small>
-              </div>
-              <div className="session-warmups"><span>Warm up</span><b>0:20</b><b>0:35</b><b>0:50</b><b>1:00</b></div>
-              <span className="session-preview-action">Start today's session</span>
-            </div>
-            <div className="session-frame session-live">
-              <div className="session-live-top"><span>Live session</span><strong>Biscuit · Front door</strong></div>
-              <div className="session-live-clock"><span>Time away</span><strong>0:42</strong><small>of a 1:20 ceiling</small></div>
-              <span className="session-return-action">I'm back with Biscuit</span>
-            </div>
-            <div className="session-frame session-review">
-              <div className="session-frame-top"><span>Welcome back</span><strong>What did you notice?</strong></div>
-              <div className="session-outcomes">
-                <span className="selected"><b>Relaxed</b><small>Comfortable throughout</small></span>
-                <span><b>Some concern</b><small>Make the next step easier</small></span>
-              </div>
-              <p>Next time: repeat 1:20 to build confidence.</p>
+          <figure className="marketing-session-visual">
+            <div className="product-screens">
+              {PRODUCT_SCREENS.map((screen) => (
+                <div className="product-screen" key={screen.src}>
+                  <img src={screen.src} alt={screen.alt} width={390} height={700} loading="lazy" decoding="async" />
+                </div>
+              ))}
             </div>
             <figcaption>Plan <span>/</span> observe <span>/</span> adapt</figcaption>
           </figure>
