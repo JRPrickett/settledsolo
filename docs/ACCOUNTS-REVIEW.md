@@ -63,7 +63,7 @@ Live activation is also complete:
 - Two physical devices syncing real data, including offline/reconnect and conflict recovery.
 - Installed iOS/Android offline lifecycle, safe updates, alerts and device-copy deletion behaviour.
 - **Do not merge or deploy the legal-copy change or enable checkout until the public legal details below are completed and verified.**
-- Confirm the legal data controller/operator name and business form, a publishable business or service address, and a dedicated contact email. The production value of `VITE_CONTACT_EMAIL` has not been verified.
+- The operator is Jason Prickett, an individual trading as Southwest Websites. Confirm a publishable contact address and dedicated product email; the production value of `VITE_CONTACT_EMAIL` has not been verified.
 - Decide and document the lawful basis for each processing purpose; complete the retention periods or criteria for account, authentication, email-provider, security-log and backup data; and document provider roles, locations and any international-transfer safeguards. The current public notice still lacks these required facts.
 - Identify the payment/support provider and the transaction information it returns. Check that the checkout shows the seller identity and contact/address, service description, total price including applicable taxes, currency, payment method, one-off or recurring status, renewal and cancellation terms, and a saveable order confirmation before taking payment.
 - If immediate digital content is sold, confirm that the checkout obtains the consumer's express consent and acknowledgement about any loss of the cancellation right before supply. Do not assume this applies to a voluntary one-off contribution without checking the actual offer.
