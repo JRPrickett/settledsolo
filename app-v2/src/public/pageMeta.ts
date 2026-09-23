@@ -214,6 +214,7 @@ export function structuredData(path: PublicPagePath): Record<string, unknown> {
           "Reliable departure timer with head-back reminders",
           "Warm-up departures and departure-cue practice",
           "Observation log of outcomes, stress signs and notes",
+          "Printable training summary to share with a vet or trainer",
           "Progress charts and milestones",
           "Works offline; backup, CSV export and optional account sync"
         ],

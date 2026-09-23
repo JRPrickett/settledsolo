@@ -11,6 +11,11 @@ export const HOME_FAQS: Faq[] = [
       "Yes. SettledSolo is a free separation anxiety training app for dogs. It suggests gradual alone-time sessions that start from what your dog already manages, times each departure and keeps a record of what you observed. It supports training; it does not diagnose separation anxiety or replace a vet or qualified behaviour professional."
   },
   {
+    question: "How is SettledSolo different from other separation anxiety apps?",
+    answer:
+      "It is free, with no subscription or trial, and works on iPhone and Android. The timer keeps accurate time while you check your camera app. The plan never gets harder after a difficult session. If you record self-injury or an escape attempt, it pauses timed training and points you to your vet. Your record stays on your device unless you choose to sync it or share a summary."
+  },
+  {
     question: "Does SettledSolo work on iPhone and Android?",
     answer:
       "Yes. It runs in any modern browser and can be added to your home screen on iPhone or Android, where it opens like an app and works offline. There is nothing to download from an app store."

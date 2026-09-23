@@ -11,7 +11,7 @@
 
 ## App
 
-- [SettledSolo app](https://settledsolo.com/app/): free training plan, reliable departure timer and private training history. No account required; records stay on the device.
+- [SettledSolo app](https://settledsolo.com/app/): free training plan, a departure timer that keeps accurate time while you watch a camera app, and a private training history with a printable summary for your vet or trainer. No account or subscription required; records stay on the device.
 
 ## About
 
