@@ -31,6 +31,11 @@ const APP_KEY = "app-data";
 const ACTIVE_KEY = "active-session";
 const FALLBACK_APP_KEY = "dog-training-app.fallback.v1";
 const FALLBACK_ACTIVE_KEY = "dog-training-app.active.fallback.v1";
+/**
+ * When the fallback app data was last written. Kept beside the data rather than
+ * inside it so the stored AppData format is unchanged; absent on older installs.
+ */
+const FALLBACK_APP_SAVED_AT_KEY = "dog-training-app.fallback.savedAt.v1";
 
 export type StorageMode = "indexeddb" | "localstorage" | "memory";
 
@@ -110,29 +115,36 @@ async function openDatabase(): Promise<IDBDatabase> {
   return requestResult(request);
 }
 
-async function getRecord<T extends RecordValue>(key: string): Promise<T | null> {
+async function getStoredRecord(key: string): Promise<StoredRecord | null> {
   const database = await openDatabase();
   try {
     const transaction = database.transaction(STORE, "readonly");
     const store = transaction.objectStore(STORE);
     const record = (await requestResult(store.get(key))) as StoredRecord | undefined;
     await transactionDone(transaction);
-    return (record?.value as T | undefined) ?? null;
+    return record ?? null;
   } finally {
     database.close();
   }
 }
 
-async function putRecord(key: string, value: RecordValue): Promise<void> {
+async function getRecord<T extends RecordValue>(key: string): Promise<T | null> {
+  return ((await getStoredRecord(key))?.value as T | undefined) ?? null;
+}
+
+/** Resolves with the record's `updatedAt` once the write has committed. */
+async function putRecord(key: string, value: RecordValue): Promise<number> {
   const database = await openDatabase();
   try {
+    const updatedAt = Date.now();
     const transaction = database.transaction(STORE, "readwrite");
     transaction.objectStore(STORE).put({
       key,
       value,
-      updatedAt: Date.now()
+      updatedAt
     } satisfies StoredRecord);
     await transactionDone(transaction);
+    return updatedAt;
   } finally {
     database.close();
   }
@@ -267,16 +279,28 @@ function safeLocalStorage(): Storage | null {
   }
 }
 
-function fallbackRepository(initial: AppData): AppRepository {
+interface FallbackRepository extends AppRepository {
+  /** When the fallback app data was last written, or 0 when unknown. */
+  appDataSavedAt(): number;
+  /** Record that the fallback mirrors a primary copy written at `at`. */
+  markAppDataSavedAt(at: number): void;
+}
+
+function fallbackRepository(initial: AppData): FallbackRepository {
   const storage = safeLocalStorage();
   let persistent = Boolean(storage);
   let data = normaliseAppData(initial);
   let active: PersistedLiveSession | null = null;
+  let savedAt = 0;
 
   if (storage) {
     try {
       const saved = storage.getItem(FALLBACK_APP_KEY);
-      if (saved) data = normaliseAppData(JSON.parse(saved) as AppData);
+      if (saved) {
+        data = normaliseAppData(JSON.parse(saved) as AppData);
+        const stamp = Number(storage.getItem(FALLBACK_APP_SAVED_AT_KEY));
+        savedAt = Number.isFinite(stamp) && stamp > 0 ? stamp : 0;
+      }
 
       const savedActive = storage.getItem(FALLBACK_ACTIVE_KEY);
       if (savedActive) {
@@ -287,10 +311,12 @@ function fallbackRepository(initial: AppData): AppRepository {
     }
   }
 
-  function persistData() {
+  function persistData(at = Date.now()) {
     if (!storage || !persistent) return;
     try {
       storage.setItem(FALLBACK_APP_KEY, JSON.stringify(data));
+      storage.setItem(FALLBACK_APP_SAVED_AT_KEY, String(at));
+      savedAt = at;
     } catch {
       persistent = false;
     }
@@ -470,6 +496,7 @@ function fallbackRepository(initial: AppData): AppRepository {
       if (storage && persistent) {
         try {
           storage.setItem(FALLBACK_APP_KEY, JSON.stringify(data));
+          storage.setItem(FALLBACK_APP_SAVED_AT_KEY, String(Date.now()));
           storage.removeItem(FALLBACK_ACTIVE_KEY);
           storage.removeItem(LEGACY_KEY);
         } catch {
@@ -480,6 +507,18 @@ function fallbackRepository(initial: AppData): AppRepository {
     },
     storageMode() {
       return persistent ? "localstorage" : "memory";
+    },
+    appDataSavedAt() {
+      return savedAt;
+    },
+    markAppDataSavedAt(at) {
+      if (!storage || !persistent) return;
+      try {
+        storage.setItem(FALLBACK_APP_SAVED_AT_KEY, String(at));
+        savedAt = at;
+      } catch {
+        persistent = false;
+      }
     }
   };
 }
@@ -534,20 +573,30 @@ function createLocalRepository(): AppRepository {
     async loadAppData() {
       return safely(
         async () => {
-          const existing = await getRecord<AppData>(APP_KEY);
+          const existing = await getStoredRecord(APP_KEY);
           if (existing) {
-            const latest = normaliseAppData(existing);
+            // Every save writes the fallback first and IndexedDB second, so the
+            // fallback is only newer when IndexedDB failed or the app closed in
+            // between. Then it holds changes IndexedDB never received: keep them.
+            if (fallback.appDataSavedAt() > existing.updatedAt) {
+              const newer = normaliseAppData(await fallback.loadAppData());
+              await putRecord(APP_KEY, newer);
+              return newer;
+            }
+            const latest = normaliseAppData(existing.value as AppData);
             // Refresh both the in-memory and durable fallback before a later IDB
             // failure can switch stores. Preserve sync ownership and the outbox.
             await fallback.saveAppData(latest);
+            fallback.markAppDataSavedAt(existing.updatedAt);
             return latest;
           }
 
           // A previous visit may have used localStorage while IndexedDB was unavailable.
           // The fallback already resolves modern saved data before legacy migration.
           const migrated = normaliseAppData(await fallback.loadAppData());
-          await putRecord(APP_KEY, migrated);
+          const writtenAt = await putRecord(APP_KEY, migrated);
           await fallback.saveAppData(migrated);
+          fallback.markAppDataSavedAt(writtenAt);
           return migrated;
         },
         () => fallback.loadAppData()

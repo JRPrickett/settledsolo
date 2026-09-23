@@ -64,15 +64,17 @@ jobs:
             fi
           fi
 
-          if [ "$needed" != "true" ] && [ -s /tmp/changed-files.txt ]; then
+          # Record every file that makes the expensive browser suite necessary, so
+          # each run states plainly why it did or did not run.
+          : > /tmp/browser-triggers.txt
+          if [ -s /tmp/changed-files.txt ]; then
             echo "Changed files:"
             cat /tmp/changed-files.txt
 
             while IFS= read -r file; do
               case "$file" in
                 package.json|package-lock.json|.node-version|app-v2/e2e/*|app-v2/public/*|app-v2/index.html|app-v2/vite.config.ts|app-v2/playwright*.ts|worker/csp.ts)
-                  needed=true
-                  break
+                  echo "$file" >> /tmp/browser-triggers.txt
                   ;;
                 app-v2/src/*)
                   # Fast Vitest-only changes should not download two browser engines.
@@ -81,17 +83,39 @@ jobs:
                     *.test.ts|*.test.tsx|*.spec.ts|*.spec.tsx)
                       ;;
                     *)
-                      needed=true
-                      break
+                      echo "$file" >> /tmp/browser-triggers.txt
                       ;;
                   esac
                   ;;
               esac
             done < /tmp/changed-files.txt
+            if [ -s /tmp/browser-triggers.txt ]; then needed=true; fi
           fi
 
           echo "Browser checks needed: $needed"
           echo "needed=$needed" >> "$GITHUB_OUTPUT"
+
+          {
+            if [ "$needed" = "true" ]; then
+              echo "### Browser checks: running (Chromium + WebKit, about 5 minutes)"
+              if [ -s /tmp/browser-triggers.txt ]; then
+                if [ "$EVENT_NAME" = "pull_request" ]; then
+                  echo "This pull request changes browser-impacting files, so every push to it re-runs the browser suite:"
+                else
+                  echo "Triggered by these browser-impacting files:"
+                fi
+                echo
+                head -n 25 /tmp/browser-triggers.txt | sed 's/^/- `/; s/$/`/'
+                total="$(wc -l < /tmp/browser-triggers.txt)"
+                if [ "$total" -gt 25 ]; then echo "- …and $((total - 25)) more"; fi
+              else
+                echo "Requested manually, or the base commit could not be determined."
+              fi
+            else
+              echo "### Browser checks: skipped"
+              echo "No browser-impacting files changed (unit tests, docs and workflow-only changes do not need them)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Use Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
