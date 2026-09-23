@@ -46,3 +46,19 @@ test("switching screens always starts at the top of the new screen", async ({ pa
   await nav.getByRole("button", { name: "Today" }).click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 });
+
+test("More ends with an optional support link that opens outside the app", async ({ page }) => {
+  await completeSetup(page, 30);
+  await page.getByRole("button", { name: "More" }).click();
+
+  const support = page.getByRole("region", { name: "Help keep SettledSolo free." });
+  await expect(support).toContainText("does not unlock features");
+  const link = support.getByRole("link", { name: "Support SettledSolo" });
+  await expect(link).toHaveAttribute("href", "https://ko-fi.com/settledsolo");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", /noopener/);
+
+  // It is the last card on the screen, after help and evidence.
+  const lastSection = page.locator(".app-content section").last();
+  await expect(lastSection).toHaveAttribute("aria-labelledby", "support-heading");
+});

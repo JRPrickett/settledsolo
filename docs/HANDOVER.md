@@ -65,6 +65,10 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   deployed bundle had an empty link. `https://ko-fi.com/settledsolo` is now the built-in default
   in `public/support.ts`, matching how `contact.ts` defaults the contact email; the variable still
   overrides it.
+- **Support in the app.** More now ends with a quiet "Optional support" card
+  (`features/more/SupportCard.tsx`) linking to Ko-fi in a new tab. It says the core stays free and
+  a contribution unlocks nothing. It never appears on Today, in a session or in a review.
+  Covered by `settings.spec.ts`; axe covers More in `accessibility.spec.ts`.
 
 ### 23 September — social share cards, page metadata, adaptive steps and payments plan — merged (PR #64)
 

@@ -80,7 +80,8 @@ No payments. Measure usefulness and reliability; do not use training outcomes as
    provider name comes from the link's host (`supportProviderName` in `public/support.ts`:
    Ko-fi, Buy Me a Coffee, otherwise "our support provider"), so the notice cannot name the
    wrong provider.
-4. Keep the card out of the training flow (it only shows on the public site today).
+4. Keep the card out of the training flow. It shows on the public homepage and Help page, and
+   as the last card in the app's More screen, never on Today, a live session or a review.
 
 ### Phase 2 — paid add-ons (only after beta evidence)
 Candidates from the roadmap: richer reports, multi-dog workspaces, trainer sharing, advanced
