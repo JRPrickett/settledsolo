@@ -127,6 +127,13 @@ Web Push timing is a supplementary reminder, not the source of truth for the ses
 - [ ] Accept Update now outside live mode.
 - [ ] Confirm history remains intact.
 
+### Professional summary (sharing)
+
+- [ ] Installed PWA: More → Open a summary to share → Print or save as PDF. Record whether iOS
+  offers the print sheet in the standalone app.
+- [ ] Installed PWA: Download as a file, then open it from Files and print or share it.
+- [ ] Safari tab: Print or save as PDF produces only the document, with sessions as a table.
+
 ### iPhone preview evidence — 18 September 2026
 
 Tested against the Cloudflare `settledsolo-web-preview` build.
@@ -162,7 +169,8 @@ Repeat:
 - [ ] confirm no fake lock-screen Media Session presentation;
 - [ ] force-close/relaunch recovery;
 - [ ] offline relaunch/session;
-- [ ] safe prompted PWA update.
+- [ ] safe prompted PWA update;
+- [ ] professional summary: print/save as PDF and download as a file.
 
 ## Desktop sanity gate
 
