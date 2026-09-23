@@ -5923,3 +5923,50 @@ a:focus-visible {
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
+
+/*
+ * The clock sits inside the ring, so size it from the ring rather than the
+ * viewport. The divisor is tuned to the display font's tabular digits: roughly
+ * 123cqi / characters keeps the text within the ring's inner diameter, capped
+ * so short times do not become oversized.
+ */
+.progress-ring {
+  container-type: inline-size;
+}
+
+.progress-ring .live-clock {
+  --clock-chars: 5;
+  font-size: clamp(34px, 16vw, 64px);
+  font-size: min(30cqi, calc(123cqi / var(--clock-chars)));
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Background return-alert status on the pre-departure screen. */
+.return-alert {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 34ch;
+  margin: 0 auto 22px;
+  color: rgba(247, 238, 223, .72);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.return-alert button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(246, 248, 245, .28);
+  border-radius: 999px;
+  background: transparent;
+  color: #f6f8f5;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.return-alert button:focus-visible {
+  outline: 3px solid #f2a65a;
+  outline-offset: 3px;
+}

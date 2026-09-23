@@ -682,6 +682,7 @@ export function LiveSession({
               elapsed={elapsed}
               targetSeconds={step.targetSeconds}
               over={over}
+              startedAt={state.startedAt}
             />
             <p className="live-elapsed">
               {formatDuration(elapsed)} away · target {formatDuration(step.targetSeconds)}

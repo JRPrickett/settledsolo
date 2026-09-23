@@ -58,6 +58,16 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   versions stay in the downloadable conflict archive. "1 changes need your review" plurals fixed.
 - This is still mock-server evidence. Real two-device sync against the live Worker/D1 remains a
   release gate.
+- **Milestones follow targets.** Milestones, "longest relaxed" and achievement totals now credit
+  `min(actual, target)` (`creditedSeconds`), so forgetting to tap "I'm back" can no longer award
+  several rungs in one session. History keeps the real duration; the plan already capped at the
+  target. See the evidence-base product rule.
+- **Live timer.** The countdown overflowed the ring on phones ("00:02" ~257px in a ~213px ring,
+  and "+00:04" wrapped). The clock is now `m:ss`/`h:mm:ss`, sized from the ring with container
+  units and its character count, and never wraps. The ring fills smoothly from the start
+  timestamp via `requestAnimationFrame`, stepping once a second under reduced motion. The
+  Android/desktop return-alert prompt on the pre-departure screen was unstyled and is now styled.
+  `live-timer.spec.ts` measures fit (including `2:00:00`) and smoothness.
 
 ### 23 September — accessibility and session-safety pass — merged (PR #60)
 
