@@ -34,7 +34,7 @@ export function Progress({ data }: { data: AppData }) {
               ? formatDuration(insights.longestRelaxedSeconds)
               : "—"}
           </strong>
-          <small>Observed comfortable time</small>
+          <small>Relaxed time, up to each session's target</small>
         </div>
         <div className="stat-card">
           <span>Recent comfort</span>
@@ -54,8 +54,9 @@ export function Progress({ data }: { data: AppData }) {
           <p className="kicker">Milestones</p>
           <h2>{earnedCount} of {board.ladder.length} earned</h2>
           <p>
-            Earned the first time a relaxed absence of that length happened, counted
-            across every training track — it's the same dog doing all of them.
+            Earned the first time a relaxed session reaches that length, counting no
+            more than its planned target, so rungs follow your gradual progression.
+            Counted across every training track — it's the same dog doing all of them.
           </p>
         </div>
 

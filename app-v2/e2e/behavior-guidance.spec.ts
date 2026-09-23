@@ -206,3 +206,92 @@ test("persistent difficulty without progress suggests involving a vet, without p
   // It supersedes the generic support card rather than stacking with it.
   await expect(page.getByText(/Certified Separation Anxiety Trainer/)).toBeHidden();
 });
+
+async function savedCueSets(page: import("@playwright/test").Page): Promise<number> {
+  return page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("dog-training-app", 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const record = await new Promise<{ value: { scenarios: Array<{ cuePractice?: { sessions: unknown[] } }> } }>(
+      (resolve) => {
+        const request = db.transaction("records").objectStore("records").get("app-data");
+        request.onsuccess = () => resolve(request.result);
+      }
+    );
+    db.close();
+    return record.value.scenarios.reduce(
+      (total, scenario) => total + (scenario.cuePractice?.sessions.length ?? 0),
+      0
+    );
+  });
+}
+
+test("an unfinished cue set survives a reload and saves exactly once", async ({ page }) => {
+  await completeSetup(page, 5);
+  await page.getByRole("button", { name: "Departure cue practice" }).click();
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await expect(page.getByText("Rep 2 of 3")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("Rep 2 of 3")).toBeVisible();
+
+  // Closing with recorded reps asks first and defaults to keeping them.
+  await page.getByRole("button", { name: "Close" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByRole("button", { name: "Keep practising" })).toBeFocused();
+  await dialog.getByRole("button", { name: "Keep practising" }).click();
+  await expect(page.getByText("Rep 2 of 3")).toBeVisible();
+
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  const save = page.getByRole("button", { name: "Save cue practice" });
+  await save.evaluate((button) => {
+    (button as HTMLButtonElement).click();
+    (button as HTMLButtonElement).click();
+  });
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+  expect(await savedCueSets(page)).toBe(1);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+  expect(await savedCueSets(page)).toBe(1);
+});
+
+test("a discarded cue set is not saved or resumed", async ({ page }) => {
+  await completeSetup(page, 5);
+
+  // An untouched set closes immediately.
+  await page.getByRole("button", { name: "Departure cue practice" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Departure cue practice" }).click();
+  await page.getByRole("button", { name: /Relaxed/ }).click();
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Discard set" }).click();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+  expect(await savedCueSets(page)).toBe(0);
+});
+
+test("a cue set already saved before the app closed is not resumed again", async ({ page }) => {
+  await completeSetup(page, 5);
+  await page.getByRole("button", { name: "Departure cue practice" }).click();
+  for (let rep = 0; rep < 3; rep += 1) {
+    await page.getByRole("button", { name: /Relaxed/ }).click();
+  }
+  // Model the app being killed after the save but before its checkpoint was cleared.
+  const checkpoint = await page.evaluate(() => localStorage.getItem("settledsolo.cue-practice.v1"));
+  await page.getByRole("button", { name: "Save cue practice" }).click();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+  await page.evaluate((value) => localStorage.setItem("settledsolo.cue-practice.v1", value!), checkpoint);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Departure cue practice" })).toBeVisible();
+  expect(await savedCueSets(page)).toBe(1);
+  expect(await page.evaluate(() => localStorage.getItem("settledsolo.cue-practice.v1"))).toBeNull();
+});

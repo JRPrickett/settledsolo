@@ -58,7 +58,7 @@ test("production PWA service worker installs and controls the app", async ({
     fetch("/push-sw.js").then((response) => response.text())
   );
   expect(serviceWorkerSource).toContain("push-sw.js");
-  expect(pushHandlerSource).toContain("Time to come back");
+  expect(pushHandlerSource).toContain("Time to head back");
   expect(pushHandlerSource).toContain('self.addEventListener("push"');
 });
 

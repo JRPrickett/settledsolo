@@ -7,8 +7,9 @@ self.addEventListener("push", function (event) {
           return client.visibilityState === "visible";
         });
 
-        return self.registration.showNotification("Time to come back", {
-          body: "Your SettledSolo return point has been reached.",
+        // Sent at the owner's walk-back time, so they arrive around the target.
+        return self.registration.showNotification("Time to head back", {
+          body: "Head back calmly now to arrive around your planned return time.",
           tag: "settledsolo-return",
           renotify: !visible,
           requireInteraction: true,

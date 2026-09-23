@@ -12,7 +12,7 @@ SettledSolo's installed PWA uses standards-based Web Push for the **main departu
    - an opaque session token;
    - the target return timestamp.
 4. A Cloudflare Durable Object alarm wakes at the target time and sends an empty Web Push message.
-5. The service worker displays a native **Time to come back** notification.
+5. The service worker displays a native **Time to head back** notification at the walk-back time (default 30 seconds before the target, set in More → Return alerts).
 6. Returning early asks the scheduler to cancel the pending alarm.
 
 Dog names, notes, outcomes, ratings and training history are not sent to the return-alert scheduler.

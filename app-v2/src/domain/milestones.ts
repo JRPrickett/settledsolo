@@ -1,4 +1,5 @@
 import type { AppData, TrainingSession } from "./types";
+import { creditedSeconds } from "./trainingEngine";
 
 export interface MilestoneRung {
   seconds: number;
@@ -6,14 +7,19 @@ export interface MilestoneRung {
 }
 
 /**
- * Same ladder the legacy app used (30s through 4 hours). Kept as its own
- * ordered list rather than derived from data so the board can show locked
- * rungs that haven't been reached yet.
+ * Twenty rungs from 10 seconds to the 4-hour limit. Early rungs are close
+ * together because many dogs start from a few seconds and small calm wins
+ * matter most there; later rungs follow common real-life absences. Credit is
+ * capped at each session's target, so rungs arrive only as the plan progresses.
+ * Kept as an ordered list so the board can show locked rungs not yet reached.
  */
 export const MILESTONE_LADDER: MilestoneRung[] = [
+  { seconds: 10, label: "10 sec" },
+  { seconds: 15, label: "15 sec" },
   { seconds: 30, label: "30 sec" },
   { seconds: 60, label: "1 min" },
   { seconds: 120, label: "2 min" },
+  { seconds: 180, label: "3 min" },
   { seconds: 300, label: "5 min" },
   { seconds: 600, label: "10 min" },
   { seconds: 900, label: "15 min" },
@@ -21,9 +27,12 @@ export const MILESTONE_LADDER: MilestoneRung[] = [
   { seconds: 1800, label: "30 min" },
   { seconds: 2700, label: "45 min" },
   { seconds: 3600, label: "1 hour" },
+  { seconds: 4500, label: "75 min" },
   { seconds: 5400, label: "90 min" },
   { seconds: 7200, label: "2 hours" },
+  { seconds: 9000, label: "2.5 hours" },
   { seconds: 10800, label: "3 hours" },
+  { seconds: 12600, label: "3.5 hours" },
   { seconds: 14400, label: "4 hours" }
 ];
 
@@ -51,10 +60,11 @@ function allSessions(data: AppData): ScopedSession[] {
 }
 
 /**
- * A milestone credits the actual comfortable duration observed. Returning
- * early while still relaxed does not forfeit credit for the time that was
- * genuinely comfortable — the target is a ceiling, not a quota, and that
- * principle applies to milestones too.
+ * A milestone credits the relaxed time observed, capped at that session's
+ * target (see creditedSeconds). Returning early while still relaxed keeps
+ * credit for the time that was genuinely comfortable — the target is a
+ * ceiling, not a quota — but overrunning the target, for example by
+ * forgetting to tap "I'm back", never earns extra rungs.
  */
 export function earnedMilestones(data: AppData): Map<number, EarnedMilestone> {
   const earned = new Map<number, EarnedMilestone>();
@@ -63,7 +73,7 @@ export function earnedMilestones(data: AppData): Map<number, EarnedMilestone> {
     if (session.outcome !== "relaxed") continue;
 
     for (const rung of MILESTONE_LADDER) {
-      if (session.actualSeconds < rung.seconds) continue;
+      if (creditedSeconds(session) < rung.seconds) continue;
       const existing = earned.get(rung.seconds);
       if (!existing || session.at < existing.at) {
         earned.set(rung.seconds, {
@@ -71,7 +81,7 @@ export function earnedMilestones(data: AppData): Map<number, EarnedMilestone> {
           label: rung.label,
           at: session.at,
           scenarioLabel,
-          actualSeconds: session.actualSeconds
+          actualSeconds: creditedSeconds(session)
         });
       }
     }
@@ -83,7 +93,7 @@ export function earnedMilestones(data: AppData): Map<number, EarnedMilestone> {
 export function longestRelaxedSeconds(data: AppData): number {
   return allSessions(data).reduce(
     (best, { session }) =>
-      session.outcome === "relaxed" ? Math.max(best, session.actualSeconds) : best,
+      session.outcome === "relaxed" ? Math.max(best, creditedSeconds(session)) : best,
     0
   );
 }
@@ -148,7 +158,7 @@ export function achievementSnapshot(data: AppData): AchievementSnapshot {
   return {
     relaxedCount: relaxed.length,
     currentRelaxedRun,
-    totalRelaxedSeconds: relaxed.reduce((sum, { session }) => sum + session.actualSeconds, 0)
+    totalRelaxedSeconds: relaxed.reduce((sum, { session }) => sum + creditedSeconds(session), 0)
   };
 }
 

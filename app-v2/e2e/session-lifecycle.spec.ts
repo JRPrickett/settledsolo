@@ -319,3 +319,33 @@ test("ending a session after a real departure asks before discarding it", async 
   await page.getByRole("button", { name: "History", exact: true }).click();
   await expect(page.getByText("Your first completed session will appear here.")).toBeVisible();
 });
+
+test("a return saved just before the app closed is not undone by an older checkpoint", async ({ page }) => {
+  await completeSetup(page, 30);
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await expect(page.getByRole("button", { name: "I'm back" })).toBeVisible();
+  await page.waitForTimeout(600);
+
+  // Model the app closing after "I'm back" reached the first-written fallback but
+  // before IndexedDB committed: IndexedDB still holds the older running checkpoint.
+  await page.evaluate(() => {
+    const key = "dog-training-app.active.fallback.v1";
+    const saved = JSON.parse(localStorage.getItem(key)!);
+    const returnedAt = saved.state.startedAt + 2_000;
+    saved.state = {
+      ...saved.state,
+      phase: "review",
+      returnedAt,
+      mainActualSeconds: 2,
+      reviewKind: "main",
+      reviewOutcome: null
+    };
+    saved.savedAt = saved.savedAt + 5_000;
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await page.reload();
+
+  await expect(page.getByRole("heading", { name: "How was Mabel while you were away?" })).toBeVisible();
+  await expect(page.locator(".review-time")).toHaveText("2s");
+});

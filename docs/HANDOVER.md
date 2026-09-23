@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (second release-hardening pass on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (cue practice and sync-conflict pass on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `d4cfd98` (through PR #59)
+**Reviewed main:** `893bdbe` (through PR #60)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #59. PRs #52–#56 closed the
+Main is current through PR #60. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -36,9 +36,52 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
-### 23 September — accessibility and session-safety pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
+### 23 September — cue practice and sync-conflict pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Cue practice is resumable.** An unfinished set is checkpointed after every rep to the
+  device-local key `settledsolo.cue-practice.v1` (`session/cueCheckpoint.ts`), tied to its track
+  and cue, and resumes on the next launch. It expires after two hours, is validated on load, is
+  ignored when a newer set was already saved (app killed between save and clear), is cleared by
+  reset and backup restore, and is never synced or backed up.
+- **Cue practice discard/double-save.** Close with recorded reps now confirms (defaulting to keep);
+  an untouched set closes immediately. Save has an in-flight guard; before this a fast double tap
+  recorded the set twice.
+- **Browser-level sync conflicts (H3).** `sync-conflicts.spec.ts` runs two browser contexts against
+  the shared mock account server: concurrent edits of one session raise a review instead of
+  overwriting, keep the local edit until resolved, archive both versions and converge; a session
+  deleted on one device and edited on another can be kept and returns to the deleting device.
+  The mock server and sign-in helpers now live in `e2e/accountHelpers.ts`.
+- **Readable conflict review.** The conflict card showed a raw record key and JSON. It now titles
+  the record and lists both versions in plain language (`account/conflictSummary.ts`); the full
+  versions stay in the downloadable conflict archive. "1 changes need your review" plurals fixed.
+- This is still mock-server evidence. Real two-device sync against the live Worker/D1 remains a
+  release gate.
+- **Milestones follow targets.** Milestones, "longest relaxed" and achievement totals now credit
+  `min(actual, target)` (`creditedSeconds`), so forgetting to tap "I'm back" can no longer award
+  several rungs in one session. History keeps the real duration; the plan already capped at the
+  target. See the evidence-base product rule.
+- **Walk-back reminders.** Push, chime and a "Time to head back" label fire a device-local walk-back
+  time before the main target (More → Return alerts; default 30s, capped at a quarter of the
+  target, none under 20s; `session/walkBack.ts`). Returns inside that window are not early stops
+  and credit the full target. The push notification now reads "Time to head back". See the
+  evidence-base product rule.
+- **Overrun correction.** When the timer ran at least max(30s, 25% of target) past the target, the
+  review offers "I was back on time" (`CORRECT_MAIN_RETURN`, can only lower the time, survives a
+  reload, undoable). `return-timing.spec.ts` uses Playwright's fake clock for these journeys.
+- **Milestone ladder** grows from 14 to 20 rungs, 10 seconds to 4 hours: 10s, 15s, 30s, 1m, 2m,
+  3m, 5m, 10m, 15m, 20m, 30m, 45m, 1h, 75m, 90m, 2h, 2.5h, 3h, 3.5h, 4h. Early rungs are close
+  together for dogs starting from seconds. Earned rungs are derived from history, so existing
+  users gain the new rungs retroactively with no data migration.
+- **Live timer.** The countdown overflowed the ring on phones ("00:02" ~257px in a ~213px ring,
+  and "+00:04" wrapped). The clock is now `m:ss`/`h:mm:ss`, sized from the ring with container
+  units and its character count, and never wraps. The ring fills smoothly from the start
+  timestamp via `requestAnimationFrame`, stepping once a second under reduced motion. The
+  Android/desktop return-alert prompt on the pre-departure screen was unstyled and is now styled.
+  `live-timer.spec.ts` measures fit (including `2:00:00`) and smoothness.
+
+### 23 September — accessibility and session-safety pass — merged (PR #60)
 
 - **Discard protection.** Close (review) and End session (departure, settle break, practice
   check-in) previously discarded the whole session in one tap even after the dog had been
@@ -59,8 +102,7 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   logged signs feed the observation summary.
 - `accessibility.spec.ts` now runs axe on public info pages, a full session, Progress, History,
   the history editor, More and an early distressed review.
-- Known minor gaps left for later: cue practice discards recorded reps on Close without asking
-  and does not survive a reload; both are lower risk because the owner never leaves.
+- The cue-practice gaps noted here were closed in the following pass.
 
 ### 22 September — release-hardening pass — merged (PR #59)
 
@@ -631,8 +673,7 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 3. ~~Protect training/sync from competing app windows.~~ Done: PR #54.
 4. ~~Retire legacy product analytics and replace it with registered-account counts.~~ Done: PR #55.
 5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
-6. Finish the remaining browser-level sync-conflict assertions (error-boundary recovery,
-   HTML-as-text and CSP-violation gates are now done).
+6. ~~Browser-level sync-conflict assertions~~ done (mock server); real two-device evidence remains in step 5.
 7. Set `VITE_CONTACT_EMAIL` (and `VITE_SUPPORT_URL` when a provider is confirmed) as GitHub
    environment variables, then clear accessibility, product screenshots and final
    social/privacy/provider wording.

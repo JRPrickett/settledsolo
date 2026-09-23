@@ -90,7 +90,7 @@ return alert for the **main departure target**. Foreground warning/target chimes
 - [ ] Tap Enable return alerts from an explicit user action.
 - [ ] Confirm permission and background-alert readiness are accurately reflected.
 - [ ] Start a 30-second main departure, switch to the camera app, and confirm one audible
-      **Time to come back** notification arrives near the target.
+      **Time to head back** notification arrives about the walk-back time before the target.
 - [ ] Return early and confirm the pending alert is cancelled.
 - [ ] Keep SettledSolo visible through the target and confirm the notification is silent while
       the foreground target chime remains audible.

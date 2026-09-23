@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppData, DepartureCueSession } from "../../domain/types";
 import { activeScenario } from "../../data/appData";
 import {
@@ -8,13 +8,21 @@ import {
   recommendCueLevel
 } from "../../domain/departureCues";
 import { createOpaqueId } from "../../domain/ids";
+import {
+  clearCueCheckpoint,
+  saveCueCheckpoint,
+  type CueCheckpoint
+} from "../../session/cueCheckpoint";
 
 export function DepartureCuePracticeView({
   data,
   onClose,
-  onSaved
+  onSaved,
+  resume
 }: {
   data: AppData;
+  /** An unfinished set from before a reload or app switch, for this track and cue. */
+  resume?: CueCheckpoint;
   onClose: () => void;
   onSaved: (session: DepartureCueSession, nextLevel: number) => Promise<void>;
 }) {
@@ -23,10 +31,41 @@ export function DepartureCuePracticeView({
     () => recommendCueLevel(scenario.cuePractice),
     [scenario.cuePractice]
   );
-  const [rep, setRep] = useState(0);
-  const [relaxedReps, setRelaxedReps] = useState(0);
-  const [concernReps, setConcernReps] = useState(0);
+  const resumable =
+    resume?.scenarioId === scenario.id && resume.cueIndex === recommendation.cueIndex
+      ? resume
+      : undefined;
+  const [rep, setRep] = useState(resumable?.rep ?? 0);
+  const [relaxedReps, setRelaxedReps] = useState(resumable?.relaxedReps ?? 0);
+  const [concernReps, setConcernReps] = useState(resumable?.concernReps ?? 0);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const complete = rep >= CUE_REPETITIONS;
+  const recorded = relaxedReps + concernReps > 0;
+
+  // Keep the set resumable if the app is reloaded, suspended or switched away from.
+  useEffect(() => {
+    if (!recorded) return;
+    saveCueCheckpoint({
+      scenarioId: scenario.id,
+      cueIndex: recommendation.cueIndex,
+      rep,
+      relaxedReps,
+      concernReps,
+      savedAt: Date.now()
+    });
+  }, [recorded, scenario.id, recommendation.cueIndex, rep, relaxedReps, concernReps]);
+
+  function requestClose() {
+    if (recorded) setConfirmingDiscard(true);
+    else onClose();
+  }
+
+  function discard() {
+    clearCueCheckpoint();
+    onClose();
+  }
 
   function record(relaxed: boolean) {
     if (complete) return;
@@ -38,6 +77,10 @@ export function DepartureCuePracticeView({
   }
 
   async function save() {
+    // A fast double tap must not record the same set twice.
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
     const outcome = cueOutcome(relaxedReps, concernReps);
     const session: DepartureCueSession = {
       id: createOpaqueId("c"),
@@ -53,13 +96,53 @@ export function DepartureCuePracticeView({
       sessions: [...(scenario.cuePractice?.sessions ?? []), session]
     };
     const next = recommendCueLevel(previewPractice);
-    await onSaved(session, next.cueIndex);
+    try {
+      await onSaved(session, next.cueIndex);
+      clearCueCheckpoint();
+    } catch {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  }
+
+  if (confirmingDiscard) {
+    return (
+      <div className="cue-shell">
+        <main
+          className="cue-content discard-confirm"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="cue-discard-heading"
+          aria-describedby="cue-discard-detail"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setConfirmingDiscard(false);
+          }}
+        >
+          <p className="kicker">End without saving?</p>
+          <h1 id="cue-discard-heading">Discard this cue set?</h1>
+          <p id="cue-discard-detail" className="cue-reason">
+            The repetitions you recorded will not be saved, so they will not count
+            towards moving on to the next cue.
+          </p>
+          <button
+            className="primary-button"
+            autoFocus
+            onClick={() => setConfirmingDiscard(false)}
+          >
+            {complete ? "Back to the summary" : "Keep practising"}
+          </button>
+          <button className="secondary-button cue-discard" onClick={discard}>
+            Discard set
+          </button>
+        </main>
+      </div>
+    );
   }
 
   return (
     <div className="cue-shell">
       <header className="live-header cue-header">
-        <button className="text-button" onClick={onClose}>Close</button>
+        <button className="text-button" onClick={requestClose}>Close</button>
         <span>Departure cue practice</span>
         <span />
       </header>
@@ -119,8 +202,12 @@ export function DepartureCuePracticeView({
                 ? "Save the set. The app will only move on after repeated calm practice."
                 : "Save the set and keep the next practice easier. There is no benefit in pushing through worry."}
             </p>
-            <button className="primary-button" onClick={() => void save()}>
-              Save cue practice
+            <button
+              className="primary-button"
+              disabled={saving}
+              onClick={() => void save()}
+            >
+              {saving ? "Saving…" : "Save cue practice"}
             </button>
           </section>
         )}

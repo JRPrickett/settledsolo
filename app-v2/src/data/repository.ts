@@ -9,6 +9,7 @@ import type {
 } from "../domain/types";
 import {
   isRestorableLiveSession,
+  newestLiveSession,
   type PersistedLiveSession
 } from "../session/sessionPersistence";
 import {
@@ -717,17 +718,16 @@ function createLocalRepository(): AppRepository {
       await activeMutation;
       return safely(
         async () => {
-          let active = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
-          if (!active) {
-            const savedFallback = await fallback.loadActiveSession();
-            if (!isRestorableLiveSession(savedFallback)) {
-              await fallback.clearActiveSession();
-              return null;
-            }
-            // Preserve the original timestamps and review state across storage recovery.
-            active = savedFallback;
-            await putRecord(ACTIVE_KEY, active);
+          const primary = await getRecord<PersistedLiveSession>(ACTIVE_KEY);
+          const savedFallback = await fallback.loadActiveSession();
+          if (!primary && !isRestorableLiveSession(savedFallback)) {
+            await fallback.clearActiveSession();
+            return null;
           }
+          // The fallback is written first, so it is newer if the app closed before
+          // IndexedDB committed. Preserve the original timestamps and review state.
+          const active = newestLiveSession(primary, savedFallback) ?? primary!;
+          if (active !== primary) await putRecord(ACTIVE_KEY, active);
 
           const age = Date.now() - active.savedAt;
           if (age > 12 * 60 * 60 * 1000) {

@@ -1,4 +1,5 @@
 import type { ObservedSignal, TrainingSession } from "./types";
+import { creditedSeconds } from "./trainingEngine";
 
 export interface SignalCount {
   signal: ObservedSignal;
@@ -19,7 +20,7 @@ export function progressInsights(
 ): ProgressInsights {
   const relaxed = sessions.filter((session) => session.outcome === "relaxed");
   const longestRelaxedSeconds = relaxed.reduce(
-    (best, session) => Math.max(best, session.actualSeconds),
+    (best, session) => Math.max(best, creditedSeconds(session)),
     0
   );
 

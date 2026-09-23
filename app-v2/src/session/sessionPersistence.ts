@@ -45,3 +45,20 @@ export function isRestorableLiveSession(
 
   return now - value.savedAt <= 12 * 60 * 60 * 1000;
 }
+
+/**
+ * Every checkpoint is written to the localStorage fallback first and IndexedDB
+ * second. If the app is closed between the two writes, the fallback is newer, so
+ * restore whichever restorable copy was saved last rather than always the primary.
+ */
+export function newestLiveSession(
+  primary: PersistedLiveSession | null,
+  fallback: PersistedLiveSession | null,
+  now = Date.now()
+): PersistedLiveSession | null {
+  const primaryOk = isRestorableLiveSession(primary, now);
+  const fallbackOk = isRestorableLiveSession(fallback, now);
+  if (primaryOk && fallbackOk) return fallback.savedAt > primary.savedAt ? fallback : primary;
+  if (primaryOk) return primary;
+  return fallbackOk ? fallback : null;
+}

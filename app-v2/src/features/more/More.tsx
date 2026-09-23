@@ -23,6 +23,11 @@ import {
 
 import type { StorageMode } from "../../data/repository";
 import { HelpFeedbackCard } from "./HelpFeedbackCard";
+import {
+  WALK_BACK_OPTIONS,
+  loadWalkBackSeconds,
+  saveWalkBackSeconds
+} from "../../session/walkBack";
 
 const DEFAULT_REST_SECONDS = 60;
 
@@ -55,6 +60,7 @@ export function More({
 }) {
   const scenario = activeScenario(data);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [walkBackSeconds, setWalkBackSeconds] = useState(loadWalkBackSeconds);
   const [pendingRestore, setPendingRestore] = useState<AppData | null>(null);
   const [restoreError, setRestoreError] = useState("");
   const [resetOpen, setResetOpen] = useState(false);
@@ -337,11 +343,36 @@ export function More({
       <section className="settings-card">
         <div>
           <p className="kicker">Return alerts</p>
-          <h2>Know when it is time to come back.</h2>
+          <h2>Know when it is time to head back.</h2>
           <p>
             Enable a native return alert for the main departure while you watch the
             camera in another app. Foreground chimes stay local, and the timer and
             saved session never depend on notification delivery.
+          </p>
+        </div>
+        <div className="track-form">
+          <label>
+            Remind me to head back
+            <select
+              value={walkBackSeconds}
+              onChange={(event) => {
+                const seconds = Number(event.target.value);
+                setWalkBackSeconds(seconds);
+                saveWalkBackSeconds(seconds);
+              }}
+            >
+              {WALK_BACK_OPTIONS.map((option) => (
+                <option key={option.seconds} value={option.seconds}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="field-help">
+            Choose roughly how long it takes to walk back to your dog, so you arrive
+            around the target rather than after it. Coming back within this time
+            still counts as reaching the target. Short departures use less, and this
+            setting stays on this device.
           </p>
         </div>
         {(notificationPermission === "default" ||
