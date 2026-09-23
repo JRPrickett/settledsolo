@@ -140,6 +140,7 @@ export function SessionForm({
               type="button"
               key={value}
               className={signals.includes(value) ? "selected" : ""}
+              aria-pressed={signals.includes(value)}
               onClick={() => setSignals(toggled(signals, value))}
             >
               {label}
@@ -170,6 +171,7 @@ export function SessionForm({
               type="button"
               key={value}
               className={tags.includes(value) ? "selected" : ""}
+              aria-pressed={tags.includes(value)}
               onClick={() => setTags(toggled(tags, value))}
             >
               {label}

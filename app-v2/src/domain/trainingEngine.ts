@@ -95,6 +95,32 @@ function relaxedRun(sessions: TrainingSession[]): number {
 }
 
 /**
+ * Where difficulty showed up in a session: when the owner came back early, the
+ * time they came back; otherwise the full planned duration.
+ */
+function difficultyPoint(session: TrainingSession): number {
+  return Math.max(
+    1,
+    session.stoppedEarly ? session.actualSeconds : session.targetSeconds
+  );
+}
+
+/**
+ * The lowest target an easier plan may use. The configured starting duration
+ * is the owner's observation from before training, so it stays the floor only
+ * while no session has shown concern or distress at or below it. Once one has,
+ * the logged sessions are the better evidence and the plan follows them down,
+ * never below one second. Without this, a dog that regressed below its starting
+ * duration would be offered that longer starting duration again after distress.
+ */
+function reductionFloor(sessions: TrainingSession[], start: number): number {
+  const contradicted = sessions.some(
+    (session) => session.outcome !== "relaxed" && difficultyPoint(session) <= start
+  );
+  return contradicted ? 1 : start;
+}
+
+/**
  * Days without a timed session after which the next plan steps back. Learned
  * calm can partly fade with time away ("spontaneous recovery" in the extinction
  * and exposure literature), so a long break restarts one step easier. The exact
@@ -156,6 +182,7 @@ export function recommendNext(
   }
 
   const last = sessions[sessions.length - 1];
+  const floor = reductionFloor(sessions, start);
   const supportFlag = needsSupport(sessions);
   const highRiskFlag = sessions.some((session) =>
     hasHighRiskSignals(session.signals)
@@ -173,22 +200,25 @@ export function recommendNext(
     const previousComfort = previousRelaxed
       ? comfortableDuration(previousRelaxed)
       : null;
+    const observed = difficultyPoint(last);
+    const belowObserved = Math.max(floor, observed - stepSize(observed));
+    // A full-length distressed session returns to the starting duration, unless
+    // the distress happened at or below it; then the plan steps below the distress.
     const observedUpperBound = last.stoppedEarly
-      ? Math.max(
-          start,
-          last.actualSeconds - stepSize(Math.max(1, last.actualSeconds))
-        )
-      : start;
+      ? belowObserved
+      : Math.min(start, belowObserved);
     const target = previousComfort === null
       ? observedUpperBound
-      : Math.max(start, Math.min(previousComfort, observedUpperBound));
+      : Math.max(floor, Math.min(previousComfort, observedUpperBound));
 
     return {
       targetSeconds: target,
       direction: "reduce",
       reason: last.stoppedEarly
         ? "Clear distress appeared before the target, so the next plan stays below the point where difficulty was observed."
-        : "The last session showed clear distress, so the next plan returns to a known comfortable starting point.",
+        : observed <= start
+          ? "The last session showed clear distress even at the starting duration, so the next plan steps below it."
+          : "The last session showed clear distress, so the next plan returns to a known comfortable starting point.",
       supportFlag,
       restDayRecommended,
       referralSuggested: referral,
@@ -201,13 +231,11 @@ export function recommendNext(
     const previousComfort = previousRelaxed
       ? comfortableDuration(previousRelaxed)
       : null;
-    const reference = last.stoppedEarly
-      ? Math.max(1, last.actualSeconds)
-      : last.targetSeconds;
-    const steppedDown = Math.max(start, reference - stepSize(reference));
+    const reference = difficultyPoint(last);
+    const steppedDown = Math.max(floor, reference - stepSize(reference));
     const target = previousComfort === null
       ? steppedDown
-      : Math.max(start, Math.min(previousComfort, steppedDown));
+      : Math.max(floor, Math.min(previousComfort, steppedDown));
 
     return {
       targetSeconds: target,
@@ -226,7 +254,7 @@ export function recommendNext(
   if (daysSinceLast >= LONG_BREAK_DAYS) {
     const comfort = comfortableDuration(last);
     return {
-      targetSeconds: Math.max(start, comfort - stepSize(comfort)),
+      targetSeconds: Math.max(floor, comfort - stepSize(comfort)),
       direction: "reduce",
       reason: `It has been ${daysSinceLast} days since the last timed session. Calm can partly fade after a break, so the plan restarts one step easier and builds back up from there.`,
       supportFlag,
@@ -237,11 +265,14 @@ export function recommendNext(
   }
 
   if (last.stoppedEarly) {
+    const comfort = comfortableDuration(last);
+    const target = Math.max(floor, comfort);
     return {
-      targetSeconds: Math.max(start, comfortableDuration(last)),
+      targetSeconds: target,
       direction: "repeat",
-      reason:
-        "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
+      reason: target > comfort
+        ? "You returned early while things were still relaxed. That is not a failure, and your starting duration is still a known-comfortable point, so the plan stays there."
+        : "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
       supportFlag,
       restDayRecommended,
       referralSuggested: referral,

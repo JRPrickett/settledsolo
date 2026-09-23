@@ -181,23 +181,33 @@ export function Today({
       ) : (
         <section className="today-card">
           <p className="kicker">Today&apos;s plan</p>
-          <div className="target-row">
-            <div>
-              <h1>{formatDuration(recommendation.targetSeconds)}</h1>
-              <p>main departure</p>
+          {recommendation.highRiskFlag ? (
+            // Never headline a departure length while timed departures are paused.
+            <div className="target-row">
+              <div>
+                <h1>Paused</h1>
+                <p>no timed departures for now</p>
+              </div>
             </div>
-            <span className={`direction direction-${recommendation.direction}`}>
-              {recommendation.direction === "increase"
-                ? "Small step up"
-                : recommendation.direction === "reduce"
-                  ? "Easier today"
-                  : recommendation.direction === "start"
-                    ? "Starting point"
-                    : "Repeat"}
-            </span>
-          </div>
+          ) : (
+            <div className="target-row">
+              <div>
+                <h1>{formatDuration(recommendation.targetSeconds)}</h1>
+                <p>main departure</p>
+              </div>
+              <span className={`direction direction-${recommendation.direction}`}>
+                {recommendation.direction === "increase"
+                  ? "Small step up"
+                  : recommendation.direction === "reduce"
+                    ? "Easier today"
+                    : recommendation.direction === "start"
+                      ? "Starting point"
+                      : "Repeat"}
+              </span>
+            </div>
+          )}
 
-          {lastSession && (
+          {lastSession && !recommendation.highRiskFlag && (
             <div className="today-stats-strip" aria-label="Recent and next duration">
               <div>
                 <span>Last target</span>
@@ -262,10 +272,12 @@ export function Today({
             </div>
           )}
 
-          <div className="why-card">
-            <span>Why this plan?</span>
-            <p>{planReason}</p>
-          </div>
+          {!recommendation.highRiskFlag && (
+            <div className="why-card">
+              <span>Why this plan?</span>
+              <p>{planReason}</p>
+            </div>
+          )}
 
           {recommendation.supportFlag &&
             !showRestDayCard &&

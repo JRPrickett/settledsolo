@@ -5729,6 +5729,17 @@ a:focus-visible {
   overflow-wrap: anywhere;
 }
 
+/*
+ * Button labels are product copy, never owner-entered text. Breaking them at any
+ * character let flex rows squeeze labels mid-word ("Accoun t & backup").
+ */
+.app-shell button,
+.setup-shell button,
+.live-shell button,
+.cue-shell button {
+  overflow-wrap: normal;
+}
+
 .app-header .dog-chip {
   display: block;
   min-width: 0;

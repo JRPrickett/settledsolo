@@ -209,7 +209,9 @@ against these roadmap sections rather than as new features.
 
 Deliberately **not** proposed while hardening is open: new training features, multi-dog
 workspaces, paid add-ons, or engagement mechanics. Revisit them after beta evidence
-(`BETA-ROADMAP.md`, `PAYMENTS-PLAN.md`).
+(`BETA-ROADMAP.md`, `PAYMENTS-PLAN.md`). The 23 September app review (`APP-REVIEW-2026-09.md`)
+ranks candidate features (N1–N5, L1–L7) from competitor and owner research for that decision.
+Its bug fixes, including the training-plan regression floor, are on its branch.
 
 ## Public-beta release gate
 

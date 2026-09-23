@@ -105,10 +105,12 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   useEffect(() => repository.subscribeStorageMode(setStorageMode), [repository]);
 
   // Each screen is a fresh page: never land part-way down it because the previous
-  // screen was scrolled, including after returning from a session or the account view.
+  // screen was scrolled, including after returning from a session or the account view,
+  // and after finishing (or restarting) first-run setup.
+  const onboarded = Boolean(data?.dogName);
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [screen, inSession, accountOpen]);
+  }, [screen, inSession, accountOpen, onboarded]);
 
   function renderContent() {
   if (!data) {

@@ -1,6 +1,6 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (real product screenshots and backup reminder on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (app review, regression-floor fix and UX fixes on `claude/settledsolo-review-positioning-pzyrln`)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `ae1e760` (through PR #64 and PR #62)
 
@@ -35,6 +35,31 @@ reuses an existing database, so UUIDs are deliberately not recorded in this repo
 Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 September
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
+
+### 23 September — app review: competitors, owner needs, one plan fix and UX fixes (branch `claude/settledsolo-review-positioning-pzyrln`)
+
+Not yet merged at the time of writing; check GitHub for its PR state. The review itself is
+`docs/APP-REVIEW-2026-09.md`. It compares the BRB app, Separation Buddy and Calm My Dog, maps
+about 50 recent Reddit/forum threads to what the app covers, and ends with a ranked roadmap. Only
+the fixes below are implemented; everything in its roadmap (N1–N5, L1–L7) is a proposal.
+
+- **Training plan fix (welfare).** Every easier plan was floored at the track's configured starting
+  duration. After a regression below it, the app offered that longer duration straight after
+  distress, e.g. start 2:00, distress at 0:40, next plan 2:00 "Easier today". The start is now a
+  floor only while no concern or distress has been logged at or below it (`reductionFloor` in
+  `trainingEngine.ts`). This can only make plans easier. Unit tests include an exhaustive "never at
+  or above the observed difficulty point" property. Browser test in `behavior-guidance.spec.ts`;
+  new product rule in `EVIDENCE-BASE.md`.
+- **High-risk pause headline.** While timed departures are paused, Today reads "Paused · no timed
+  departures for now" instead of headlining a departure time, and hides the next-target strip and
+  "Why this plan?".
+- **Scroll position.** Each setup step and the first Today screen now open at the top. New users
+  previously landed half-way down Today, below their plan.
+- **Button labels.** `overflow-wrap: anywhere` (the long-name fix) broke "Account & backup"
+  mid-word on every Today screen. Buttons never contain owner-entered text, so they now wrap
+  normally. A generic range-based browser check covers every visible button at 320 px.
+- **Toggle state.** Review outcomes and the sign/context chips (live review and History editor)
+  expose `aria-pressed`.
 
 ### 23 September — search visibility: pre-rendered pages, structured data and a guide (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
