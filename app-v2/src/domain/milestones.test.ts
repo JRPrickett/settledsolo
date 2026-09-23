@@ -11,11 +11,13 @@ import {
 import type { AppData, Scenario, TrainingSession } from "./types";
 
 function session(overrides: Partial<TrainingSession> = {}): TrainingSession {
+  // Most fixtures describe a session that met its target exactly.
+  const actualSeconds = overrides.actualSeconds ?? 30;
   return {
     id: crypto.randomUUID(),
     at: Date.now(),
-    targetSeconds: 30,
-    actualSeconds: 30,
+    targetSeconds: actualSeconds,
+    actualSeconds,
     outcome: "relaxed",
     stoppedEarly: false,
     signals: [],
@@ -177,5 +179,40 @@ describe("achievements", () => {
       })
     ]);
     expect(achievementSnapshot(data).currentRelaxedRun).toBe(3);
+  });
+});
+
+describe("target-capped credit", () => {
+  it("never earns rungs beyond the target when the owner forgets to return", () => {
+    // Target 30s, but the clock ran for 25 minutes before "I'm back".
+    const data = appData([scenario({ sessions: [session({ targetSeconds: 30, actualSeconds: 1500 })] })]);
+    expect([...earnedMilestones(data).keys()]).toEqual([30]);
+    expect(longestRelaxedSeconds(data)).toBe(30);
+    expect(achievementSnapshot(data).totalRelaxedSeconds).toBe(30);
+    expect(milestoneBoard(data).next?.seconds).toBe(60);
+  });
+
+  it("still credits relaxed time when returning early", () => {
+    const data = appData([
+      scenario({ sessions: [session({ targetSeconds: 90, actualSeconds: 70, stoppedEarly: true })] })
+    ]);
+    expect([...earnedMilestones(data).keys()]).toEqual([30, 60]);
+    expect(longestRelaxedSeconds(data)).toBe(70);
+  });
+
+  it("reaches later rungs only as targets progress", () => {
+    const data = appData([
+      scenario({
+        sessions: [
+          session({ at: 1, targetSeconds: 30, actualSeconds: 600 }),
+          session({ at: 2, targetSeconds: 60, actualSeconds: 600 }),
+          session({ at: 3, targetSeconds: 120, actualSeconds: 125 })
+        ]
+      })
+    ]);
+    const earned = earnedMilestones(data);
+    expect([...earned.keys()]).toEqual([30, 60, 120]);
+    expect(earned.get(120)?.at).toBe(3);
+    expect(earned.get(120)?.actualSeconds).toBe(120);
   });
 });

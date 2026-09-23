@@ -285,6 +285,17 @@ export function buildPracticeDepartures(
   return shuffleWarmups ? shuffled(ordered, variabilitySeed) : ordered;
 }
 
+/**
+ * The time a session counts for in progress, milestones and achievements: what
+ * actually happened, but never more than the planned target. An owner who
+ * forgets to tap "I'm back" must not appear to have jumped ahead, so credit can
+ * only grow through the gradual target progression. History still records the
+ * real duration. This is a SettledSolo product rule, not a clinical threshold.
+ */
+export function creditedSeconds(session: Pick<TrainingSession, "actualSeconds" | "targetSeconds">): number {
+  return Math.max(0, Math.min(session.actualSeconds, session.targetSeconds));
+}
+
 export function formatDuration(totalSeconds: number): string {
   const seconds = Math.max(0, Math.round(totalSeconds));
   const minutes = Math.floor(seconds / 60);

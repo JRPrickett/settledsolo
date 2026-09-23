@@ -305,6 +305,16 @@ These numbers are deliberately modest and easy to understand. They are not prese
 scientific formula or clinical dosage. Any future change should be evidence-logged, clearly
 labelled as a product heuristic and covered by regression tests.
 
+## Product rule: progress credit is capped at the target
+
+Milestones, "longest relaxed" and achievement totals count a relaxed session's actual duration
+**but never more than its planned target** (`creditedSeconds` in `trainingEngine.ts`). A forgotten
+"I'm back" tap can leave the clock running far past the target; crediting that time would award
+several milestones in one session and imply a jump that the gradual plan never tested. Capping
+keeps rewards moving only as fast as the target progression, which already caps comfort at the
+target. History still records the real duration, and returning early still credits the relaxed
+time observed. This is a product rule about motivation and data quality, not a clinical claim.
+
 ## Outcome language
 
 Production UI:
