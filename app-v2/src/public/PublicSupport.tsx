@@ -11,6 +11,8 @@ export function OptionalSupportCard({ compact = false }: { compact?: boolean }) 
         <p>
           The training plan, timer, history and downloads stay available without payment.
           If SettledSolo helps your household, you can make a one-off contribution.
+          It does not unlock app features. The external checkout shows the provider and
+          payment details; review its privacy and refund terms before contributing.
         </p>
       </div>
       <a
