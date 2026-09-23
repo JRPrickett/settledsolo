@@ -133,6 +133,15 @@ function PrivacyPage() {
         metric; aggregate web traffic may still be measured separately by Cloudflare Web
         Analytics.
       </p>
+      <h2>Browser storage and feedback</h2>
+      <p>
+        In account-free use, the training record stays in browser storage on your
+        device. A local reset removes it; clearing browser storage may also remove it.
+        A feedback link can open your email app with a draft. Nothing is sent until you
+        choose to send it, and you can edit the draft first. The app feedback draft may
+        include your browser version and app/storage mode, but it does not include your
+        dog&apos;s name or training history.
+      </p>
       <h2>Backups and exports</h2>
       <p>
         You can export a JSON backup and CSV history from the app. Those files are
@@ -162,6 +171,29 @@ function PrivacyPage() {
         reset on each device if you want to remove those too. Resolved conflict versions
         remain on the device and can be exported or cleared with local reset.
       </p>
+      <h2>How long data stays in the app</h2>
+      <p>
+        Local training records stay in browser storage until you reset them or clear
+        that storage. Connected account data stays in the cloud account until you delete
+        the account. Account deletion removes the active account and cloud training
+        records; device copies are separate and need a local reset. Some deleted records
+        remain as sync deletion markers until account deletion.
+      </p>
+      <p>
+        Cloudflare hosts the website, account service and private account database.
+        Resend delivers account sign-in codes. Cloudflare Web Analytics may measure
+        aggregate website visits. Provider operational logs, backups and international
+        transfer details are still being confirmed and must be added to this notice
+        before it is treated as complete.
+      </p>
+      <h2>Your privacy choices and rights</h2>
+      <p>
+        You can export or delete your account data and reset local data in the app.
+        Depending on the circumstances, data protection law may also give you rights to
+        request access, correction, erasure, restriction, objection or data portability.
+        Use <a href="/contact">contact and feedback</a> for a privacy request. You can
+        also complain to the <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer">Information Commissioner&apos;s Office</a>.
+      </p>
       <h2>Questions about your data</h2>
       <p>
         Export, restore, local reset and account deletion are self-service in the app,
@@ -184,9 +216,17 @@ function TermsPage() {
       <p>
         Core training is free, with no signup wall. There is no trial that silently
         converts to a paid subscription. If optional paid features are introduced,
-        enrolment will require clear, explicit opt-in and cancellation will not require
-        contacting support.
+        enrolment will require clear, explicit opt-in. Before you confirm a paid offer,
+        we will show what it includes, the full price and currency, whether it is
+        one-off or recurring, and the renewal, cancellation and refund terms. A free
+        trial will not convert to paid access without clear agreement. Your statutory
+        consumer rights are not limited by these terms.
       </p>
+      <p>
+        If an optional one-off contribution link is available, it opens an external
+        checkout and does not unlock app features. Check the provider, amount, currency,
+        any fees and its terms before paying; the provider handles payment details on
+        its checkout.
       <h2>What it does not do</h2>
       <p>
         It does not diagnose separation anxiety, provide veterinary care or guarantee a
