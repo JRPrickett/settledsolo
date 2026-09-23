@@ -37,6 +37,7 @@ import {
 import { isIOS, isStandalone } from "../../pwa/installStatus";
 import {
   elapsedSeconds,
+  hasRealDeparture,
   initialLiveSession,
   liveSessionReducer,
   type SessionStep
@@ -106,6 +107,7 @@ export function LiveSession({
   );
   const [now, setNow] = useState(Date.now());
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const [signals, setSignals] = useState<ObservedSignal[]>([]);
   const [tags, setTags] = useState<SessionTag[]>([]);
   const [stopReason, setStopReason] = useState("");
@@ -341,11 +343,54 @@ export function LiveSession({
     : 0;
   const restSuggestionMet = restSeconds > 0 && restElapsed >= restSeconds;
 
+  function requestClose() {
+    // An accidental start can be abandoned in one tap; real departures cannot.
+    if (hasRealDeparture(state)) setConfirmingDiscard(true);
+    else void onClose();
+  }
+
+  if (confirmingDiscard) {
+    return (
+      <div className="live-shell">
+        <main
+          className="live-centre discard-confirm"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="discard-heading"
+          aria-describedby="discard-detail"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setConfirmingDiscard(false);
+          }}
+        >
+          <p className="kicker light">End without saving?</p>
+          <h1 id="discard-heading">
+            {dogName} has already been left during this session.
+          </h1>
+          <p id="discard-detail" className="live-copy">
+            {state.phase === "review"
+              ? "Saving keeps what you observed, even if it was a hard session. Discarding removes it from your history and progress."
+              : "Discarding removes this session from your history and progress. To keep it, go back, tap I'm back when you return and save the review."}
+          </p>
+          <button
+            className="live-primary"
+            autoFocus
+            onClick={() => setConfirmingDiscard(false)}
+          >
+            {state.phase === "review" ? "Back to the review" : "Keep this session"}
+          </button>
+          <button className="live-discard" onClick={() => void onClose()}>
+            Discard session
+          </button>
+        </main>
+      </div>
+    );
+  }
+
   if (state.phase === "review") {
     return (
       <div className="live-shell review-shell">
         <header className="live-header">
-          <button className="text-button" onClick={() => void onClose()}>Close</button>
+          <button className="text-button" onClick={requestClose}>Close</button>
           <span>Session review</span>
           <span />
         </header>
@@ -485,7 +530,7 @@ export function LiveSession({
       return (
         <div className="live-shell">
           <header className="live-header">
-            <button className="text-button" onClick={() => void onClose()}>End session</button>
+            <button className="text-button" onClick={requestClose}>End session</button>
             <span>Practice check-in</span>
             <span />
           </header>
@@ -537,7 +582,7 @@ export function LiveSession({
     return (
       <div className="live-shell">
         <header className="live-header">
-          <button className="text-button" onClick={() => void onClose()}>End session</button>
+          <button className="text-button" onClick={requestClose}>End session</button>
           <span>Settle break</span>
           <span />
         </header>
@@ -572,7 +617,7 @@ export function LiveSession({
   return (
     <div className="live-shell">
       <header className="live-header">
-        <button className="text-button" onClick={() => void onClose()}>End session</button>
+        <button className="text-button" onClick={requestClose}>End session</button>
         <span>
           {step.kind === "practice"
             ? `Practice ${state.stepIndex + 1} of ${practice.length}`

@@ -290,3 +290,32 @@ test("an unanswered notification prompt never delays the departure timer", async
   await expect(page.getByRole("button", { name: "I'm back" })).toBeVisible();
   await expect(page.getByText(/away · target 5s/)).toBeVisible();
 });
+
+test("ending a session after a real departure asks before discarding it", async ({ page }) => {
+  await completeSetup(page, 5);
+
+  // Nothing has happened yet: an accidental start closes in one tap.
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "End session" }).click();
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.getByRole("button", { name: "End session" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByRole("heading", { name: "Mabel has already been left during this session." })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Keep this session" })).toBeFocused();
+
+  // Keeping returns to the still-running departure with its original timer.
+  await dialog.getByRole("button", { name: "Keep this session" }).click();
+  await page.getByRole("button", { name: "I'm back" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Back to the review" }).click();
+  await expect(page.getByRole("button", { name: "Save session" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Discard session" }).click();
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
+  await page.getByRole("button", { name: "History", exact: true }).click();
+  await expect(page.getByText("Your first completed session will appear here.")).toBeVisible();
+});

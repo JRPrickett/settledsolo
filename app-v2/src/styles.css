@@ -5865,3 +5865,32 @@ a:focus-visible {
 .session-form .note-field textarea {
   font-weight: 400;
 }
+
+.discard-confirm h1 {
+  max-width: 18ch;
+  margin: 8px 0 12px;
+  font-size: clamp(26px, 7vw, 36px);
+  line-height: 1.12;
+}
+
+.discard-confirm .live-primary {
+  margin-top: 8px;
+}
+
+.live-discard {
+  width: min(100%, 420px);
+  min-height: 48px;
+  margin-top: 12px;
+  border: 1px solid rgba(246, 248, 245, .28);
+  border-radius: 999px;
+  background: transparent;
+  color: #f6f8f5;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.live-discard:focus-visible {
+  outline: 3px solid #f2a65a;
+  outline-offset: 3px;
+}
