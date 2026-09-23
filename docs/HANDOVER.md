@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 22 September 2026 (release-hardening pass on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (second release-hardening pass on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `53bc2e4` (through PR #58)
+**Reviewed main:** `d4cfd98` (through PR #59)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #58. PRs #52–#56 closed the
+Main is current through PR #59. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -36,9 +36,33 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
-### 22 September — release-hardening pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
+### 23 September — accessibility and session-safety pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Discard protection.** Close (review) and End session (departure, settle break, practice
+  check-in) previously discarded the whole session in one tap even after the dog had been
+  left. Once any real departure has happened (`hasRealDeparture` in `sessionMachine.ts`),
+  ending opens a confirmation that defaults to keeping the session. An untouched session still
+  closes immediately. A deliberately discarded session is not saved and so does not use a
+  daily-limit allowance.
+- **Unreadable history notes fixed.** The History editor's note field inherited the dark review
+  screen's near-white text on a light surface (1.06:1 contrast).
+- **Navigation contrast/size.** Bottom-nav labels went from 10px at 3.3:1 to 12px at 5.3:1 with
+  48px touch targets; account-notice text and button also now meet 4.5:1.
+- **Progress chart semantics.** The chart is a labelled group (it contains focusable bars), the
+  filters are `aria-pressed` toggles rather than tabs without panels, and the selected-bar caption
+  is announced.
+- **Scroll reset.** Switching tabs, or returning from a session/cue practice/account view, starts
+  at the top of the new screen instead of keeping the previous screen's offset.
+- **Stale copy.** Progress no longer promises what "the production app will" do; it explains how
+  logged signs feed the observation summary.
+- `accessibility.spec.ts` now runs axe on public info pages, a full session, Progress, History,
+  the history editor, More and an early distressed review.
+- Known minor gaps left for later: cue practice discards recorded reps on Close without asking
+  and does not survive a reload; both are lower risk because the owner never leaves.
+
+### 22 September — release-hardening pass — merged (PR #59)
 
 - **Live-session bug fixed.** On Android/desktop, the first "I'm leaving now" tap awaited the
   browser notification prompt *before* starting the timer. An owner who walked out with the
