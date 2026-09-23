@@ -1,15 +1,13 @@
 const configuredContactEmail = (import.meta.env.VITE_CONTACT_EMAIL ?? "").trim();
+const DEFAULT_CONTACT_EMAIL = "jason@southwestwebsites.co.uk";
 
 // Deliberately strict: this value becomes a mailto link on every public page.
 const SIMPLE_EMAIL = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-/**
- * The feedback inbox is configured at deploy time so the product never ships a
- * guessed or personal address.
- */
+// Deployments may override this; use the owner-approved contact when unset or invalid.
 export const contactEmail = SIMPLE_EMAIL.test(configuredContactEmail)
   ? configuredContactEmail
-  : null;
+  : DEFAULT_CONTACT_EMAIL;
 
 export interface FeedbackContext {
   installed: boolean;

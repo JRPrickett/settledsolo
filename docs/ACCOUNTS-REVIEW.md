@@ -62,5 +62,12 @@ Live activation is also complete:
 - Sender reputation/junk placement plus wrong/expired-code, resend and live rate-limit behaviour.
 - Two physical devices syncing real data, including offline/reconnect and conflict recovery.
 - Installed iOS/Android offline lifecycle, safe updates, alerts and device-copy deletion behaviour.
-- Final privacy/contact/provider-retention information and the owned resources/SEO pass; the
-  remaining behaviour-quality evidence is real-device validation, not a professional-review claim.
+- **Do not merge or deploy the legal-copy change or enable checkout until the public legal details below are completed and verified.**
+- The operator is Jason Prickett, an individual trading as Southwest Websites. The approved public email is set as the app fallback; confirm no deployment override changes it and choose a publishable postal contact address before checkout.
+- Decide and document the lawful basis for each processing purpose; complete the retention periods or criteria for account, authentication, email-provider, security-log and backup data; and document provider roles, locations and any international-transfer safeguards. The current public notice still lacks these required facts.
+- Identify the payment/support provider and the transaction information it returns. Check that the checkout shows the seller identity and contact/address, service description, total price including applicable taxes, currency, payment method, one-off or recurring status, renewal and cancellation terms, and a saveable order confirmation before taking payment.
+- If immediate digital content is sold, confirm that the checkout obtains the consumer's express consent and acknowledgement about any loss of the cancellation right before supply. Do not assume this applies to a voluntary one-off contribution without checking the actual offer.
+- Complete the ICO data-protection-fee self-assessment and record the result before launch.
+- The current app already includes behaviour-safety wording and privacy/account links. The remaining behaviour-quality evidence is real-device validation, not a professional-review claim.
+
+References: [ICO privacy information](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/the-right-to-be-informed/what-privacy-information-should-we-provide/), [ICO fee self-assessment](https://ico.org.uk/for-organisations/data-protection-fee/data-protection-fee-self-assessment/), [GOV.UK online and distance selling](https://www.gov.uk/online-and-distance-selling-for-businesses), and [Consumer Contracts Regulations 2013, regulation 37](https://www.legislation.gov.uk/uksi/2013/3134/regulation/37).

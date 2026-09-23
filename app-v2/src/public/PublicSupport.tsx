@@ -10,7 +10,8 @@ export function OptionalSupportCard({ compact = false }: { compact?: boolean }) 
         <h2>Help keep SettledSolo calm, private and useful.</h2>
         <p>
           The training plan, timer, history and downloads stay available without payment.
-          If SettledSolo helps your household, you can make a one-off contribution.
+          You can make an optional one-off contribution; it does not unlock app features.
+          Checkout will show the amount and terms before you confirm.
         </p>
       </div>
       <a
