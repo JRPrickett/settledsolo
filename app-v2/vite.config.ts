@@ -1,8 +1,8 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-import { PUBLIC_PAGE_PATHS } from "./src/public/routes";
-import { contentSecurityPolicy } from "../worker/csp";
+import { PUBLIC_PAGE_PATHS } from "./src/public/routes.ts";
+import { contentSecurityPolicy } from "../worker/csp.ts";
 
 // Offline navigations resolve only for real pages; anything else reaches the
 // network, where the Worker returns a proper 404.

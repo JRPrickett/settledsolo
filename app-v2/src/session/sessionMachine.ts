@@ -177,3 +177,16 @@ export function liveSessionReducer(
       return state;
   }
 }
+
+/**
+ * True once the owner has actually left during this session. Ending after that
+ * point discards real observations, so the UI must confirm first; before it, an
+ * accidental start can be abandoned freely.
+ */
+export function hasRealDeparture(state: LiveSessionState): boolean {
+  return (
+    state.phase !== "idle" ||
+    state.stepIndex > 0 ||
+    (state.practiceReviews?.length ?? 0) > 0
+  );
+}

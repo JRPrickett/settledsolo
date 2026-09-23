@@ -165,8 +165,8 @@ textarea:focus-visible {
   border-radius: 999px;
   padding: 7px 10px;
   background: rgba(255,255,255,.72);
-  color: #708078;
-  font-size: 11px;
+  color: #4f5e56;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -654,9 +654,10 @@ textarea:focus-visible {
 .bottom-nav button {
   border: 0;
   background: transparent;
-  color: #89908c;
+  color: #5f6866;
+  min-height: 48px;
   padding: 7px 4px 4px;
-  font-size: 10px;
+  font-size: 12px;
   display: grid;
   justify-items: center;
   gap: 5px;
@@ -2083,7 +2084,7 @@ a:focus-visible {
 }
 
 .account-notice span {
-  color: #617066;
+  color: #51605a;
 }
 
 .quiet-card {
@@ -2119,7 +2120,7 @@ a:focus-visible {
 }
 
 .bottom-nav button {
-  color: #82898A;
+  color: #5f6866;
 }
 
 .bottom-nav button[aria-current="page"] {
@@ -5853,4 +5854,43 @@ a:focus-visible {
   flex-shrink: 0;
   overflow-wrap: normal;
   white-space: nowrap;
+}
+
+/* The history editor reuses the note field on a light surface. */
+.session-form .note-field,
+.session-form .note-field textarea {
+  color: var(--ink);
+}
+
+.session-form .note-field textarea {
+  font-weight: 400;
+}
+
+.discard-confirm h1 {
+  max-width: 18ch;
+  margin: 8px 0 12px;
+  font-size: clamp(26px, 7vw, 36px);
+  line-height: 1.12;
+}
+
+.discard-confirm .live-primary {
+  margin-top: 8px;
+}
+
+.live-discard {
+  width: min(100%, 420px);
+  min-height: 48px;
+  margin-top: 12px;
+  border: 1px solid rgba(246, 248, 245, .28);
+  border-radius: 999px;
+  background: transparent;
+  color: #f6f8f5;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.live-discard:focus-visible {
+  outline: 3px solid #f2a65a;
+  outline-offset: 3px;
 }

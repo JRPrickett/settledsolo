@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   elapsedSeconds,
+  hasRealDeparture,
   initialLiveSession,
   liveSessionReducer
 } from "./sessionMachine";
@@ -89,5 +90,25 @@ describe("session alert state", () => {
     expect(state.practiceReviews).toEqual([
       { targetSeconds: 5, actualSeconds: 3, outcome: "concern" }
     ]);
+  });
+});
+
+describe("discard protection", () => {
+  it("lets an untouched session close freely but protects any real departure", () => {
+    let state = initialLiveSession([
+      { kind: "practice", targetSeconds: 5 },
+      { kind: "main", targetSeconds: 20 }
+    ]);
+    expect(hasRealDeparture(state)).toBe(false);
+
+    state = liveSessionReducer(state, { type: "START_STEP", now: 1_000 });
+    expect(hasRealDeparture(state)).toBe(true);
+
+    state = liveSessionReducer(state, { type: "RETURN", now: 6_000 });
+    state = liveSessionReducer(state, { type: "RECORD_PRACTICE_OUTCOME", outcome: "relaxed" });
+    state = liveSessionReducer(state, { type: "NEXT_STEP" });
+    // Back to idle before the main departure, but a warm-up already happened.
+    expect(state.phase).toBe("idle");
+    expect(hasRealDeparture(state)).toBe(true);
   });
 });
