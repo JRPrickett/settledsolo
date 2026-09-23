@@ -338,27 +338,49 @@ Why proportional, and why about 10%:
   That supports a conservative, consistent rule without making any exact percentage a clinical
   requirement.
 
+**Adaptive pace for increases.** How big an *increase* is depends on the last ten sessions:
+
+| Recent sessions | Increase |
+| --- | --- |
+| Any concern, distress or ticked stress sign in the last 10 | 5% (cautious) |
+| Otherwise, fewer than 5 clean relaxed in a row | 10% (standard) |
+| 5+ clean relaxed in a row and no struggle in the last 10 | 15% (confident) |
+
+Step-downs always use the standard 10%, a relaxed early return is not a struggle, and the 1-second
+floor and 2-minute cap apply at every pace. This mirrors **percentile schedules** in shaping
+(Galbicka 1994), which set each next criterion from a window of recent performance, standardising
+the procedure while staying sensitive to the individual. It also follows the asymmetry of risk in
+desensitisation: overshooting can sensitise and cost weeks, while a slower step only costs time,
+so difficulty slows the pace more than success speeds it. Even the 15% step is about a third of
+the smallest duration difference dogs discriminated. The window, run length and fractions are
+product heuristics.
+
 Limits, stated plainly: Cliff & Jackson tested 0.5-16 second durations and perception rather than
 anxiety, with a small sample and a U-shaped (not perfectly constant) Weber function. Extending the
 ratio principle to hour-long absences is an inference. The **10% fraction, the 1-second floor and
 the 2-minute cap are SettledSolo product heuristics**; the cap is a deliberate safety bound for
 durations far beyond anything tested.
 
-Effect compared with the previous fixed tiers (+1 s to +60 s by band), assuming every session is
-clean and relaxed from 3 seconds (real training will be slower, with repeats and step-downs):
+Effect compared with the previous fixed tiers (+1 s to +60 s by band), simulated from 3 seconds
+with the full engine (repeats, step-downs and adaptive pace):
 
-| Reach | Previous tiers | 10% / 2-min cap |
-| --- | --- | --- |
-| 1 minute | 29 sessions | 28 sessions |
-| 5 minutes | 59 | 45 |
-| 30 minutes | 119 | 65 |
-| 1 hour | 149 | 80 |
-| 4 hours | 329 | 170 |
+| Reach | Previous tiers, all clean | Now, all clean | Now, concern every 10th session |
+| --- | --- | --- | --- |
+| 1 minute | 29 sessions | 22 | 67 |
+| 5 minutes | 59 | 33 | 125 |
+| 30 minutes | 119 | 49 | 186 |
+| 1 hour | 149 | 64 | 208 |
+| 4 hours | 329 | 154 | 337 |
+
+With concern in one session in five, the plan plateaus rather than creeping upward, which is the
+intended below-threshold behaviour.
 
 The previous tiers swung from a 33% or 20% jump at the fragile start to under 1% per step at two
 hours. The proportional rule removes both the early spikes and the late stall.
 
 Sources:
+- Galbicka G. Shaping in the 21st century: moving percentile schedules into applied settings.
+  Journal of Applied Behavior Analysis. 1994;27(4):739-760. DOI: 10.1901/jaba.1994.27-739
 - Cliff KM, Jackson SM et al. Weber's Law and the Scalar Property of Timing: A Test of Canine
   Timing. Animals. 2019;9(10):801. DOI: 10.3390/ani9100801
 - Butler R, Sargisson RJ, Elliffe D. Applied Animal Behaviour Science. 2011;129(2-4):136-145.

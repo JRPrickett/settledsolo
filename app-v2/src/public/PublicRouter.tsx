@@ -280,7 +280,9 @@ function EvidencePage() {
         Dogs judge durations by ratio, and in a small timing study they needed a difference
         of roughly 44% or more to tell two durations apart, so a 10% step should be barely
         noticeable. The step only moves up after clean relaxed sessions, holds when you note
-        stress signs, and starts a step easier after a week or more away.
+        stress signs, and starts a step easier after a week or more away. The pace also
+        follows recent sessions: about 5% after any recent difficulty, 10% normally, and
+        15% after a sustained calm run.
       </p>
       <p>
         <a href="https://doi.org/10.3390/ani9100801" target="_blank" rel="noreferrer">

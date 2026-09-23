@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPracticeDepartures, recommendNext, stepSize } from "./trainingEngine";
+import { buildPracticeDepartures, progressionPace, recommendNext, stepSize } from "./trainingEngine";
 import type { TrainingSession } from "./types";
 
 function session(overrides: Partial<TrainingSession> = {}): TrainingSession {
@@ -335,8 +335,9 @@ describe("stress signs hold the plan", () => {
   it("needs two clean relaxed sessions after one with signs before increasing", () => {
     const history = [session(), session(), session({ signals: ["pacing"] })];
     expect(recommendNext([...history, session()], 5).direction).toBe("repeat");
+    // The recent signs also make that increase a cautious 5% step (30s -> 32s).
     expect(recommendNext([...history, session(), session()], 5)).toMatchObject({
-      targetSeconds: 33,
+      targetSeconds: 32,
       direction: "increase"
     });
   });
@@ -369,5 +370,51 @@ describe("returning after a long break", () => {
       session({ at: now - 10 * day, targetSeconds: 60, actualSeconds: 20, outcome: "distressed", stoppedEarly: true })
     ];
     expect(recommendNext(history, 5, now)).toMatchObject({ targetSeconds: 18, direction: "reduce" });
+  });
+});
+
+describe("progression pace", () => {
+  const clean = (count: number, targetSeconds = 100) =>
+    Array.from({ length: count }, () => session({ targetSeconds, actualSeconds: targetSeconds }));
+
+  it("uses the standard 10% step for a short clean run", () => {
+    expect(progressionPace(clean(3))).toBe("standard");
+    expect(recommendNext(clean(3), 5)).toMatchObject({ targetSeconds: 110, direction: "increase" });
+  });
+
+  it("allows a 15% step after five or more clean sessions with no recent struggles", () => {
+    expect(progressionPace(clean(5))).toBe("confident");
+    const result = recommendNext(clean(5), 5);
+    expect(result).toMatchObject({ targetSeconds: 115, direction: "increase" });
+    expect(result.reason).toContain("a little bigger");
+  });
+
+  it("slows to a 5% step when any of the last ten sessions struggled", () => {
+    const history = [session({ targetSeconds: 100, actualSeconds: 100, outcome: "concern" }), ...clean(6)];
+    expect(progressionPace(history)).toBe("cautious");
+    const result = recommendNext(history, 5);
+    expect(result).toMatchObject({ targetSeconds: 105, direction: "increase" });
+    expect(result.reason).toContain("smaller than usual");
+  });
+
+  it("treats a ticked stress sign as a struggle but a relaxed early return as fine", () => {
+    expect(progressionPace([session({ signals: ["panting"] }), ...clean(6)])).toBe("cautious");
+    expect(
+      progressionPace([session({ actualSeconds: 20, stoppedEarly: true }), ...clean(5)])
+    ).toBe("confident");
+  });
+
+  it("returns to normal once a struggle is more than ten sessions ago", () => {
+    const history = [session({ outcome: "distressed" }), ...clean(10)];
+    expect(progressionPace(history)).toBe("confident");
+  });
+
+  it("never lets the confident step exceed the two-minute cap", () => {
+    expect(recommendNext(clean(6, 3600), 5)).toMatchObject({ targetSeconds: 3720 });
+  });
+
+  it("leaves step-downs at the standard size", () => {
+    const history = [...clean(6), session({ targetSeconds: 100, actualSeconds: 100, outcome: "concern" })];
+    expect(recommendNext(history, 5)).toMatchObject({ targetSeconds: 90, direction: "reduce" });
   });
 });

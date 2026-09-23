@@ -57,7 +57,9 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   Rationale: dogs time by ratio and need ~44-94% differences to discriminate durations (Cliff &
   Jackson 2019), so 10% steps stay imperceptible. A relaxed session with stress signs ticked now
   holds the plan, and 7+ days without a timed session restarts one step easier (spontaneous
-  recovery). All values are labelled heuristics; see `EVIDENCE-BASE.md`.
+  recovery). Increases adapt to the last 10 sessions: 5% after any struggle, 10% normally, 15%
+  after 5+ clean relaxed in a row (percentile-schedule shaping, Galbicka 1994); step-downs stay
+  at 10%. All values are labelled heuristics; see `EVIDENCE-BASE.md`.
 - **Payments plan.** `docs/PAYMENTS-PLAN.md` compares Ko-fi, Buy Me a Coffee, Paddle, Stripe
   Managed Payments, Lemon Squeezy and standard Stripe for a UK seller. It recommends Ko-fi for
   optional support now (via `VITE_SUPPORT_URL`), and Paddle as merchant of record for any later

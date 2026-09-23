@@ -17,9 +17,42 @@ export const MAX_STEP_SECONDS = 120;
  * anxiety, so the 10% fraction, the 1-second floor and the 2-minute cap are
  * SettledSolo product heuristics, not clinically validated values.
  */
-export function stepSize(seconds: number): number {
-  const proportional = Math.round(Math.max(0, seconds) * STEP_FRACTION);
+export function stepSize(seconds: number, fraction = STEP_FRACTION): number {
+  const proportional = Math.round(Math.max(0, seconds) * fraction);
   return Math.min(MAX_STEP_SECONDS, Math.max(1, proportional));
+}
+
+/** Sessions examined when deciding how big the next increase should be. */
+export const PACE_WINDOW = 10;
+/** Consecutive clean relaxed sessions needed before a larger step. */
+export const CONFIDENT_RUN = 5;
+
+export type ProgressionPace = "cautious" | "standard" | "confident";
+
+export const PACE_FRACTION: Record<ProgressionPace, number> = {
+  cautious: 0.05,
+  standard: STEP_FRACTION,
+  confident: 0.15
+};
+
+/**
+ * How big the next *increase* should be, from how recent sessions went. This
+ * mirrors percentile schedules in shaping (Galbicka 1994), where each next
+ * criterion is set from a window of recent performance: any recent struggle
+ * slows the pace, and a sustained clean run allows a slightly larger step. Even
+ * the confident 15% step stays about a third of dogs' measured
+ * duration-discrimination threshold, and the 2-minute cap still applies.
+ * Step-downs always use the standard step. Window, run length and fractions
+ * are SettledSolo product heuristics.
+ */
+export function progressionPace(sessions: TrainingSession[]): ProgressionPace {
+  const recent = sessions.slice(-PACE_WINDOW);
+  // An early return while relaxed is good handling, not a struggle.
+  const struggled = recent.some(
+    (session) => session.outcome !== "relaxed" || session.signals.length > 0
+  );
+  if (struggled) return "cautious";
+  return relaxedRun(sessions) >= CONFIDENT_RUN ? "confident" : "standard";
 }
 
 function comfortableDuration(session: TrainingSession): number {
@@ -243,11 +276,17 @@ export function recommendNext(
     };
   }
 
-  const increment = stepSize(last.targetSeconds);
+  const pace = progressionPace(sessions);
+  const increment = stepSize(last.targetSeconds, PACE_FRACTION[pace]);
+  const paceReason: Record<ProgressionPace, string> = {
+    cautious: `There was some difficulty in recent sessions, so this step is smaller than usual: ${formatDuration(increment)} (about 5% of the current time).`,
+    standard: `Recent sessions were relaxed, so the next plan adds a small step of ${formatDuration(increment)} (about a tenth of the current time).`,
+    confident: `Your last ${CONFIDENT_RUN} or more sessions were all calm, so this step is a little bigger: ${formatDuration(increment)} (about 15% of the current time).`
+  };
   return {
     targetSeconds: last.targetSeconds + increment,
     direction: "increase",
-    reason: `Recent sessions were relaxed, so the next plan adds a small step of ${formatDuration(increment)} (about a tenth of the current time).`,
+    reason: paceReason[pace],
     supportFlag,
     restDayRecommended,
     referralSuggested: referral,
