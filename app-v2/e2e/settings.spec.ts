@@ -31,3 +31,18 @@ test("Today exposes a warm-up duration shuffle", async ({ page }) => {
     page.getByRole("button", { name: "Shuffle warm-up durations" })
   ).toBeVisible();
 });
+
+test("switching screens always starts at the top of the new screen", async ({ page }) => {
+  await completeSetup(page, 5);
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await nav.getByRole("button", { name: "More" }).click();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+  await nav.getByRole("button", { name: "Progress" }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await nav.getByRole("button", { name: "Today" }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+});

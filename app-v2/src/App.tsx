@@ -46,7 +46,8 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   const [restoredState, setRestoredState] =
     useState<PersistedLiveSession["state"] | undefined>(undefined);
   const [accountOpen, setAccountOpen] = useState(false);
-  const account = useAccount(repository, setData, liveTarget !== null || cuePracticeOpen);
+  const inSession = liveTarget !== null || cuePracticeOpen;
+  const account = useAccount(repository, setData, inSession);
   const [celebration, setCelebration] = useState<Celebration | null>(null);
 
   useEffect(() => {
@@ -77,6 +78,12 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   }, [repository]);
 
   useEffect(() => repository.subscribeStorageMode(setStorageMode), [repository]);
+
+  // Each screen is a fresh page: never land part-way down it because the previous
+  // screen was scrolled, including after returning from a session or the account view.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen, inSession, accountOpen]);
 
   function renderContent() {
   if (!data) {
@@ -322,7 +329,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
 
   return (
     <>
-      {data && <StorageNotice data={data} mode={storageMode} training={liveTarget !== null || cuePracticeOpen} />}
+      {data && <StorageNotice data={data} mode={storageMode} training={inSession} />}
       {renderContent()}
     </>
   );
