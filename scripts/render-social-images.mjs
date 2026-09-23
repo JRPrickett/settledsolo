@@ -34,6 +34,12 @@ const CARDS = [
     body: "Gradual alone-time practice with a reliable timer, a private record and evidence-informed guidance."
   },
   {
+    file: "guide.png",
+    kicker: "Step-by-step guide",
+    headline: "Training a dog with separation anxiety.",
+    body: "Signs to watch for, gradual alone-time steps and when to get professional help."
+  },
+  {
     file: "help.png",
     kicker: "Help",
     headline: "Keep the next step calm and manageable.",

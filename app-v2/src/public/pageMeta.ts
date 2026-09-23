@@ -1,4 +1,5 @@
-import type { PublicPagePath } from "./routes";
+import { HOME_FAQS, RESOURCE_FAQS, type Faq } from "./faqs";
+import { GUIDE_PATH, type PublicPagePath } from "./routes";
 
 export const CANONICAL_ORIGIN = "https://settledsolo.com";
 
@@ -8,6 +9,10 @@ export interface PageMeta {
   /** Path of the 1200x630 share card under /social/. */
   image: string;
   imageAlt: string;
+  /** When the page's content was last reviewed (ISO date): sitemap lastmod and structured data. */
+  updated?: string;
+  /** Article headline (the page's h1) for pages described as articles. */
+  headline?: string;
 }
 
 const DEFAULT_IMAGE_ALT =
@@ -24,44 +29,62 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
     description:
       "Free dog separation anxiety training tool for gradual, observable alone-time practice, with a reliable timer, private history and evidence-informed guidance.",
     image: "/social/home.png",
-    imageAlt: DEFAULT_IMAGE_ALT
+    imageAlt: DEFAULT_IMAGE_ALT,
+    updated: "2026-09-23"
+  },
+  [GUIDE_PATH]: {
+    title: "How to train a dog with separation anxiety: step-by-step guide | SettledSolo",
+    description:
+      "How to train a dog with separation anxiety: signs to watch for, gradual step-by-step alone-time training, how long it takes and when to get professional help.",
+    image: "/social/guide.png",
+    headline: "How to train a dog with separation anxiety",
+    imageAlt: "SettledSolo guide: how to train a dog with separation anxiety, one calm step at a time.",
+    updated: "2026-09-23"
   },
   "/help": {
     title: "Help — dog separation anxiety training | SettledSolo",
     description: "Practical help for calm, gradual dog separation anxiety training with SettledSolo.",
     image: "/social/help.png",
-    imageAlt: "SettledSolo help: keep the next step calm and manageable."
+    headline: "Keep the next step calm and manageable",
+    imageAlt: "SettledSolo help: keep the next step calm and manageable.",
+    updated: "2026-09-23"
   },
   "/resources": {
     title: "Dog separation anxiety resources | SettledSolo",
     description:
       "Owned FAQs, printable checklists and observation tools for gradual dog separation anxiety training.",
     image: "/social/resources.png",
-    imageAlt: "SettledSolo resources: free printable checklists, an observation log and FAQs."
+    imageAlt: "SettledSolo resources: free printable checklists, an observation log and FAQs.",
+    updated: "2026-09-23"
   },
   "/evidence": {
     title: "Evidence-informed dog separation training | SettledSolo",
     description: "The research, safety boundaries and product heuristics behind SettledSolo.",
     image: "/social/evidence.png",
-    imageAlt: "SettledSolo evidence: principles first, false precision never."
+    headline: "Principles first. False precision never.",
+    imageAlt: "SettledSolo evidence: principles first, false precision never.",
+    updated: "2026-09-23"
   },
   "/contact": {
     title: "Contact and feedback — SettledSolo",
     description: "How to send beta feedback and manage your SettledSolo data yourself.",
     image: "/social/home.png",
-    imageAlt: DEFAULT_IMAGE_ALT
+    imageAlt: DEFAULT_IMAGE_ALT,
+    updated: "2026-09-23"
   },
   "/privacy": {
     title: "Privacy — SettledSolo",
     description: "How SettledSolo handles local training records, optional accounts and sync.",
     image: "/social/home.png",
-    imageAlt: DEFAULT_IMAGE_ALT
+    imageAlt: DEFAULT_IMAGE_ALT,
+    updated: "2026-09-23"
   },
   "/terms": {
     title: "Terms — SettledSolo",
     description: "The scope, limits and free-core principles for SettledSolo.",
     image: "/social/home.png",
-    imageAlt: DEFAULT_IMAGE_ALT
+    imageAlt: DEFAULT_IMAGE_ALT,
+    updated: "2026-09-23"
   }
 };
 
@@ -132,4 +155,96 @@ export function replaceSeoBlock(html: string, tags: string): string {
   const end = html.indexOf(SEO_BLOCK_END);
   if (start === -1 || end === -1 || end < start) return html;
   return `${html.slice(0, start + SEO_BLOCK_START.length)}\n    ${tags}\n    ${html.slice(end)}`;
+}
+
+export const AUTHOR_NAME = "Jason Prickett";
+
+function faqPage(url: string, faqs: Faq[]) {
+  return {
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    url,
+    mainEntity: faqs.map(({ question, answer }) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer }
+    }))
+  };
+}
+
+/**
+ * schema.org data describing a public page, so search engines and AI answers can
+ * tell what the site, app and articles are. Only facts that are true today.
+ */
+export function structuredData(path: PublicPagePath): Record<string, unknown> {
+  const meta = PAGE_META[path];
+  const url = `${CANONICAL_ORIGIN}${path}`;
+  const organization = {
+    "@type": "Organization",
+    "@id": `${CANONICAL_ORIGIN}/#organization`,
+    name: "SettledSolo",
+    url: `${CANONICAL_ORIGIN}/`,
+    logo: `${CANONICAL_ORIGIN}/apple-touch-icon.png`,
+    founder: { "@type": "Person", name: AUTHOR_NAME }
+  };
+  const website = {
+    "@type": "WebSite",
+    "@id": `${CANONICAL_ORIGIN}/#website`,
+    name: "SettledSolo",
+    url: `${CANONICAL_ORIGIN}/`,
+    inLanguage: "en-GB",
+    publisher: { "@id": organization["@id"] }
+  };
+  const graph: Record<string, unknown>[] = [organization, website];
+
+  if (path === "/") {
+    graph.push(
+      {
+        "@type": "WebApplication",
+        "@id": `${CANONICAL_ORIGIN}/#app`,
+        name: "SettledSolo",
+        url: `${CANONICAL_ORIGIN}/app/`,
+        description: meta.description,
+        applicationCategory: "LifestyleApplication",
+        operatingSystem: "Any (web browser; installable as an app)",
+        isAccessibleForFree: true,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "GBP" },
+        publisher: { "@id": organization["@id"] }
+      },
+      faqPage(url, HOME_FAQS)
+    );
+  } else if (path === "/resources") {
+    graph.push(faqPage(url, RESOURCE_FAQS));
+  } else if (meta.headline) {
+    graph.push({
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: meta.headline,
+      description: meta.description,
+      url,
+      mainEntityOfPage: url,
+      image: `${CANONICAL_ORIGIN}${meta.image}`,
+      inLanguage: "en-GB",
+      dateModified: meta.updated,
+      author: { "@type": "Person", name: AUTHOR_NAME },
+      publisher: { "@id": organization["@id"] },
+      isAccessibleForFree: true
+    });
+  }
+
+  return { "@context": "https://schema.org", "@graph": graph };
+}
+
+/** A JSON-LD block safe to place in HTML (no `</script>` break-outs). */
+export function structuredDataTag(path: PublicPagePath): string {
+  const json = JSON.stringify(structuredData(path)).replace(/</g, "\\u003c");
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
+/** "2026-09-23" → "23 September 2026", independent of the viewer's locale. */
+export function formatReviewDate(iso: string | undefined): string {
+  if (!iso) return "";
+  const [year, month, day] = iso.split("-").map(Number);
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${day} ${months[month - 1]} ${year}`;
 }

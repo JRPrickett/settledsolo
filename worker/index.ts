@@ -7,9 +7,15 @@ import {
   NOT_FOUND_META,
   PAGE_META,
   replaceSeoBlock,
-  seoTags
+  seoTags,
+  structuredDataTag
 } from "../app-v2/src/public/pageMeta";
 import { contentSecurityPolicy } from "./csp";
+
+/** Build output from `app-v2/prerenderPlugin.ts`: public page HTML keyed by path. */
+const PRERENDER_PATH = "/__prerender.json";
+const NOT_FOUND_KEY = "*";
+const EMPTY_ROOT = '<div id="root"></div>';
 
 export { ReturnAlertScheduler } from "./push";
 
@@ -128,7 +134,38 @@ function notFoundForUnknownPage(response: Response, url: URL): Response {
  * write each page's own title, description, canonical URL and share card into
  * the app shell here rather than leaving every page to preview as the homepage.
  */
-async function withPageMetadata(response: Response, request: Request, url: URL): Promise<Response> {
+type PrerenderedPages = Record<string, string> | null;
+const prerendered = new WeakMap<Fetcher, Promise<PrerenderedPages>>();
+
+/** Loaded once per assets binding (fixed for a deployment). A failed load is retried next time. */
+function prerenderedPages(env: Env, url: URL): Promise<PrerenderedPages> {
+  let pages = prerendered.get(env.ASSETS);
+  if (!pages) {
+    pages = env.ASSETS.fetch(new Request(new URL(PRERENDER_PATH, url)))
+      .then((response) => (response.ok ? (response.json() as Promise<Record<string, string>>) : null))
+      .catch(() => null)
+      .then((loaded) => {
+        if (!loaded) prerendered.delete(env.ASSETS);
+        return loaded;
+      });
+    prerendered.set(env.ASSETS, pages);
+  }
+  return pages;
+}
+
+/**
+ * Put the page's static HTML inside `#root` so crawlers that never run
+ * JavaScript read the real content. The app itself stays an empty shell.
+ */
+async function withPrerenderedBody(html: string, url: URL, env: Env): Promise<string> {
+  if (isAppPath(url.pathname) || !html.includes(EMPTY_ROOT)) return html;
+  const pages = await prerenderedPages(env, url);
+  const path = normalisePublicPath(url.pathname);
+  const body = pages?.[isPublicPagePath(path) ? path : NOT_FOUND_KEY];
+  return typeof body === "string" ? html.replace(EMPTY_ROOT, `<div id="root">${body}</div>`) : html;
+}
+
+async function withPageMetadata(response: Response, request: Request, url: URL, env: Env): Promise<Response> {
   const isHtml = (response.headers.get("content-type") ?? "").includes("text/html");
   if (request.method !== "GET" || !isHtml || (response.status !== 200 && response.status !== 404)) {
     return response;
@@ -138,14 +175,15 @@ async function withPageMetadata(response: Response, request: Request, url: URL):
   const tags = isAppPath(url.pathname)
     ? seoTags(APP_META, null)
     : isPublicPagePath(path)
-      ? seoTags(PAGE_META[path], path)
+      ? `${seoTags(PAGE_META[path], path)}\n    ${structuredDataTag(path)}`
       : seoTags(NOT_FOUND_META, null);
 
   const headers = new Headers(response.headers);
   // The body changes, so any length or validator from the asset no longer applies.
   headers.delete("content-length");
   headers.delete("etag");
-  return new Response(replaceSeoBlock(await response.text(), tags), {
+  const html = await withPrerenderedBody(replaceSeoBlock(await response.text(), tags), url, env);
+  return new Response(html, {
     status: response.status,
     statusText: response.statusText,
     headers
@@ -179,8 +217,13 @@ export async function handleRequest(
     const redirect = canonicalHostRedirect(url, env);
     if (redirect) return secure(redirect, url, env);
 
+    // Build data for the Worker, not a page: never serve it directly.
+    if (url.pathname === PRERENDER_PATH) {
+      return secure(new Response("Not found", { status: 404 }), url, env);
+    }
+
     const asset = notFoundForUnknownPage(await env.ASSETS.fetch(request), url);
-    return secure(await withPageMetadata(asset, request, url), url, env);
+    return secure(await withPageMetadata(asset, request, url, env), url, env);
   } catch {
     const unavailable = url.pathname.startsWith("/api/")
       ? Response.json(

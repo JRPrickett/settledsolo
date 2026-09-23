@@ -185,3 +185,52 @@ describe("per-page share metadata in the served HTML", () => {
     expect(await image.text()).toBe("png-bytes");
   });
 });
+
+describe("pre-rendered public pages", () => {
+  const shell = '<html><head><!--seo--><!--/seo--></head><body><div id="root"></div></body></html>';
+  const pages = {
+    "/": "<main><h1>Home content</h1></main>",
+    "/help": "<main><h1>Help content</h1></main>",
+    "*": "<main><h1>Not found content</h1></main>",
+  };
+  const env = envWithAssets(async (request) => {
+    const path = new URL(request.url).pathname;
+    if (path === "/__prerender.json") return Response.json(pages);
+    return new Response(shell, { headers: { "Content-Type": "text/html" } });
+  });
+  const fetchPage = (path: string) =>
+    handleRequest(new Request(`https://settledsolo.com${path}`), env);
+
+  it("serves each public page's content inside the root for crawlers", async () => {
+    expect(await (await fetchPage("/help/")).text()).toContain(
+      '<div id="root"><main><h1>Help content</h1></main></div>',
+    );
+    expect(await (await fetchPage("/")).text()).toContain("Home content");
+  });
+
+  it("gives unknown pages the not-found content and keeps the app an empty shell", async () => {
+    const missing = await fetchPage("/nowhere");
+    expect(missing.status).toBe(404);
+    expect(await missing.text()).toContain("Not found content");
+    expect(await (await fetchPage("/app/")).text()).toContain('<div id="root"></div>');
+  });
+
+  it("never serves the pre-render data directly", async () => {
+    const response = await fetchPage("/__prerender.json");
+    expect(response.status).toBe(404);
+    expect(await response.text()).not.toContain("Help content");
+  });
+
+  it("falls back to the empty shell when the pre-render data is missing", async () => {
+    const response = await handleRequest(
+      new Request("https://settledsolo.com/help"),
+      envWithAssets(async (request) =>
+        new URL(request.url).pathname === "/__prerender.json"
+          ? new Response("missing", { status: 404 })
+          : new Response(shell, { headers: { "Content-Type": "text/html" } }),
+      ),
+    );
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain('<div id="root"></div>');
+  });
+});

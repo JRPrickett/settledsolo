@@ -3286,6 +3286,30 @@ a:focus-visible {
   line-height: 1.7;
 }
 
+.info-page-copy .info-lede {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.info-page-copy ol,
+.info-page-copy ul {
+  max-width: 62ch;
+  margin: 5px 0;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.info-page-copy li + li {
+  margin-top: 6px;
+}
+
+.info-page-copy li strong {
+  color: var(--ink);
+}
+
 .info-page-copy .info-note {
   margin-top: 30px;
   padding: 16px 18px;

@@ -1,6 +1,8 @@
 import { BrandMark, BrandWordmark } from "../brand/BrandMark";
+import { HOME_FAQS } from "./faqs";
 import { PublicInstallAction } from "./PublicInstall";
 import { OptionalSupportCard } from "./PublicSupport";
+import { GUIDE_PATH } from "./routes";
 
 // Captured from the real app by `npm run product:screens`.
 const PRODUCT_SCREENS = [
@@ -37,6 +39,7 @@ export function PublicSite() {
           <div className="marketing-desktop-links">
             <a href="#how-it-works">How it works</a>
             <a href="#the-session">The session</a>
+            <a href={GUIDE_PATH}>Guide</a>
             <a href="/evidence">Evidence</a>
             <a href="/resources">Resources</a>
           </div>
@@ -45,6 +48,7 @@ export function PublicSite() {
             <div>
               <a href="#how-it-works">How it works</a>
               <a href="#the-session">The session</a>
+              <a href={GUIDE_PATH}>Training guide</a>
               <a href="/evidence">Evidence</a>
               <a href="/help">Help</a>
               <a href="/resources">Resources</a>
@@ -202,48 +206,16 @@ export function PublicSite() {
             <h2>Questions worth asking before you begin.</h2>
           </div>
           <div className="faq-list">
-            <details>
-              <summary>Is SettledSolo only for dogs already struggling with separation?</summary>
-              <p>
-                No. The same calm, gradual approach can also support puppies or newly
-                adopted dogs learning comfortable alone time. Severe or escalating
-                distress should involve professional support.
-              </p>
-            </details>
-            <details>
-              <summary>Does the app tell me to leave my dog until they react?</summary>
-              <p>
-                No. Setup starts from a duration you have already observed your dog
-                manage comfortably. The app does not use deliberate distress as a
-                baseline test.
-              </p>
-            </details>
-            <details>
-              <summary>Do I need an account or a payment card?</summary>
-              <p>
-                No. Core training works locally and is free, with no signup wall or trial
-                that silently converts. Optional account backup and cross-device sync are
-                available where enabled, and any future paid feature would require clear
-                opt-in.
-              </p>
-            </details>
-            <details>
-              <summary>Is the generated target a clinical prescription?</summary>
-              <p>
-                No. SettledSolo uses evidence-supported behavioural principles, while
-                its exact software step sizes are conservative product heuristics.
-                The reason for each recommendation is shown in plain English.
-              </p>
-            </details>
-            <details>
-              <summary>When should I ask a professional for help?</summary>
-              <p>
-                Pause timed departures and seek veterinary or qualified behaviour support
-                for self-injury, destructive escape attempts, rapidly escalating distress,
-                or repeated sessions that cannot stay manageable.
-              </p>
-            </details>
+            {HOME_FAQS.map(({ question, answer }) => (
+              <details key={question}>
+                <summary>{question}</summary>
+                <p>{answer}</p>
+              </details>
+            ))}
           </div>
+          <a className="marketing-text-link" href={GUIDE_PATH}>
+            Read the step-by-step separation anxiety training guide <ArrowIcon />
+          </a>
         </section>
 
         <section className="marketing-final-cta">
@@ -263,6 +235,7 @@ export function PublicSite() {
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="/contact">Contact</a>
+            <a href={GUIDE_PATH}>Training guide</a>
             <a href="/help">Help</a>
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>

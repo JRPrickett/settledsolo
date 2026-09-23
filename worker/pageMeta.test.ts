@@ -27,3 +27,14 @@ describe("committed share cards and default tags", () => {
   });
 
 });
+
+describe("generated sitemap", () => {
+  it("lists every public page with its review date and never the app", async () => {
+    const { sitemapXml } = await import("../app-v2/prerenderPlugin");
+    const xml = sitemapXml();
+    for (const path of PUBLIC_PAGE_PATHS) {
+      expect(xml).toContain(`<loc>https://settledsolo.com${path}</loc><lastmod>${PAGE_META[path].updated}</lastmod>`);
+    }
+    expect(xml).not.toContain("/app");
+  });
+});

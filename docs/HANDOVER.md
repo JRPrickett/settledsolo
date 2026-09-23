@@ -36,6 +36,25 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
+### 23 September — search visibility: pre-rendered pages, structured data and a guide (branch `claude/settledsolo-release-hardening-6xkd4v`)
+
+Not yet merged at the time of writing; check GitHub for its PR state. See `docs/SEO.md`.
+
+- **Pre-rendered public pages.** Crawlers previously received an empty `#root`. A Vite plugin
+  (`app-v2/prerenderPlugin.ts`) renders every public page and the 404 page at build time into
+  `__prerender.json`. The Worker places each page's HTML inside `#root`, never serves the JSON
+  directly, and falls back to the empty shell if it is missing. The browser renders over it with
+  `createRoot` (no hydration). `/app/` is unchanged.
+- **Structured data**: Organization/WebSite, a free WebApplication, FAQPage (home and
+  resources, from the single `public/faqs.ts` source) and Article (guide, help, evidence).
+- **New guide** at `/separation-anxiety-training` (`GUIDE_PATH`): answer-first, question
+  headings, cited sources, author line and review date; linked from nav, footer and homepage;
+  own share card (`social/guide.png`). Evidence boundaries in `EVIDENCE-BASE.md`.
+- **Generated sitemap** from the route list with per-page `updated` dates (the static
+  `public/sitemap.xml` was removed); `llms.txt` added.
+- **Owner actions**: Search Console domain verification, sitemap submission and indexing
+  requests; Bing Webmaster Tools. AI Overview inclusion cannot be guaranteed; see `SEO.md`.
+
 ### 23 September — real product screenshots and backup reminder (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.

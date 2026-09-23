@@ -197,7 +197,9 @@ whether to use this, or rely on `/contact` feedback alone, before the beta widen
 on the production build) so the homepage imagery and app bundle cannot grow unnoticed. It
 should run in the fast job, not the browser job.
 
-**F7 — Post-deploy social and search checks (H7).** After the next production deploy, re-scrape
+**F7 — Post-deploy social and search checks (H7).** Pre-rendered pages, structured data, a
+generated sitemap and the guide are done (`docs/SEO.md`); Search Console and Bing setup are owner
+actions listed there. After the next production deploy, re-scrape
 home/help/resources/evidence in the Facebook Sharing Debugger and LinkedIn Post Inspector, and
 confirm Search Console coverage for the public pages only.
 

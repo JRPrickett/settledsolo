@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { PUBLIC_PAGE_PATHS } from "./src/public/routes.ts";
 import { contentSecurityPolicy } from "../worker/csp.ts";
+import { prerenderPublicPages } from "./prerenderPlugin.ts";
 
 // Offline navigations resolve only for real pages; anything else reaches the
 // network, where the Worker returns a proper 404.
@@ -16,6 +17,7 @@ const offlineNavigationRoutes = [
 export default defineConfig({
   plugins: [
     react(),
+    prerenderPublicPages(),
     VitePWA({
       registerType: "prompt",
       includeAssets: ["icon.svg", "push-sw.js"],

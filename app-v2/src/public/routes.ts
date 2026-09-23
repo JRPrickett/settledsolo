@@ -3,8 +3,12 @@
  * return a real 404 for unknown paths, and the service worker uses it for its
  * offline navigation allowlist, so the three cannot drift apart.
  */
+/** The step-by-step guide; a descriptive slug for search. */
+export const GUIDE_PATH = "/separation-anxiety-training";
+
 export const PUBLIC_PAGE_PATHS = [
   "/",
+  GUIDE_PATH,
   "/help",
   "/resources",
   "/evidence",

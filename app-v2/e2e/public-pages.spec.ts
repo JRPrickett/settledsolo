@@ -87,3 +87,17 @@ test("imported HTML-like text is shown as text and never executes", async ({ pag
   expect(await page.locator('img[src="x"]').count()).toBe(0);
   expect(await page.evaluate(() => (window as unknown as { __injected?: number }).__injected)).toBeUndefined();
 });
+
+test("the homepage links to the step-by-step guide, which has its own title and canonical URL", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: /step-by-step separation anxiety training guide/ }).click();
+  await expect(page).toHaveURL(/\/separation-anxiety-training$/);
+  await expect(page.getByRole("heading", { level: 1, name: "How to train a dog with separation anxiety" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How do you train a dog to be left alone?" })).toBeVisible();
+  await expect(page).toHaveTitle(/How to train a dog with separation anxiety/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://settledsolo.com/separation-anxiety-training"
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index,follow");
+});

@@ -21,7 +21,7 @@ test("public pages and a full training session run without CSP violations", asyn
   expect(response?.headers()["content-security-policy"]).toContain("style-src 'self'");
   expect(response?.headers()["content-security-policy"]).not.toContain("unsafe-inline");
 
-  for (const path of ["/", "/help", "/resources", "/evidence", "/contact", "/privacy", "/terms", "/missing"]) {
+  for (const path of ["/", "/separation-anxiety-training", "/help", "/resources", "/evidence", "/contact", "/privacy", "/terms", "/missing"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await collect();
