@@ -117,30 +117,17 @@ function PrivacyPage() {
         observed signals on your device. You can use the core app without creating an
         account.
       </p>
-      <h2>Background return alerts</h2>
+      <h2>Reminders and analytics</h2>
       <p>
-        If you enable background return alerts, the installed app creates a browser push
-        subscription. For each main departure, SettledSolo sends Cloudflare the push
-        endpoint for that installed copy, an anonymous installation ID, an opaque session
-        token and the scheduled return time. Dog names, notes, outcomes and training
-        history are not included. Pending alert data is cleared after delivery or when
-        the app successfully cancels the alert.
+        If you enable reminders, we use the reminder time to send them. Reminders do not
+        include your dog&apos;s name or training notes. We may count general website visits,
+        but we do not use your training history for analytics or advertising.
       </p>
-      <h2>Product analytics are separate</h2>
+      <h2>Using the app and sending feedback</h2>
       <p>
-        SettledSolo does not send app-open, session or device-level product events to a
-        separate analytics database. Registered-account totals are the canonical user
-        metric; aggregate web traffic may still be measured separately by Cloudflare Web
-        Analytics.
-      </p>
-      <h2>Browser storage and feedback</h2>
-      <p>
-        In account-free use, the training record stays in browser storage on your
-        device. A local reset removes it; clearing browser storage may also remove it.
-        A feedback link can open your email app with a draft. Nothing is sent until you
-        choose to send it, and you can edit the draft first. The app feedback draft may
-        include your browser version and app/storage mode, but it does not include your
-        dog&apos;s name or training history.
+        Without an account, your training record stays on your device until you delete
+        it. If you choose to send feedback, it may include basic device or browser
+        details, but never your dog&apos;s name or training history.
       </p>
       <h2>Backups and exports</h2>
       <p>
@@ -149,56 +136,36 @@ function PrivacyPage() {
       </p>
       <h2>Accounts are optional</h2>
       <p>
-        Where accounts are enabled, you can sign in using an email code. Cloudflare
-        hosts the account service and its separate private database. Resend delivers
-        sign-in codes to your email address; it does not receive your training log.
-        Signing in alone does not upload existing local history. The app shows an import
-        summary and asks before connecting your log.
+        You can create an account with your email address. Signing in does not upload
+        your training history. The app shows what will be connected and asks you first.
       </p>
-      <h2>Sync and account controls</h2>
+      <h2>Account and training information</h2>
       <p>
-        After you connect, dog names, tracks, session observations, notes and settings
-        are stored with your account for backup and cross-device sync. Essential secure
-        cookies keep you signed in. Account/session records may contain IP address and
-        browser information for authentication and abuse protection. Deleted training
-        records remain as sync deletion markers and may appear in change history until
-        the account is deleted.
+        If you connect an account, your email is used to sign you in and your dog&apos;s
+        name, tracks, observations, notes and settings are saved so you can back up or
+        use your history across devices. We use basic sign-in details to protect
+        accounts.
       </p>
       <p>
-        More → Account &amp; backup provides cloud export, sign-out and account deletion.
-        Deleting an account removes its active account and cloud training records; it
-        does not erase logs already downloaded on your devices. Use the separate local
-        reset on each device if you want to remove those too. Resolved conflict versions
-        remain on the device and can be exported or cleared with local reset.
+        Account &amp; backup lets you export your account data, sign out or delete your
+        account. Deleting the account removes its cloud training history. It does not
+        delete copies saved on your devices; reset each device separately if you want
+        to remove those.
       </p>
-      <h2>How long data stays in the app</h2>
+      <h2>How long we keep information</h2>
       <p>
-        Local training records stay in browser storage until you reset them or clear
-        that storage. Connected account data stays in the cloud account until you delete
-        the account. Account deletion removes the active account and cloud training
-        records; device copies are separate and need a local reset. Some deleted records
-        remain as sync deletion markers until account deletion.
-      </p>
-      <p>
-        Cloudflare hosts the website, account service and private account database.
-        Resend delivers account sign-in codes. Cloudflare Web Analytics may measure
-        aggregate website visits. Provider operational logs, backups and international
-        transfer details are still being confirmed and must be added to this notice
-        before it is treated as complete.
+        Information on your device stays there until you delete it. Information
+        connected to your account stays until you delete the account. We keep other
+        information only as long as needed to provide and protect SettledSolo or meet
+        legal obligations.
       </p>
       <h2>Your privacy choices and rights</h2>
       <p>
-        You can export or delete your account data and reset local data in the app.
-        Depending on the circumstances, data protection law may also give you rights to
-        request access, correction, erasure, restriction, objection or data portability.
-        Use <a href="/contact">contact and feedback</a> for a privacy request. You can
-        also complain to the <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer">Information Commissioner&apos;s Office</a>.
-      </p>
-      <h2>Questions about your data</h2>
-      <p>
-        Export, restore, local reset and account deletion are self-service in the app,
-        so you never need to ask permission to take or remove your record. For anything
-        else about this notice, see <a href="/contact">contact and feedback</a>.
+        You can export or delete your data in the app. You may also have the right to
+        access, correct, erase or restrict your information, object to some uses, or
+        request a copy. For a privacy request, use <a href="/contact">contact and
+        feedback</a>. You can also complain to the
+        <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer"> Information Commissioner&apos;s Office</a>.
       </p>
     </InfoPage>
   );
@@ -214,19 +181,15 @@ function TermsPage() {
       </p>
       <h2>Pricing and billing</h2>
       <p>
-        Core training is free, with no signup wall. There is no trial that silently
-        converts to a paid subscription. If optional paid features are introduced,
-        enrolment will require clear, explicit opt-in. Before you confirm a paid offer,
-        we will show what it includes, the full price and currency, whether it is
-        one-off or recurring, and the renewal, cancellation and refund terms. A free
-        trial will not convert to paid access without clear agreement. Your statutory
-        consumer rights are not limited by these terms.
+        Core training is free. Any paid feature will show what it includes, its price,
+        whether payment is one-off or recurring, and how to cancel before you pay. No
+        recurring charge starts without your clear agreement. Your consumer rights
+        remain unchanged.
       </p>
       <p>
-        If an optional one-off contribution link is available, it opens an external
-        checkout and does not unlock app features. Check the provider, amount, currency,
-        any fees and its terms before paying; the provider handles payment details on
-        its checkout.
+        Any optional contribution is one-off and does not unlock app features. Checkout
+        will show the amount and payment terms before you confirm.
+      </p>
       <h2>What it does not do</h2>
       <p>
         It does not diagnose separation anxiety, provide veterinary care or guarantee a
