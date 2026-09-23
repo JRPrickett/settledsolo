@@ -29,9 +29,15 @@ const MUTED = "#4A5A5F";
 const CARDS = [
   {
     file: "home.png",
-    kicker: "Free dog separation training",
+    kicker: "Free separation anxiety training app",
     headline: "Calm starts with small steps.",
     body: "Gradual alone-time practice with a reliable timer, a private record and evidence-informed guidance."
+  },
+  {
+    file: "guide.png",
+    kicker: "Step-by-step guide",
+    headline: "Training a dog with separation anxiety.",
+    body: "Signs to watch for, gradual alone-time steps and when to get professional help."
   },
   {
     file: "help.png",

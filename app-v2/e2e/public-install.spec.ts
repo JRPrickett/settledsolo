@@ -3,7 +3,7 @@ import { completeSetup } from "./helpers";
 
 test("public SettledSolo site leads into the PWA", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Calm starts with small steps." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Calm starts with small steps\./ })).toBeVisible();
   await expect(page.getByText("SettledSolo").first()).toBeVisible();
   await page.getByRole("link", { name: "Start free" }).click();
   await expect(page).toHaveURL(/\/app\/?$/);

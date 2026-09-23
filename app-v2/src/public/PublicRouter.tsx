@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
+import { RESOURCE_FAQS } from "./faqs";
 import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
 import { OptionalSupportCard } from "./PublicSupport";
 import { contactEmail, feedbackMailto } from "./contact";
 import { supportProvider } from "./support";
-import { isPublicPagePath, normalisePublicPath, type PublicPagePath } from "./routes";
-import { CANONICAL_ORIGIN, PAGE_META } from "./pageMeta";
+import { GUIDE_PATH, isPublicPagePath, normalisePublicPath, type PublicPagePath } from "./routes";
+import { CANONICAL_ORIGIN, formatReviewDate, PAGE_META } from "./pageMeta";
 
 function setMeta(attribute: "name" | "property", key: string, content: string) {
   let meta = document.head.querySelector<HTMLMetaElement>(
@@ -58,6 +59,7 @@ function PublicNavigation() {
     <nav aria-label="Public site">
       <div className="marketing-desktop-links">
         <a href="/">Home</a>
+        <a href={GUIDE_PATH}>Guide</a>
         <a href="/help">Help</a>
         <a href="/resources">Resources</a>
         <a href="/evidence">Evidence</a>
@@ -66,6 +68,7 @@ function PublicNavigation() {
         <summary>Explore</summary>
         <div>
           <a href="/">Home</a>
+          <a href={GUIDE_PATH}>Guide</a>
           <a href="/help">Help</a>
           <a href="/resources">Resources</a>
           <a href="/evidence">Evidence</a>
@@ -102,6 +105,7 @@ function InfoPage({
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="/contact">Contact</a>
+            <a href={GUIDE_PATH}>Training guide</a>
             <a href="/help">Help</a>
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
@@ -331,6 +335,167 @@ function EvidencePage() {
   );
 }
 
+function GuidePage() {
+  return (
+    <InfoPage title="How to train a dog with separation anxiety">
+      <p className="info-lede">
+        Separation anxiety training for dogs means building alone time gradually from a
+        duration your dog already handles calmly, staying below the point where they become
+        worried, and increasing only in small steps after calm sessions. Watch what actually happens, go back a step after any sign of
+        concern, and avoid longer absences in between. This approach is called systematic
+        desensitisation.
+      </p>
+      <p className="info-note">
+        Written by SettledSolo&apos;s maker from the published research listed at the end.
+        Last reviewed {formatReviewDate(PAGE_META[GUIDE_PATH].updated)}. General information, not a diagnosis
+        or individual veterinary or behavioural advice.
+      </p>
+
+      <h2>What is separation anxiety in dogs?</h2>
+      <p>
+        Separation anxiety, often called separation-related distress, is when a dog
+        becomes worried or panicked when left alone or apart from a particular person. It
+        is a welfare problem, not disobedience or spite. Boredom, noise fears, confinement
+        stress, illness or incomplete house training can look similar, so only a vet or
+        qualified behaviour professional can assess an individual dog.
+      </p>
+
+      <h2>What are the signs of separation anxiety?</h2>
+      <p>Signs usually appear while the dog is alone or as you get ready to leave:</p>
+      <ul>
+        <li>barking, whining or howling;</li>
+        <li>pacing, panting or being unable to settle;</li>
+        <li>scratching or chewing at doors, windows or barriers;</li>
+        <li>toilet accidents in a dog that is otherwise house trained;</li>
+        <li>drooling, trembling, or refusing food or a favourite chew;</li>
+        <li>watching the exit, or following you closely as you prepare to leave.</li>
+      </ul>
+      <p>
+        Many signs are quiet, so a video of an absence is often the clearest way to see
+        what really happens. Researchers use video for the same reason (Palestrini et al.,
+        2010).
+      </p>
+
+      <h2>How do you train a dog to be left alone?</h2>
+      <ol>
+        <li>
+          <strong>Start from something already calm.</strong> Choose a duration you have
+          seen your dog handle without concern, even a few seconds. Never leave until they
+          become distressed just to find their limit.
+        </li>
+        <li>
+          <strong>Keep departures ordinary.</strong> Leave and return calmly, without a
+          big goodbye or a dramatic reunion.
+        </li>
+        <li>
+          <strong>Watch if you can.</strong> A camera or baby monitor shows the first small
+          signs of worry. It helps, but it is not essential.
+        </li>
+        <li>
+          <strong>Come back before concern builds.</strong> A target is a ceiling, not a
+          quota. A shorter, relaxed absence is still useful practice.
+        </li>
+        <li>
+          <strong>Increase in small steps, only after calm sessions.</strong> Repeat a
+          duration until it is easy before making it longer.
+        </li>
+        <li>
+          <strong>Make it easier after a difficult session.</strong> Go back to a step your
+          dog found easy rather than pushing on.
+        </li>
+        <li>
+          <strong>Manage the gaps.</strong> While you train, avoid leaving your dog alone
+          for longer than they can currently manage.
+        </li>
+      </ol>
+      <p>
+        An owner-led programme of this kind reduced separation-related behaviour in a small
+        study (Butler et al., 2011). The study was small, so treat it as support for the
+        principle rather than a fixed recipe.
+      </p>
+
+      <h2>How much should I increase the time each session?</h2>
+      <p>
+        In small steps. No increment has been clinically validated. SettledSolo uses about
+        10% of the current duration, never more than two minutes, as its own product
+        heuristic. In a small timing study, dogs needed a difference of roughly 44% or more
+        to tell two durations apart (Cliff et al., 2019), so a 10% step should be barely
+        noticeable. Hold the duration or go back after any sign of concern.
+      </p>
+
+      <h2>How long does separation anxiety training take?</h2>
+      <p>
+        There is no reliable universal timeline. Progress depends on the dog, where they
+        start and how well other absences can be managed. Expect uneven progress, with
+        plateaus and easier days. A run of calm sessions matters more than speed.
+      </p>
+
+      <h2>How long can I leave a dog with separation anxiety alone?</h2>
+      <p>
+        Only as long as they can currently stay calm, which may be seconds or minutes at
+        first. Plan other absences around that: a sitter, daycare, a friend or neighbour,
+        taking your dog with you, or a changed routine. Absences that tip your dog into
+        panic can undo progress.
+      </p>
+
+      <h2>Should I crate a dog with separation anxiety?</h2>
+      <p>
+        Not automatically. Some dogs are more distressed when confined. Practise in a setup
+        your dog already finds safe, and treat distress that appears only with confinement
+        as important information rather than assuming it is purely about being alone.
+      </p>
+
+      <h2>Should I punish or ignore my dog?</h2>
+      <p>
+        Do not punish anything you find when you come home: it cannot teach calm and may add
+        fear. You do not need to ignore your dog either. Keep departures and returns calm
+        and ordinary, and comfort them if they need it.
+      </p>
+
+      <h2>When should I get professional help?</h2>
+      <p>
+        Pause timed practice and contact your vet or a qualified behaviour professional if
+        you see self-injury, escape attempts, damage to doors or windows, rapidly escalating
+        distress, or repeated sessions that cannot stay calm. A vet is the right person to
+        discuss whether a health problem or medication is relevant.
+      </p>
+
+      <h2>How SettledSolo helps</h2>
+      <p>
+        SettledSolo is a free separation anxiety training app for this process. It suggests a small next step from your
+        recent sessions, times each departure reliably, records what you observed and
+        explains every suggestion. It works without an account and keeps your training
+        record on your device.
+      </p>
+
+      <h2>Sources</h2>
+      <ul>
+        <li>
+          <a href="https://doi.org/10.1016/j.applanim.2010.11.001" target="_blank" rel="noreferrer">
+            Butler, Sargisson and Elliffe (2011), Applied Animal Behaviour Science
+          </a>
+        </li>
+        <li>
+          <a href="https://doi.org/10.1016/j.applanim.2010.01.014" target="_blank" rel="noreferrer">
+            Palestrini et al. (2010), Applied Animal Behaviour Science
+          </a>
+        </li>
+        <li>
+          <a href="https://doi.org/10.3390/ani9100801" target="_blank" rel="noreferrer">
+            Cliff et al. (2019), Animals
+          </a>
+        </li>
+      </ul>
+      <p>
+        More detail on how the app uses this research is on the{" "}
+        <a href="/evidence">evidence page</a>.
+      </p>
+      <a className="marketing-primary info-cta" href="/app/">Start training free</a>
+      <a className="marketing-secondary info-cta" href="/help">Read the training help</a>
+    </InfoPage>
+  );
+}
+
 function HelpPage() {
   return (
     <InfoPage title="Keep the next step calm and manageable.">
@@ -444,71 +609,12 @@ function ResourcesPage() {
       </p>
       <h2>Common questions</h2>
       <div className="faq-list">
-        <details>
-          <summary>How many sessions should I do?</summary>
-          <p>
-            SettledSolo uses a conservative daily ceiling, not a required quota. A
-            shorter session or a rest day can be the right choice when your dog or
-            circumstances need it.
-          </p>
-        </details>
-        <details>
-          <summary>Is a crate always the right place to practise?</summary>
-          <p>
-            No. If distress appears only with confinement, treat that as important
-            information and avoid assuming it is purely separation-related. Use a setup
-            your dog can already manage safely and ask for support if unsure.
-          </p>
-        </details>
-        <details>
-          <summary>What if my dog looks worried before I leave?</summary>
-          <p>
-            Practise one small departure cue while staying home: pick up keys, put on
-            shoes or touch the door, then return to ordinary activity before concern
-            builds. Keep cue practice brief and separate from timed absences.
-          </p>
-        </details>
-        <details>
-          <summary>Is separation anxiety just boredom or stubbornness?</summary>
-          <p>
-            Not necessarily. Separation-related distress can include subtle changes such
-            as pacing, panting, exit-watching or refusing food. A camera or careful
-            observation can help distinguish it from boredom, frustration, confinement or
-            another problem.
-          </p>
-        </details>
-        <details>
-          <summary>Should I ignore my dog when I get home?</summary>
-          <p>
-            No special coldness is required. Keep the return calm and ordinary, and focus
-            on avoiding absences that are too difficult. Comfort after a hard moment is
-            not something you need to withhold.
-          </p>
-        </details>
-        <details>
-          <summary>Will spaying, neutering or medication fix this?</summary>
-          <p>
-            There is no one-size-fits-all answer that the app can safely give. Medical
-            decisions and medication belong with your veterinarian, who can consider the
-            whole dog, the home setup and any other health factors.
-          </p>
-        </details>
-        <details>
-          <summary>What if I miss a day?</summary>
-          <p>
-            Nothing needs catching up. Resume with an easy, familiar step rather than
-            increasing difficulty to compensate.
-          </p>
-        </details>
-        <details>
-          <summary>When should I stop and ask for help?</summary>
-          <p>
-            Pause timed practice for self-injury, destructive escape attempts, rapidly
-            escalating distress or repeated sessions that cannot stay manageable. A vet
-            or qualified behaviour professional can help you work out the safest next
-            step.
-          </p>
-        </details>
+        {RESOURCE_FAQS.map(({ question, answer }) => (
+          <details key={question}>
+            <summary>{question}</summary>
+            <p>{answer}</p>
+          </details>
+        ))}
       </div>
       <OptionalSupportCard compact />
       <a className="marketing-primary info-cta" href="/app/">Open SettledSolo</a>
@@ -582,41 +688,33 @@ function NotFoundPage() {
   );
 }
 
+/**
+ * The page for a path, without touching the document. The build pre-renders
+ * this into static HTML for crawlers; `PublicRouter` renders it in the browser.
+ */
+export function PublicPage({ path }: { path: string }) {
+  switch (normalisePublicPath(path)) {
+    case "/": return <PublicSite />;
+    case "/privacy": return <PrivacyPage />;
+    case "/terms": return <TermsPage />;
+    case "/help": return <HelpPage />;
+    case "/resources": return <ResourcesPage />;
+    case "/contact": return <ContactPage />;
+    case "/evidence": return <EvidencePage />;
+    case GUIDE_PATH: return <GuidePage />;
+    default: return <NotFoundPage />;
+  }
+}
+
 export function PublicRouter() {
   const path = normalisePublicPath(window.location.pathname);
 
-  if (!isPublicPagePath(path)) {
+  if (isPublicPagePath(path)) {
+    setPublicMetadata(path);
+  } else {
     document.title = "Page not found — SettledSolo";
     setRobots("noindex,follow");
     document.head.querySelector('link[rel="canonical"]')?.remove();
-    return <NotFoundPage />;
   }
-
-  if (path === "/privacy") {
-    setPublicMetadata(path);
-    return <PrivacyPage />;
-  }
-  if (path === "/terms") {
-    setPublicMetadata(path);
-    return <TermsPage />;
-  }
-  if (path === "/help") {
-    setPublicMetadata(path);
-    return <HelpPage />;
-  }
-  if (path === "/resources") {
-    setPublicMetadata(path);
-    return <ResourcesPage />;
-  }
-  if (path === "/contact") {
-    setPublicMetadata(path);
-    return <ContactPage />;
-  }
-  if (path === "/evidence") {
-    setPublicMetadata(path);
-    return <EvidencePage />;
-  }
-
-  setPublicMetadata("/");
-  return <PublicSite />;
+  return <PublicPage path={path} />;
 }

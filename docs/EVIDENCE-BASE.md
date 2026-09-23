@@ -408,6 +408,23 @@ is always consistent with the target being a ceiling. The default and caps are p
 not clinical values. If the timer runs well past the target, the review offers "I was back on
 time" to correct a late tap before saving; it can only lower the recorded time.
 
+## Public guide: `/separation-anxiety-training`
+
+The public step-by-step guide (added 23 September 2026) restates guidance already in the app,
+Help, Resources and Evidence pages for search readers. It introduces no new protocol:
+
+- evidence-supported principles: gradual below-distress exposure (Butler et al., 2011) and
+  video observation (Palestrini et al., 2010);
+- labelled product heuristic: the ~10% step capped at two minutes, with the Cliff et al. (2019)
+  discrimination finding given as the rationale, not as validation;
+- explicitly no universal timeline, no maximum-tolerance test, no diagnosis, and medication and
+  health questions referred to a vet;
+- it says it was written by SettledSolo's maker and is general information. It must not claim
+  professional review, and its structured data must not use medical-review properties
+  (enforced by `prerender.test.ts`).
+
+Any change to its claims follows the same rules as app copy.
+
 ## Outcome language
 
 Production UI:

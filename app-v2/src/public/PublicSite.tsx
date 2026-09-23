@@ -1,6 +1,36 @@
 import { BrandMark, BrandWordmark } from "../brand/BrandMark";
+import { HOME_FAQS } from "./faqs";
 import { PublicInstallAction } from "./PublicInstall";
 import { OptionalSupportCard } from "./PublicSupport";
+import { GUIDE_PATH } from "./routes";
+
+/** What the app does today. Keep each item true of the shipped product. */
+const APP_FEATURES = [
+  {
+    title: "A plan that adapts",
+    body: "Each suggested duration starts from what your dog already manages and moves in small steps after calm sessions, with the reason shown."
+  },
+  {
+    title: "A reliable departure timer",
+    body: "Survives locking your phone or switching apps, with an optional reminder to head back before the target."
+  },
+  {
+    title: "Warm-ups and cue practice",
+    body: "Short practice departures before the main one, and at-home practice for keys, shoes and other departure cues."
+  },
+  {
+    title: "An observation log",
+    body: "Record how your dog was, the signs you noticed and any notes, alongside the time you were away."
+  },
+  {
+    title: "Progress you can read",
+    body: "Charts and milestones that follow steady progress rather than streaks or pressure."
+  },
+  {
+    title: "Private and offline",
+    body: "Training stays on your device and works without a connection. Backup, CSV export and optional account sync are built in."
+  }
+];
 
 // Captured from the real app by `npm run product:screens`.
 const PRODUCT_SCREENS = [
@@ -36,7 +66,8 @@ export function PublicSite() {
         <nav aria-label="Public site">
           <div className="marketing-desktop-links">
             <a href="#how-it-works">How it works</a>
-            <a href="#the-session">The session</a>
+            <a href="#features">Features</a>
+            <a href={GUIDE_PATH}>Guide</a>
             <a href="/evidence">Evidence</a>
             <a href="/resources">Resources</a>
           </div>
@@ -44,7 +75,8 @@ export function PublicSite() {
             <summary>Explore</summary>
             <div>
               <a href="#how-it-works">How it works</a>
-              <a href="#the-session">The session</a>
+              <a href="#features">Features</a>
+              <a href={GUIDE_PATH}>Training guide</a>
               <a href="/evidence">Evidence</a>
               <a href="/help">Help</a>
               <a href="/resources">Resources</a>
@@ -57,10 +89,16 @@ export function PublicSite() {
       <main>
         <section className="marketing-hero">
           <div className="marketing-hero-copy">
-            <h1>Calm starts with small steps.</h1>
+            <h1>
+              <span className="marketing-eyebrow marketing-hero-kicker">
+                Free separation anxiety training app for dogs
+              </span>{" "}
+              Calm starts with small steps.
+            </h1>
             <p className="marketing-lead">
-              A free dog separation anxiety training tool for building comfortable
-              alone time—one observable, manageable departure at a time.
+              SettledSolo is a free dog separation training app. It helps you build
+              comfortable alone time one observable, manageable departure at a time:
+              plan each session, time it reliably and record what your dog actually did.
             </p>
             <div className="marketing-actions">
               <PublicInstallAction />
@@ -100,8 +138,9 @@ export function PublicSite() {
           <div className="marketing-section-heading">
             <h2>A small loop you can trust.</h2>
             <p>
-              SettledSolo turns a complicated, emotional process into one calm
-              decision at a time. There is always permission to make it easier.
+              SettledSolo turns separation anxiety training, a complicated and
+              emotional process, into one calm decision at a time. There is always
+              permission to make it easier.
             </p>
           </div>
 
@@ -128,6 +167,24 @@ export function PublicSite() {
               </div>
             </li>
           </ol>
+        </section>
+
+        <section className="marketing-section marketing-features" id="features">
+          <div className="marketing-section-heading">
+            <h2>Everything a separation training app needs, free.</h2>
+            <p>
+              The core of SettledSolo costs nothing and needs no account. It runs in your
+              browser and installs to your home screen on iPhone and Android.
+            </p>
+          </div>
+          <ul className="marketing-feature-list">
+            {APP_FEATURES.map(({ title, body }) => (
+              <li key={title}>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="marketing-session" id="the-session">
@@ -202,48 +259,16 @@ export function PublicSite() {
             <h2>Questions worth asking before you begin.</h2>
           </div>
           <div className="faq-list">
-            <details>
-              <summary>Is SettledSolo only for dogs already struggling with separation?</summary>
-              <p>
-                No. The same calm, gradual approach can also support puppies or newly
-                adopted dogs learning comfortable alone time. Severe or escalating
-                distress should involve professional support.
-              </p>
-            </details>
-            <details>
-              <summary>Does the app tell me to leave my dog until they react?</summary>
-              <p>
-                No. Setup starts from a duration you have already observed your dog
-                manage comfortably. The app does not use deliberate distress as a
-                baseline test.
-              </p>
-            </details>
-            <details>
-              <summary>Do I need an account or a payment card?</summary>
-              <p>
-                No. Core training works locally and is free, with no signup wall or trial
-                that silently converts. Optional account backup and cross-device sync are
-                available where enabled, and any future paid feature would require clear
-                opt-in.
-              </p>
-            </details>
-            <details>
-              <summary>Is the generated target a clinical prescription?</summary>
-              <p>
-                No. SettledSolo uses evidence-supported behavioural principles, while
-                its exact software step sizes are conservative product heuristics.
-                The reason for each recommendation is shown in plain English.
-              </p>
-            </details>
-            <details>
-              <summary>When should I ask a professional for help?</summary>
-              <p>
-                Pause timed departures and seek veterinary or qualified behaviour support
-                for self-injury, destructive escape attempts, rapidly escalating distress,
-                or repeated sessions that cannot stay manageable.
-              </p>
-            </details>
+            {HOME_FAQS.map(({ question, answer }) => (
+              <details key={question}>
+                <summary>{question}</summary>
+                <p>{answer}</p>
+              </details>
+            ))}
           </div>
+          <a className="marketing-text-link" href={GUIDE_PATH}>
+            Read the step-by-step separation anxiety training guide <ArrowIcon />
+          </a>
         </section>
 
         <section className="marketing-final-cta">
@@ -263,6 +288,7 @@ export function PublicSite() {
             <a href="/privacy">Privacy</a>
             <a href="/terms">Terms</a>
             <a href="/contact">Contact</a>
+            <a href={GUIDE_PATH}>Training guide</a>
             <a href="/help">Help</a>
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
