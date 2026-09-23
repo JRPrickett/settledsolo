@@ -56,6 +56,23 @@ test("mobile form controls remain at least 16px to prevent iOS focus zoom", asyn
   await expectNoSub16pxFormControls(page);
 });
 
+test("setup asks for a vet check first after sudden onset, age or illness, and reassures new homes", async ({ page }) => {
+  await page.goto("/app/");
+  await page.getByLabel("Your dog's name").fill("Mabel");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByText(/started suddenly, or Mabel is older or has been unwell/)).toBeVisible();
+  await expect(page.getByText(/Medical problems can cause or add to distress/)).toBeVisible();
+
+  await page.getByRole("button", { name: /^Stays relaxed/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: /^Not yet/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByText("New to your home?", { exact: true })).toBeVisible();
+  await expect(page.getByText(/some worry when left may be settling in/)).toBeVisible();
+});
+
 test("setup accepts an observed comfortable duration and converts minutes to seconds", async ({ page }) => {
   await page.goto("/app/");
   await page.getByLabel("Your dog's name").fill("Mabel");

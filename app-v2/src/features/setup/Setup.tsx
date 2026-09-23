@@ -152,6 +152,11 @@ export function Setup({
                 or damaged doors or windows while alone, pause timed departures and
                 speak to your vet or a qualified behaviour professional.
               </span>
+              <span>
+                If the problem started suddenly, or {dogName} is older or has been unwell
+                or in pain, see your vet first. Medical problems can cause or add to
+                distress when left alone.
+              </span>
             </div>
 
             <div className="setup-actions">
@@ -329,6 +334,14 @@ export function Setup({
               <span>
                 If possible, use a camera or spare phone so you can see early signs
                 of concern rather than relying only on the clock.
+              </span>
+            </div>
+
+            <div className="setup-camera-note">
+              <strong>New to your home?</strong>
+              <span>
+                If {dogName} joined you recently, some worry when left may be settling in.
+                Starting gently now still helps, and it does not need a diagnosis.
               </span>
             </div>
 

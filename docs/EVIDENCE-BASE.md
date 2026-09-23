@@ -211,6 +211,23 @@ departure-like doorway cue before offering a timed departure. The exact readines
 product heuristic layered on top of the supported principle that departure cues should be
 desensitised without repeatedly provoking anxiety.
 
+### Setup safety check: medical causes first
+
+The setup safety check also tells owners to see their vet before training if the problem started
+suddenly, or if the dog is older, unwell or in pain. Veterinary guidance treats ruling out medical
+causes as an essential first step for behaviour problems. It names pain as an important risk
+factor, and lists cognitive dysfunction and other medical conditions among the causes to exclude
+for signs that overlap with separation distress, such as house soiling. Owner reports in the
+23 September review include sudden-onset destruction in a previously calm older dog and
+distress tied to IVDD, gastrointestinal and seizure histories.
+
+Source: Merck Veterinary Manual, *Behavior Problems of Dogs*
+(merckvetmanual.com/behavior/behavior-of-dogs/behavior-problems-of-dogs).
+
+The plan step's "New to your home?" note (some worry in a dog's first weeks may be settling in, and
+starting gently still helps) is **product guidance, not an evidence claim**. It stops new owners
+reading early behaviour as a fixed diagnosis without delaying gentle training.
+
 ## Production engine philosophy
 
 The production recommendation engine follows these principles:
