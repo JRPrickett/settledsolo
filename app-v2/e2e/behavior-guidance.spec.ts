@@ -112,6 +112,28 @@ test("food refusal can be recorded as an observed signal and reaches history", a
   await expect(page.getByText("Refused food or treats")).toBeVisible();
 });
 
+test("food, a remote feeder, noise and someone-home context tags reach history", async ({ page }) => {
+  await completeSetup(page, 1);
+
+  await page.getByRole("button", { name: "Start today's session" }).click();
+  await page.getByRole("button", { name: "I'm leaving now" }).click();
+  await page.waitForTimeout(1_100);
+  await page.getByRole("button", { name: "I'm back" }).click();
+  await page.getByRole("button", { name: /^Relaxed/ }).click();
+
+  const tags = ["Food or chew left", "Remote treat feeder used", "Noise or disturbance", "Someone else was home"];
+  for (const tag of tags) {
+    await page.getByRole("button", { name: tag, exact: true }).click();
+  }
+  await page.getByRole("button", { name: "Save session" }).click();
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeVisible();
+
+  await page.getByRole("button", { name: "History" }).click();
+  for (const tag of tags) {
+    await expect(page.getByText(tag, { exact: true })).toBeVisible();
+  }
+});
+
 test("a high-risk observation pauses timed training immediately", async ({ page }) => {
   await completeSetup(page, 1);
   await page.getByRole("button", { name: "More" }).click();

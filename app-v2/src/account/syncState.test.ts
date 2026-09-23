@@ -3,6 +3,7 @@ import { connect, reconcile, applyReply, resolveConflict } from "./syncState";
 import { flatten, valueSchema, type SyncReply } from "./protocol";
 import type { AppData, TrainingSession } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 const session = (id: string, note = ""): TrainingSession => ({
   id,
   at: 100,
@@ -33,6 +34,30 @@ describe("sync accepts every observed signal", () => {
       scenarioId: "training",
       ...session("bad-signal"),
       signals: ["not-a-signal"],
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+});
+
+describe("sync accepts every context tag", () => {
+  it("does not reject a session carrying all of them", () => {
+    const parsed = valueSchema.safeParse({
+      kind: "session",
+      scenarioId: "training",
+      ...session("all-tags"),
+      tags: SESSION_TAG_VALUES,
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("still rejects a tag it does not know", () => {
+    const parsed = valueSchema.safeParse({
+      kind: "session",
+      scenarioId: "training",
+      ...session("bad-tag"),
+      tags: ["not-a-tag"],
     });
 
     expect(parsed.success).toBe(false);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { backupSummary, parseBackupText } from "./backup";
+import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 
 describe("backup restore", () => {
   const envelope = (appData: unknown) =>
@@ -15,6 +16,33 @@ describe("backup restore", () => {
         ...(appData as object)
       }
     });
+
+  it("restores every context tag, including food, feeder, noise and someone-home", () => {
+    const data = parseBackupText(envelope({
+      scenarios: [{
+        id: "training",
+        label: "Separation training",
+        startSeconds: 5,
+        sessions: [{
+          id: "tagged",
+          at: 1,
+          targetSeconds: 10,
+          actualSeconds: 10,
+          outcome: "relaxed",
+          stoppedEarly: false,
+          signals: [],
+          tags: SESSION_TAG_VALUES,
+          stopReason: "",
+          note: ""
+        }]
+      }]
+    }));
+
+    expect(data.scenarios[0].sessions[0].tags).toEqual(SESSION_TAG_VALUES);
+    expect(SESSION_TAG_VALUES).toEqual(
+      expect.arrayContaining(["food-left", "remote-feeder", "noise-disturbance", "someone-home"])
+    );
+  });
 
   it("preserves a recorded pre-protocol observation", () => {
     const data = parseBackupText(

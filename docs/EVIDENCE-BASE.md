@@ -408,6 +408,27 @@ is always consistent with the target being a ceiling. The default and caps are p
 not clinical values. If the timer runs well past the target, the review offers "I was back on
 time" to correct a late tap before saving; it can only lower the recorded time.
 
+## Product rule: context tags describe, they do not prescribe
+
+Context tags record circumstances so the owner (and any professional they share the record with)
+can compare sessions. Adding a tag is not a recommendation to do that thing. Added 23 September
+2026 from the app review (`docs/APP-REVIEW-2026-09.md`):
+
+- **Food or chew left.** "Refused food or treats" is only meaningful when food was offered, so
+  this tag makes the signal interpretable. Leaving food is common owner practice. SettledSolo
+  does not claim it treats separation distress.
+- **Remote treat feeder used.** A remote-feeder protocol (FRIDA, by Nadine Hehli and Simone
+  Fasel, popularised by the *Shaped by Dog* podcast, episode 200) is the fastest-growing method
+  discussed on r/Separation_Anxiety. No peer-reviewed evaluation was found. SettledSolo neither
+  endorses nor discourages it. The tag lets owners who use a feeder keep an honest record and
+  compare sessions with and without it. The training plan does not treat feeder sessions
+  differently.
+- **Noise or disturbance.** Outside noise (lifts, neighbours, fireworks) is a frequent owner-reported
+  trigger. The tag helps separate a noise-driven difficult session from a duration problem.
+- **Someone else was home.** Separation from one person can differ from being completely alone
+  (owners describe progress that only holds when one of two people leaves). Separate training
+  tracks remain the way to train those routines apart; the tag records the circumstance.
+
 ## Public guide: `/separation-anxiety-training`
 
 The public step-by-step guide (added 23 September 2026) restates guidance already in the app,
