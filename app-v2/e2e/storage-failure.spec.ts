@@ -104,3 +104,25 @@ test("checkpoint storage failure warns during training and the saved session can
   expect(backup.appData.scenarios[0].sessions[0].outcome).toBe("relaxed");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test("changes saved while IndexedDB was failing survive a reload once it recovers", async ({ page }) => {
+  await completeSetup(page, 5);
+  // IndexedDB fails for the rest of this page, so the change reaches only the fallback.
+  await page.evaluate(() => {
+    indexedDB.open = () => { throw new Error("Simulated storage failure"); };
+  });
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await page.getByLabel("Track name", { exact: true }).fill("Renamed while storage failed");
+  await page.getByRole("button", { name: "Save track changes" }).click();
+  await expect(page.getByRole("status", { name: "Storage recovery" })).toContainText("Using compatibility storage");
+
+  // A fresh page has working IndexedDB again, still holding the older record.
+  await page.reload();
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Renamed while storage failed");
+
+  // The newer copy is promoted back into IndexedDB, so it also survives a second reload.
+  await page.reload();
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Renamed while storage failed");
+});

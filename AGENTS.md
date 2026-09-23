@@ -98,6 +98,19 @@ npm run test:pwa
 
 CI runs `npm run verify` first, then the normal Playwright suite against Chromium/Pixel 7 and WebKit/iPhone 15 profiles, followed by `npm run test:pwa` against the production build/service worker. The production PWA gate proves service-worker control in both engines and the full offline relaunch/save/reconnect cycle in Chromium; real installed-iOS offline lifecycle behaviour remains a physical-device gate.
 
+### Browser CI is expensive: validate locally and push deliberately
+
+The browser job (Chromium + WebKit, about five minutes) runs whenever a PR changes
+browser-impacting files, and then re-runs on **every** push to that PR. Each run states why in its
+summary ("Browser checks: running/skipped" with the triggering files).
+
+- Before pushing, run the browser specs your change affects locally (Chromium at minimum).
+- Run new or changed specs with `--repeat-each 10` or more; a spec that only passes once is not ready.
+- Specs that reload must first wait for the state they expect to be persisted, not only rendered.
+- Batch fixes into one validated push. Do not push diagnostic-only commits to a PR that already
+  triggers the browser suite; reproduce locally instead.
+- In the PR description, list the browser specs run locally and any engine that was not run.
+
 Automated WebKit is not proof of installed iOS PWA behaviour. Changes affecting timers, notifications, audio, offline behaviour, install flows, safe areas or app lifecycle may also require the real-device gates in `docs/DEVICE-TEST-MATRIX.md`.
 
 ## 7. Mobile and accessibility rules

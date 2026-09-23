@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (cue practice and sync-conflict pass on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (storage-drift fix and browser-CI discipline on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `893bdbe` (through PR #60)
+**Reviewed main:** `6ad0909` (through PR #61)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #60. PRs #52–#56 closed the
+Main is current through PR #61. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -36,9 +36,25 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
-### 23 September — cue practice and sync-conflict pass (branch `claude/settledsolo-release-hardening-6xkd4v`)
+### 23 September — storage-drift fix and browser-CI discipline (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Divergent-store data loss fixed.** After any IndexedDB failure, the repository saves only to
+  the localStorage fallback for the rest of that page; on the next load IndexedDB's older record
+  won and those changes were silently lost (reproduced deterministically: rename a track while
+  IndexedDB fails, reload, the name reverts). The fallback now records when its app data was
+  written (`dog-training-app.fallback.savedAt.v1`, beside the unchanged AppData JSON), and
+  `loadAppData` keeps the fallback when it is newer than the IndexedDB record's `updatedAt`,
+  promoting it back into IndexedDB. Older installs without the stamp keep the previous behaviour.
+  This closes the "divergent populated stores" gap noted under PR #27 and is the likely cause of
+  the intermittent CI failure in `behavior-guidance.spec.ts` › one-time observation.
+- **Browser CI is explicit.** Each CI run's summary states "Browser checks: running/skipped" with
+  the triggering files, and notes that every push to a browser-impacting PR re-runs the ~5 minute
+  suite. `AGENTS.md` now requires local runs of affected specs (repeat new/changed specs ≥10),
+  persistence-aware reload specs, batched pushes and listing locally run specs in the PR.
+
+### 23 September — cue practice and sync-conflict pass — merged (PR #61)
 
 - **Cue practice is resumable.** An unfinished set is checkpointed after every rep to the
   device-local key `settledsolo.cue-practice.v1` (`session/cueCheckpoint.ts`), tied to its track
@@ -292,7 +308,8 @@ Now:
 - browser regressions cover history/ID preservation, running-session recovery, save/reload and
   expired-checkpoint rejection.
 
-This handles an empty primary store. It deliberately does **not** reconcile two already-divergent
+This handles an empty primary store. (Superseded 23 September: newer fallback data now wins over
+an older IndexedDB record; see the storage-drift fix.) It deliberately does **not** reconcile two already-divergent
 populated stores, or concurrent tabs. Guest/local use and training recommendations are unchanged.
 
 This branch predates PR #28, so it carries a merge of `main`. Account sync wiring added to

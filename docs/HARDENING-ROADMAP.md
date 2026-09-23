@@ -32,7 +32,8 @@ New product features should wait unless they directly close a release blocker fo
 - Split the large `core-flow.spec.ts` into focused specs (onboarding, session lifecycle, history/data, behaviour guidance, install/public) to reduce merge-conflict risk. **Done: PR #37.**
 - Keep the expensive Chromium/WebKit/PWA job targeted: run it on browser-impacting PRs, on browser-impacting direct pushes to `main`, and on explicit manual full-CI runs. Do not repeat it on the `main` merge push after the same PR already passed.
 - Browser-impacting paths include runtime/frontend/PWA files, E2E specs, root dependency manifests and `.node-version`. Unit-test-only changes under `app-v2/src/**` stay on fast Vitest/type/build verification and do not download browsers.
-- Upload Playwright traces/screenshots on browser-test failure, not only account review screenshots.
+- Upload Playwright traces/screenshots on browser-test failure, not only account review screenshots. **Done: PR #61.**
+- State in every CI run why the browser suite ran or was skipped, and require local repeated runs before pushing browser-impacting changes. **Done: storage-drift PR (`AGENTS.md` §6).**
 - Keep production deployment manual and preview deployment gated by the same fast verification commands as CI.
 
 **Exit:** the same commit installs deterministically and passes TypeScript, unit, Worker dry-run, mobile browser and production-PWA checks before it can be considered releasable.
@@ -173,5 +174,5 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 operation fails, reports checkpoint-only storage degradation, and puts a saved-training backup
 action on a cross-screen recovery notice. Memory-only storage also suppresses the PWA update
 prompt. Browser regressions cover a stale fallback retaining history/ownership, and full storage
-failure during a session followed by save/export. PR #54 subsequently closed the local multi-window policy/guard. Divergent populated stores across
+failure during a session followed by save/export. PR #54 subsequently closed the local multi-window policy/guard. Divergent populated stores (fixed: newer fallback app data now wins, storage-drift PR) across
 visits, cross-device conflicts and real-device release gates remain.
