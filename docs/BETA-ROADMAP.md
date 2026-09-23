@@ -1,6 +1,6 @@
 # SettledSolo beta roadmap
 
-Last updated: 22 September 2026
+Last updated: 23 September 2026
 
 The goal of the first beta is a small, reliable public product: the core training loop is
 free, local-first and understandable; users can keep and delete their records; the public
@@ -43,7 +43,8 @@ Current pass:
   **done, and now served in the HTML itself so link previews see them;**
 - ship the canonical link, Open Graph/Twitter metadata, `robots.txt` and sitemap; **done, with
   branded 1200x630 share cards per key page (`npm run social:images`);**
-- add real product screenshots; the feedback/contact route is done (`/contact`, More → Help & feedback,
+- add real product screenshots; **done: the homepage shows real Today, live and review screens
+  captured from the app (`npm run product:screens`);** the feedback/contact route is done (`/contact`, More → Help & feedback,
   inbox configured by `VITE_CONTACT_EMAIL`);
 - verify the production domain, Search Console coverage and social previews after deployment;
 - keep `/app/` out of search indexing while making the public guidance pages crawlable.
@@ -66,7 +67,8 @@ The core plan, timer, history, export and basic progress view should remain usef
 Monetisation is deliberately staged:
 
 1. **Beta:** no payment wall. Measure whether the product is useful and reliable.
-2. **Optional support:** the CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
+2. **Optional support:** the privacy notice gains a support-payments section naming the
+   provider whenever the link is configured. The CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
    environment variable (read by both deploy workflows) is
    populated with the confirmed provider URL. Confirm the account, fees, region, payout
    details and privacy terms before enabling it in production. It must be optional and

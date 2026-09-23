@@ -3,6 +3,7 @@ import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
 import { OptionalSupportCard } from "./PublicSupport";
 import { contactEmail, feedbackMailto } from "./contact";
+import { supportProvider, supportUrl } from "./support";
 import { isPublicPagePath, normalisePublicPath, type PublicPagePath } from "./routes";
 import { CANONICAL_ORIGIN, PAGE_META } from "./pageMeta";
 
@@ -157,6 +158,18 @@ function PrivacyPage() {
         delete copies saved on your devices; reset each device separately if you want
         to remove those.
       </p>
+      {supportUrl && (
+        <>
+          <h2>Optional support payments</h2>
+          <p>
+            If you choose to make an optional contribution, {supportProvider} and its payment
+            processors handle the payment under their own privacy policies. SettledSolo never
+            receives your card or bank details. We may see the name, email address and message
+            you give {supportProvider}, which we use only to acknowledge your support and keep
+            financial records. A contribution is never linked to your training record.
+          </p>
+        </>
+      )}
       <h2>How long we keep information</h2>
       <p>
         Information on your device stays there until you delete it. Information

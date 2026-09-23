@@ -1,7 +1,7 @@
 # SettledSolo payments plan
 
-**Written:** 23 September 2026 · **Status:** recommendation, nothing implemented beyond the hidden
-`VITE_SUPPORT_URL` link · **Assumes:** the seller is a UK-based sole trader or small company. If
+**Written:** 23 September 2026 · **Status:** recommendation. Implemented: the hidden
+`VITE_SUPPORT_URL` link and its privacy-notice section · **Assumes:** the seller is a UK-based sole trader or small company. If
 that is wrong, the tax section changes and this plan should be revisited.
 
 Fees and rules below were checked on the date above against provider pages and current guides
@@ -74,8 +74,11 @@ No payments. Measure usefulness and reliability; do not use training outcomes as
 1. Create a Ko-fi page with a plain description and no perks or reward tiers.
 2. Set its URL as the `VITE_SUPPORT_URL` GitHub environment variable (preview first, then
    production). The existing "Support SettledSolo" card appears; nothing else changes.
-3. Add one line to the privacy notice saying Ko-fi and its payment processor handle support
-   payments, and that SettledSolo never receives card details.
+3. ~~Add the privacy-notice line.~~ Done: when `VITE_SUPPORT_URL` is set, `/privacy` gains an
+   "Optional support payments" section and the support card says who handles payment. The
+   provider name comes from the link's host (`supportProviderName` in `public/support.ts`:
+   Ko-fi, Buy Me a Coffee, otherwise "our support provider"), so the notice cannot name the
+   wrong provider.
 4. Keep the card out of the training flow (it only shows on the public site today).
 
 ### Phase 2 — paid add-ons (only after beta evidence)

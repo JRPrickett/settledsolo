@@ -1,5 +1,6 @@
 import type { AppData, SessionTag } from "../domain/types";
 import { SESSION_TAG_OPTIONS } from "../domain/sessionTags";
+import { recordBackupDownloaded } from "./backupReminder";
 
 const tagLabel = new Map<SessionTag, string>(
   SESSION_TAG_OPTIONS.map(({ value, label }) => [value, label])
@@ -81,6 +82,7 @@ export function downloadBackup(data: AppData) {
     JSON.stringify(makeBackup(data), null, 2),
     "application/json"
   );
+  recordBackupDownloaded();
 }
 
 export function downloadSessionsCsv(data: AppData) {
