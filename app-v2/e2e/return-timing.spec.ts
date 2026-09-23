@@ -71,6 +71,16 @@ test("a late 'I'm back' tap can be recorded as on time before saving", async ({ 
   await note.getByRole("button", { name: "Keep the timer's 5:00 instead" }).click();
   await expect(page.locator(".review-time")).toHaveText("5:00");
   await note.getByRole("button", { name: "I was back on time" }).click();
+  // Persistence runs just after render. Once the first-written fallback copy holds
+  // the correction, a reload must restore it even if IndexedDB has not caught up.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const saved = localStorage.getItem("dog-training-app.active.fallback.v1");
+        return saved ? JSON.parse(saved).state.mainActualSeconds : null;
+      })
+    )
+    .toBe(60);
   await page.reload();
   await expect(page.locator(".review-time")).toHaveText("1:00");
 
