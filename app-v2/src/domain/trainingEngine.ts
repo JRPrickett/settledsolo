@@ -1,5 +1,5 @@
 import type { Recommendation, TrainingSession } from "./types";
-import { hasHighRiskSignals } from "./observedSignals";
+import { hasHighRiskSignals, observedSignalLabel } from "./observedSignals";
 
 export function stepSize(seconds: number): number {
   if (seconds < 10) return 1;
@@ -33,15 +33,32 @@ function latestRelaxedBefore(
   return undefined;
 }
 
+/**
+ * A "relaxed" rating with stress signs ticked is not a clean result: the app's
+ * own definition of relaxed excludes pacing, whining or exit-watching for more
+ * than a few seconds. Such a session holds the plan rather than advancing it.
+ */
+function cleanlyRelaxed(session: TrainingSession): boolean {
+  return session.outcome === "relaxed" && !session.stoppedEarly && session.signals.length === 0;
+}
+
 function relaxedRun(sessions: TrainingSession[]): number {
   let count = 0;
   for (let index = sessions.length - 1; index >= 0; index -= 1) {
-    const session = sessions[index];
-    if (session.outcome === "relaxed" && !session.stoppedEarly) count += 1;
+    if (cleanlyRelaxed(sessions[index])) count += 1;
     else break;
   }
   return count;
 }
+
+/**
+ * Days without a timed session after which the next plan steps back. Learned
+ * calm can partly fade with time away ("spontaneous recovery" in the extinction
+ * and exposure literature), so a long break restarts one step easier. The exact
+ * number of days is a SettledSolo product heuristic, not a clinical threshold.
+ */
+export const LONG_BREAK_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function needsSupport(sessions: TrainingSession[]): boolean {
   const recent = sessions.slice(-5);
@@ -77,7 +94,8 @@ function referralSuggested(sessions: TrainingSession[]): boolean {
 
 export function recommendNext(
   sessions: TrainingSession[],
-  configuredStartSeconds: number
+  configuredStartSeconds: number,
+  now = Date.now()
 ): Recommendation {
   const start = Math.max(1, Math.round(configuredStartSeconds || 1));
 
@@ -161,12 +179,39 @@ export function recommendNext(
     };
   }
 
+  const daysSinceLast = Math.floor((now - last.at) / DAY_MS);
+  if (daysSinceLast >= LONG_BREAK_DAYS) {
+    const comfort = comfortableDuration(last);
+    return {
+      targetSeconds: Math.max(start, comfort - stepSize(comfort)),
+      direction: "reduce",
+      reason: `It has been ${daysSinceLast} days since the last timed session. Calm can partly fade after a break, so the plan restarts one step easier and builds back up from there.`,
+      supportFlag,
+      restDayRecommended,
+      referralSuggested: referral,
+      highRiskFlag
+    };
+  }
+
   if (last.stoppedEarly) {
     return {
       targetSeconds: Math.max(start, comfortableDuration(last)),
       direction: "repeat",
       reason:
         "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
+      supportFlag,
+      restDayRecommended,
+      referralSuggested: referral,
+      highRiskFlag
+    };
+  }
+
+  if (last.signals.length > 0) {
+    const noted = last.signals.map((signal) => observedSignalLabel(signal).toLowerCase()).join(", ");
+    return {
+      targetSeconds: last.targetSeconds,
+      direction: "repeat",
+      reason: `It went well overall, but you noted ${noted}. Repeat this duration and wait for a session without those signs before making it harder.`,
       supportFlag,
       restDayRecommended,
       referralSuggested: referral,

@@ -277,6 +277,32 @@ The production recommendation engine follows these principles:
 10. **Explain every recommendation**
    The UI must show why a target was held, increased or reduced.
 
+## Engine refinements, 23 September 2026
+
+Two gaps where the engine did not follow its own principles:
+
+- **Stress signs hold the plan.** A session rated relaxed but with any observed sign ticked
+  (pacing, panting, whining, exit-watching, inability to settle, food refusal and so on) no longer
+  counts towards an increase. The next target repeats, and two clean relaxed sessions are needed
+  before the next step. This follows the core systematic-desensitisation rule of staying below the
+  point where the dog shows signs of anxiety (Butler et al. 2011; signs appear early and are best
+  seen by direct observation, Palestrini et al. 2010). The app's own "Relaxed" definition already
+  excludes these signs lasting more than a few seconds.
+- **A long break restarts one step easier.** After 7 or more days without a timed session, the
+  next target is the last comfortable duration minus one step. Learned calm can partly return to
+  fear with the passage of time: "spontaneous recovery", a well-replicated extinction and exposure
+  finding (Bouton's retrieval model; systematic review in human fear conditioning, Frontiers in
+  Behavioral Neuroscience 2026). This is translated from learning research rather than tested in
+  dogs with separation-related problems, and the 7-day threshold is a product heuristic. It also
+  makes the engine match the resources FAQ, which already told owners to resume "with an easy,
+  familiar step".
+
+Sources:
+- Bouton ME. Context, time, and memory retrieval in the interference paradigms of Pavlovian
+  learning. Psychological Bulletin. 1993;114(1):80-99.
+- A systematic review of spontaneous recovery in human fear conditioning. Frontiers in Behavioral
+  Neuroscience. 2026. https://www.frontiersin.org/journals/behavioral-neuroscience/articles/10.3389/fnbeh.2026.1820847/full
+
 ## Product heuristic: the referral threshold
 
 The referral tier fires when, across the last ten sessions, at least three were distressed, at

@@ -218,7 +218,8 @@ test("returning early while relaxed makes the next plan easier without treating 
         sessions: [
           {
             id: "relaxed-1",
-            at: Date.UTC(2026, 8, 10, 12, 0, 0),
+            // Recent sessions: a gap of a week or more deliberately makes the plan easier.
+            at: Date.now() - 2 * 24 * 60 * 60 * 1000,
             targetSeconds: 5,
             actualSeconds: 5,
             outcome: "relaxed",
@@ -230,7 +231,7 @@ test("returning early while relaxed makes the next plan easier without treating 
           },
           {
             id: "relaxed-2",
-            at: Date.UTC(2026, 8, 11, 12, 0, 0),
+            at: Date.now() - 24 * 60 * 60 * 1000,
             targetSeconds: 5,
             actualSeconds: 5,
             outcome: "relaxed",
