@@ -274,6 +274,19 @@ function EvidencePage() {
         product heuristics. They are deliberately explainable and are not described as a
         clinically validated dose of training.
       </p>
+      <h2>How big each step is</h2>
+      <p>
+        Each change is about a tenth of the current time, never more than two minutes.
+        Dogs judge durations by ratio, and in a small timing study they needed a difference
+        of roughly 44% or more to tell two durations apart, so a 10% step should be barely
+        noticeable. The step only moves up after clean relaxed sessions, holds when you note
+        stress signs, and starts a step easier after a week or more away.
+      </p>
+      <p>
+        <a href="https://doi.org/10.3390/ani9100801" target="_blank" rel="noreferrer">
+          Cliff et al., Animals (2019)
+        </a>
+      </p>
       <h2>Frequency and warm-up variation</h2>
       <p>
         There is no published universal number of timed departures to perform each day.

@@ -52,6 +52,12 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   in the served HTML with the requested page's tags (canonical only for public pages, none for
   `/app/` or not-found pages) and drops stale `content-length`/`etag`. The client router uses the
   same module. A Worker test fails if `index.html`'s default block drifts from the home metadata.
+- **Training engine refinements (evidence-reviewed).** Steps are now proportional: 10% of the
+  current duration, 1 s minimum, 2 min maximum, replacing fixed tiers that swung from 33% to 0.4%.
+  Rationale: dogs time by ratio and need ~44-94% differences to discriminate durations (Cliff &
+  Jackson 2019), so 10% steps stay imperceptible. A relaxed session with stress signs ticked now
+  holds the plan, and 7+ days without a timed session restarts one step easier (spontaneous
+  recovery). All values are labelled heuristics; see `EVIDENCE-BASE.md`.
 - **Payments plan.** `docs/PAYMENTS-PLAN.md` compares Ko-fi, Buy Me a Coffee, Paddle, Stripe
   Managed Payments, Lemon Squeezy and standard Stripe for a UK seller. It recommends Ko-fi for
   optional support now (via `VITE_SUPPORT_URL`), and Paddle as merchant of record for any later

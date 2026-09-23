@@ -1,6 +1,6 @@
 # Evidence base and training-engine decisions
 
-Last reviewed: 22 September 2026
+Last reviewed: 23 September 2026
 
 SettledSolo is a training/planning aid, not a diagnostic or veterinary product. This document
 separates what is supported by published evidence from the product heuristics we use to turn
@@ -223,9 +223,10 @@ The production recommendation engine follows these principles:
    One relaxed result is treated as useful evidence, but the app normally asks for another
    comfortable repetition before increasing difficulty.
 
-3. **Small, transparent step sizes**
-   When the app increases duration, it uses simple tiered time increments. These increments are
-   product heuristics chosen for conservatism and usability, not clinically validated values.
+3. **Small, proportional step sizes**
+   When the app changes duration, it moves by about a tenth of the current time (1 second minimum,
+   2 minutes maximum), which stays below dogs' measured duration-discrimination threshold. The
+   exact values are product heuristics, not clinically validated dosages; see "Step size" below.
 
 4. **Concern means reduce difficulty**
    "Some concern" does not trigger an increase. The next target returns toward a recently
@@ -314,22 +315,54 @@ clinical threshold. No source establishes a number of difficult sessions after w
 input is indicated. What the heuristic encodes is only the uncontroversial part: a pattern that
 training alone is not shifting is a reasonable point to widen the circle of help.
 
-## Product heuristics: current step sizes
+## Step size: proportional, below dogs' duration-discrimination threshold
 
-The initial production engine uses human-readable absolute increments:
+**Rule (23 September 2026):** one step is **10% of the current duration, at least 1 second and
+at most 2 minutes** (`stepSize` in `trainingEngine.ts`). The same step is used for increases after
+clean relaxed sessions and for step-downs after concern, distress or a long break.
 
-- under 10 s: +1 s
-- 10-29 s: +2 s
-- 30-59 s: +3 s
-- 1-2 min: +5 s
-- 2-5 min: +10 s
-- 5-10 min: +15 s
-- 10-30 min: +30 s
-- over 30 min: +60 s
+Why proportional, and why about 10%:
 
-These numbers are deliberately modest and easy to understand. They are not presented as a
-scientific formula or clinical dosage. Any future change should be evidence-logged, clearly
-labelled as a product heuristic and covered by regression tests.
+- **Dogs judge durations by ratio.** In a bisection task, dogs split short/long duration pairs at
+  about the geometric mean, as ratio-based timing predicts, consistent with other mammals and
+  birds (Cliff & Jackson 2019). A fixed number of seconds is therefore a large change for a short
+  absence and an imperceptible one for a long absence; a proportional step is the same relative
+  change throughout.
+- **Their duration sense is coarse.** The same six dogs needed roughly a **44-94%** difference
+  (Weber fractions 0.44-0.94) to discriminate durations. A 10% step is well under a quarter of the
+  smallest measured threshold, so each change should be barely perceptible, which is what
+  systematic desensitisation asks for (begin below the threshold of distress and increase in steps
+  small enough not to provoke it).
+- **No published protocol fixes a number.** Butler et al. (2011) used "separations of approximately
+  increasing length", and success was not associated with how consistently owners increased them.
+  That supports a conservative, consistent rule without making any exact percentage a clinical
+  requirement.
+
+Limits, stated plainly: Cliff & Jackson tested 0.5-16 second durations and perception rather than
+anxiety, with a small sample and a U-shaped (not perfectly constant) Weber function. Extending the
+ratio principle to hour-long absences is an inference. The **10% fraction, the 1-second floor and
+the 2-minute cap are SettledSolo product heuristics**; the cap is a deliberate safety bound for
+durations far beyond anything tested.
+
+Effect compared with the previous fixed tiers (+1 s to +60 s by band), assuming every session is
+clean and relaxed from 3 seconds (real training will be slower, with repeats and step-downs):
+
+| Reach | Previous tiers | 10% / 2-min cap |
+| --- | --- | --- |
+| 1 minute | 29 sessions | 28 sessions |
+| 5 minutes | 59 | 45 |
+| 30 minutes | 119 | 65 |
+| 1 hour | 149 | 80 |
+| 4 hours | 329 | 170 |
+
+The previous tiers swung from a 33% or 20% jump at the fragile start to under 1% per step at two
+hours. The proportional rule removes both the early spikes and the late stall.
+
+Sources:
+- Cliff KM, Jackson SM et al. Weber's Law and the Scalar Property of Timing: A Test of Canine
+  Timing. Animals. 2019;9(10):801. DOI: 10.3390/ani9100801
+- Butler R, Sargisson RJ, Elliffe D. Applied Animal Behaviour Science. 2011;129(2-4):136-145.
+  DOI: 10.1016/j.applanim.2010.11.001
 
 ## Product rule: progress credit is capped at the target
 

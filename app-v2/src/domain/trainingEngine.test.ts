@@ -70,7 +70,9 @@ describe("recommendNext", () => {
       ],
       5
     );
-    expect(result.targetSeconds).toBe(10);
+    // One 10% step below the 12-second concern point, not back up to the older 25s anchor.
+    expect(result.targetSeconds).toBe(11);
+    expect(result.targetSeconds).toBeLessThan(12);
     expect(result.direction).toBe("reduce");
   });
 
@@ -152,16 +154,29 @@ describe("recommendNext", () => {
 
 describe("stepSize", () => {
   it.each([
-    [5, 1],
+    [3, 1],
     [20, 2],
-    [45, 3],
-    [90, 5],
-    [240, 10],
-    [480, 15],
-    [1200, 30],
-    [2400, 60]
-  ])("uses transparent tiered increments for %i seconds", (seconds, expected) => {
+    [45, 5],
+    [90, 9],
+    [300, 30],
+    [600, 60],
+    [1200, 120]
+  ])("is about a tenth of %i seconds", (seconds, expected) => {
     expect(stepSize(seconds)).toBe(expected);
+  });
+
+  it("never drops below one second or exceeds two minutes", () => {
+    expect(stepSize(1)).toBe(1);
+    expect(stepSize(0)).toBe(1);
+    expect(stepSize(3600)).toBe(120);
+    expect(stepSize(4 * 3600)).toBe(120);
+  });
+
+  it("keeps every step well below dogs' measured duration-discrimination threshold", () => {
+    // Cliff & Jackson (2019): dogs needed at least a ~44% difference to discriminate durations.
+    for (let seconds = 10; seconds <= 4 * 3600; seconds += 7) {
+      expect(stepSize(seconds) / seconds).toBeLessThanOrEqual(0.15);
+    }
   });
 });
 

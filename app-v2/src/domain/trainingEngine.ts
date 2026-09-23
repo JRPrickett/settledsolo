@@ -1,15 +1,25 @@
 import type { Recommendation, TrainingSession } from "./types";
 import { hasHighRiskSignals, observedSignalLabel } from "./observedSignals";
 
+/** Each step is this fraction of the current duration. */
+export const STEP_FRACTION = 0.1;
+/** Never change a target by more than this in one step. */
+export const MAX_STEP_SECONDS = 120;
+
+/**
+ * The size of one easier or harder step, proportional to the current duration.
+ *
+ * Dogs judge durations by ratio (they bisect intervals at the geometric mean)
+ * and needed roughly a 44-94% difference to tell two durations apart (Cliff &
+ * Jackson 2019). A 10% step is well under that threshold, so each change should
+ * be barely perceptible, which is what systematic desensitisation asks for.
+ * That study covered durations up to 16 seconds and perception rather than
+ * anxiety, so the 10% fraction, the 1-second floor and the 2-minute cap are
+ * SettledSolo product heuristics, not clinically validated values.
+ */
 export function stepSize(seconds: number): number {
-  if (seconds < 10) return 1;
-  if (seconds < 30) return 2;
-  if (seconds < 60) return 3;
-  if (seconds < 120) return 5;
-  if (seconds < 300) return 10;
-  if (seconds < 600) return 15;
-  if (seconds < 1800) return 30;
-  return 60;
+  const proportional = Math.round(Math.max(0, seconds) * STEP_FRACTION);
+  return Math.min(MAX_STEP_SECONDS, Math.max(1, proportional));
 }
 
 function comfortableDuration(session: TrainingSession): number {
@@ -237,7 +247,7 @@ export function recommendNext(
   return {
     targetSeconds: last.targetSeconds + increment,
     direction: "increase",
-    reason: `Recent sessions were relaxed, so the next plan adds a small ${increment}-second step.`,
+    reason: `Recent sessions were relaxed, so the next plan adds a small step of ${formatDuration(increment)} (about a tenth of the current time).`,
     supportFlag,
     restDayRecommended,
     referralSuggested: referral,
