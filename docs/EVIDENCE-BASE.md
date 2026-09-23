@@ -315,6 +315,18 @@ keeps rewards moving only as fast as the target progression, which already caps 
 target. History still records the real duration, and returning early still credits the relaxed
 time observed. This is a product rule about motivation and data quality, not a clinical claim.
 
+## Product rule: walk-back reminders and the on-target window
+
+Reminders (background push, in-app chime and the "Time to head back" label) fire a device-local
+walk-back time before the main target, 30 seconds by default, capped at a quarter of the target
+and not used below 20 seconds. Without it the owner is alerted at the target and inevitably
+arrives after it, so every alerted session overran. A return inside that window is recorded
+with its real duration but is **not** an early stop, and counts as the full target for progress
+credit; returning before the window is still an early stop. Arriving slightly before the target
+is always consistent with the target being a ceiling. The default and caps are product choices,
+not clinical values. If the timer runs well past the target, the review offers "I was back on
+time" to correct a late tap before saving; it can only lower the recorded time.
+
 ## Outcome language
 
 Production UI:

@@ -112,3 +112,25 @@ describe("discard protection", () => {
     expect(hasRealDeparture(state)).toBe(true);
   });
 });
+
+describe("correcting a late 'I'm back' tap", () => {
+  it("can lower the recorded return to the target and undo it, but never raise it", () => {
+    let state = initialLiveSession([{ kind: "main", targetSeconds: 60 }]);
+    state = liveSessionReducer(state, { type: "START_STEP", now: 0 });
+    state = liveSessionReducer(state, { type: "RETURN", now: 300_000 });
+    expect(state.mainActualSeconds).toBe(300);
+
+    state = liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 60 });
+    expect(state.mainActualSeconds).toBe(60);
+    state = liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 300 });
+    expect(state.mainActualSeconds).toBe(300);
+    expect(liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 301 })).toBe(state);
+    expect(liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 0 })).toBe(state);
+  });
+
+  it("does nothing outside a main review", () => {
+    let state = initialLiveSession([{ kind: "main", targetSeconds: 60 }]);
+    state = liveSessionReducer(state, { type: "START_STEP", now: 0 });
+    expect(liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 10 })).toBe(state);
+  });
+});

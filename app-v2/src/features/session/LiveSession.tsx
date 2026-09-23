@@ -36,6 +36,12 @@ import {
 } from "../../session/sessionAlerts";
 import { isIOS, isStandalone } from "../../pwa/installStatus";
 import {
+  effectiveWalkBackSeconds,
+  headBackAt,
+  loadWalkBackSeconds,
+  returnedEarly
+} from "../../session/walkBack";
+import {
   elapsedSeconds,
   hasRealDeparture,
   initialLiveSession,
@@ -108,6 +114,9 @@ export function LiveSession({
   const [now, setNow] = useState(Date.now());
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  // Remind the owner early enough to walk back and arrive around the target.
+  const [walkBackSeconds] = useState(loadWalkBackSeconds);
+  const mainLeadSeconds = effectiveWalkBackSeconds(targetSeconds, walkBackSeconds);
   const [signals, setSignals] = useState<ObservedSignal[]>([]);
   const [tags, setTags] = useState<SessionTag[]>([]);
   const [stopReason, setStopReason] = useState("");
@@ -185,6 +194,8 @@ export function LiveSession({
   const elapsed = elapsedSeconds(state, now);
   const remaining = Math.max(0, step.targetSeconds - elapsed);
   const over = elapsed > step.targetSeconds;
+  const stepLeadSeconds = step.kind === "main" ? mainLeadSeconds : 0;
+  const headingBack = remaining > 0 && remaining <= stepLeadSeconds;
 
   useEffect(() => {
     if (state.phase !== "running") return;
@@ -193,7 +204,7 @@ export function LiveSession({
       step.kind === "main" &&
       step.targetSeconds >= 10 &&
       remaining > 0 &&
-      remaining <= 5 &&
+      remaining <= Math.max(5, stepLeadSeconds) &&
       !state.warningIssued;
 
     if (shouldWarn) {
@@ -212,7 +223,8 @@ export function LiveSession({
     state.targetIssued,
     state.warningIssued,
     step.kind,
-    step.targetSeconds
+    step.targetSeconds,
+    stepLeadSeconds
   ]);
 
   function toggleSignal(signal: ObservedSignal) {
@@ -231,8 +243,23 @@ export function LiveSession({
     );
   }
 
+  // How far past the target the timer ran before "I'm back" was tapped.
+  const measuredMainSeconds =
+    state.phase === "review" && !reviewIsPractice && state.returnedAt !== null
+      ? elapsedSeconds(state, state.returnedAt)
+      : 0;
+  const overrunSeconds = measuredMainSeconds - targetSeconds;
+  const showOverrunNote =
+    overrunSeconds >= Math.max(30, Math.round(targetSeconds * 0.25));
+  const overrunCorrected =
+    showOverrunNote && state.mainActualSeconds === targetSeconds;
+
+  // A main return inside the walk-back window is on target, not an early stop.
   const stoppedEarly =
-    state.mainActualSeconds !== null && state.mainActualSeconds < targetSeconds;
+    state.mainActualSeconds !== null &&
+    (reviewIsPractice
+      ? state.mainActualSeconds < targetSeconds
+      : returnedEarly(state.mainActualSeconds, targetSeconds, mainLeadSeconds));
 
   async function saveReview() {
     if (
@@ -330,7 +357,7 @@ export function LiveSession({
       if (!ready || pending.cancelled) return false;
 
       return scheduleBackgroundReturnAlert(
-        started + step.targetSeconds * 1000,
+        headBackAt(started, step.targetSeconds, mainLeadSeconds),
         pending.token
       );
     })();
@@ -399,6 +426,43 @@ export function LiveSession({
             {reviewIsPractice ? "Session stopped after" : "You came back at"}
           </p>
           <div className="review-time">{formatDuration(state.mainActualSeconds ?? 0)}</div>
+          {showOverrunNote && (
+            <div className="overrun-note" role="note">
+              {overrunCorrected ? (
+                <>
+                  <p>
+                    Recorded as the {formatDuration(targetSeconds)} target. You can
+                    fine-tune it later in History.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      dispatch({ type: "CORRECT_MAIN_RETURN", seconds: measuredMainSeconds })
+                    }
+                  >
+                    Keep the timer&apos;s {formatDuration(measuredMainSeconds)} instead
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p>
+                    The timer ran {formatDuration(overrunSeconds)} past the{" "}
+                    {formatDuration(targetSeconds)} target. If you were back with{" "}
+                    {dogName} sooner and only tapped late, record the target time so
+                    your history stays accurate.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      dispatch({ type: "CORRECT_MAIN_RETURN", seconds: targetSeconds })
+                    }
+                  >
+                    I was back on time
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <h1>
             {reviewIsPractice
               ? `That warm-up was enough for today.`
@@ -677,7 +741,9 @@ export function LiveSession({
           </>
         ) : (
           <>
-            <p className="kicker light">{over ? "Target reached" : "Time remaining"}</p>
+            <p className="kicker light">
+              {over ? "Target reached" : headingBack ? "Time to head back" : "Time remaining"}
+            </p>
             <ProgressRing
               elapsed={elapsed}
               targetSeconds={step.targetSeconds}

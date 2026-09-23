@@ -228,3 +228,13 @@ describe("milestone ladder", () => {
     expect(new Set(MILESTONE_LADDER.map((rung) => rung.label)).size).toBe(20);
   });
 });
+
+describe("walk-back window credit", () => {
+  it("credits the full target when a return inside the reminder window was not early", () => {
+    const data = appData([
+      scenario({ sessions: [session({ targetSeconds: 60, actualSeconds: 50, stoppedEarly: false })] })
+    ]);
+    expect(earnedMilestones(data).has(60)).toBe(true);
+    expect(longestRelaxedSeconds(data)).toBe(60);
+  });
+});

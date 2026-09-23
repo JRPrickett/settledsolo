@@ -62,6 +62,14 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   `min(actual, target)` (`creditedSeconds`), so forgetting to tap "I'm back" can no longer award
   several rungs in one session. History keeps the real duration; the plan already capped at the
   target. See the evidence-base product rule.
+- **Walk-back reminders.** Push, chime and a "Time to head back" label fire a device-local walk-back
+  time before the main target (More → Return alerts; default 30s, capped at a quarter of the
+  target, none under 20s; `session/walkBack.ts`). Returns inside that window are not early stops
+  and credit the full target. The push notification now reads "Time to head back". See the
+  evidence-base product rule.
+- **Overrun correction.** When the timer ran at least max(30s, 25% of target) past the target, the
+  review offers "I was back on time" (`CORRECT_MAIN_RETURN`, can only lower the time, survives a
+  reload, undoable). `return-timing.spec.ts` uses Playwright's fake clock for these journeys.
 - **Milestone ladder** grows from 14 to 20 rungs, 10 seconds to 4 hours: 10s, 15s, 30s, 1m, 2m,
   3m, 5m, 10m, 15m, 20m, 30m, 45m, 1h, 75m, 90m, 2h, 2.5h, 3h, 3.5h, 4h. Early rungs are close
   together for dogs starting from seconds. Earned rungs are derived from history, so existing

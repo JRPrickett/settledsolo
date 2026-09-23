@@ -5970,3 +5970,45 @@ a:focus-visible {
   outline: 3px solid #f2a65a;
   outline-offset: 3px;
 }
+
+.track-form select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(21,36,44,.11);
+  border-radius: 13px;
+  background: #F6F0E5;
+  color: var(--ink);
+  padding: 11px 12px;
+}
+
+.overrun-note {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 36ch;
+  margin: 12px auto 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(21, 36, 44, .12);
+  border-radius: 16px;
+  background: rgba(242, 166, 90, .14);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.overrun-note p {
+  margin: 0;
+}
+
+.overrun-note button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(21, 36, 44, .18);
+  border-radius: 999px;
+  background: #fbf7ef;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

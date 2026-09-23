@@ -34,6 +34,8 @@ export type LiveSessionAction =
   | { type: "NEXT_STEP" }
   | { type: "MARK_WARNING_ISSUED" }
   | { type: "MARK_TARGET_ISSUED" }
+  /** The owner says they were back sooner than they tapped; only ever lowers the time. */
+  | { type: "CORRECT_MAIN_RETURN"; seconds: number }
   | { type: "RESET" };
 
 export function initialLiveSession(steps: SessionStep[]): LiveSessionState {
@@ -138,6 +140,21 @@ export function liveSessionReducer(
         practiceOutcome: action.outcome,
         practiceReviews
       };
+    }
+
+    case "CORRECT_MAIN_RETURN": {
+      if (
+        state.phase !== "review" ||
+        (state.reviewKind ?? "main") !== "main" ||
+        state.startedAt === null ||
+        state.returnedAt === null
+      ) {
+        return state;
+      }
+      const measured = Math.max(1, elapsedSeconds(state, state.returnedAt));
+      const seconds = Math.round(action.seconds);
+      if (!Number.isFinite(seconds) || seconds < 1 || seconds > measured) return state;
+      return { ...state, mainActualSeconds: seconds };
     }
 
     case "NEXT_STEP":
