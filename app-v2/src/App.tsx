@@ -180,7 +180,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
         <a className="app-brand-link" href="/" aria-label="SettledSolo home">
           <BrandWordmark compact light />
         </a>
-        <div className="dog-chip">{data.dogName}</div>
+        <div className="dog-chip" title={data.dogName}>{data.dogName}</div>
       </header>
 
       <main className="app-content">
@@ -240,6 +240,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
           <More
             accountPanel={<AccountPanel data={data} account={account} />}
             data={data}
+            storageMode={storageMode}
             onSelectScenario={async (id) => {
               setData(await repository.setActiveScenario(id));
               setStorageMode(repository.storageMode());

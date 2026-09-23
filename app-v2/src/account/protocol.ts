@@ -1,4 +1,8 @@
 import { z } from "zod";
+
+// SettledSolo's CSP forbids eval. Without jitless mode Zod probes
+// `new Function` on first use, which the browser reports as a CSP violation.
+z.config({ jitless: true });
 import type {
   AppData,
   ObservedSignal,

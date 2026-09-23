@@ -41,7 +41,8 @@ Current pass:
 
 - publish canonical titles/descriptions for the home, help, resources and evidence pages;
 - ship the canonical link, Open Graph/Twitter metadata, `robots.txt` and sitemap;
-- add real product screenshots and an accessible feedback/contact route;
+- add real product screenshots; the feedback/contact route is done (`/contact`, More → Help & feedback,
+  inbox configured by `VITE_CONTACT_EMAIL`);
 - verify the production domain, Search Console coverage and social previews after deployment;
 - keep `/app/` out of search indexing while making the public guidance pages crawlable.
 
@@ -59,7 +60,8 @@ The core plan, timer, history, export and basic progress view should remain usef
 Monetisation is deliberately staged:
 
 1. **Beta:** no payment wall. Measure whether the product is useful and reliable.
-2. **Optional support:** the CTA is ready, but remains hidden until `VITE_SUPPORT_URL` is
+2. **Optional support:** the CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
+   environment variable (read by both deploy workflows) is
    populated with the confirmed provider URL. Confirm the account, fees, region, payout
    details and privacy terms before enabling it in production. It must be optional and
    must not interrupt training.

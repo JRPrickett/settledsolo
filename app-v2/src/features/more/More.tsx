@@ -21,6 +21,9 @@ import {
   type NotificationPermissionState
 } from "../../session/sessionAlerts";
 
+import type { StorageMode } from "../../data/repository";
+import { HelpFeedbackCard } from "./HelpFeedbackCard";
+
 const DEFAULT_REST_SECONDS = 60;
 
 export function More({
@@ -31,9 +34,11 @@ export function More({
   onUpdateDailyCap,
   onRestoreBackup,
   onResetApp,
-  accountPanel
+  accountPanel,
+  storageMode = "indexeddb"
 }: {
   data: AppData;
+  storageMode?: StorageMode;
   accountPanel?: import("react").ReactNode;
   onSelectScenario: (id: string) => Promise<void>;
   onCreateScenario: (label: string, startSeconds: number) => Promise<void>;
@@ -509,6 +514,8 @@ export function More({
           </div>
         )}
       </section>
+
+      <HelpFeedbackCard storageMode={storageMode} />
 
       <section className="quiet-card vertical">
         <p className="kicker">Evidence-aware, not algorithm worship</p>

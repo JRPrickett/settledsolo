@@ -1,6 +1,8 @@
 import { handleAccountApi } from "./accounts/api";
 import type { AccountEnv } from "./accounts/auth";
 import { handlePushApi, type PushEnv } from "./push";
+import { isAppPath, isPublicPagePath } from "../app-v2/src/public/routes";
+import { contentSecurityPolicy } from "./csp";
 
 export { ReturnAlertScheduler } from "./push";
 
@@ -10,22 +12,7 @@ export interface Env extends AccountEnv, PushEnv {
   SITE_URL?: string;
 }
 
-const CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
-  "script-src 'self'",
-  "connect-src 'self'",
-  "media-src 'self' data: blob:",
-  "worker-src 'self' blob:",
-  "manifest-src 'self'",
-  "upgrade-insecure-requests"
-].join("; ");
+const CSP = contentSecurityPolicy();
 
 function productionHost(url: URL, env: Env): boolean {
   if (!env.SITE_URL) return false;
@@ -81,8 +68,8 @@ function secure(response: Response, url: URL, env: Env): Response {
   const isApi = url.pathname.startsWith("/api/");
   if (isApi) headers.set("Cache-Control", "no-store, private");
 
-  const isAppRoute = url.pathname === "/app" || url.pathname.startsWith("/app/");
-  if (!productionHost(url, env) || isAppRoute || isApi) {
+  const isAppRoute = isAppPath(url.pathname);
+  if (!productionHost(url, env) || isAppRoute || isApi || response.status === 404) {
     headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 
@@ -109,6 +96,24 @@ function secure(response: Response, url: URL, env: Env): Response {
     statusText: response.statusText,
     headers
   });
+}
+
+/**
+ * Single-page asset handling serves the app shell for every unknown path. Keep
+ * the shell (it renders a helpful not-found page) but report a real 404 so
+ * mistyped or stale URLs are not indexed as duplicates of the homepage.
+ */
+function notFoundForUnknownPage(response: Response, url: URL): Response {
+  const isHtml = (response.headers.get("content-type") ?? "").includes("text/html");
+  if (
+    response.status !== 200 ||
+    !isHtml ||
+    isAppPath(url.pathname) ||
+    isPublicPagePath(url.pathname)
+  ) {
+    return response;
+  }
+  return new Response(response.body, { status: 404, headers: response.headers });
 }
 
 export async function handleRequest(
@@ -138,7 +143,7 @@ export async function handleRequest(
     const redirect = canonicalHostRedirect(url, env);
     if (redirect) return secure(redirect, url, env);
 
-    return secure(await env.ASSETS.fetch(request), url, env);
+    return secure(notFoundForUnknownPage(await env.ASSETS.fetch(request), url), url, env);
   } catch {
     const unavailable = url.pathname.startsWith("/api/")
       ? Response.json(
