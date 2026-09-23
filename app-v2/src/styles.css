@@ -5920,6 +5920,87 @@ a:focus-visible {
   cursor: pointer;
 }
 
+/* Today: standing guidance collapses to one line once a track is established. */
+.coverage-compact {
+  padding: 4px 18px;
+}
+
+.coverage-compact summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.coverage-compact summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A drawn chevron: points down when closed, up when open. */
+.coverage-compact summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.coverage-compact details[open] summary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .coverage-compact summary::after {
+    transition: transform .18s ease-out;
+  }
+}
+
+.coverage-compact details[open] summary {
+  margin-bottom: 2px;
+}
+
+.coverage-compact details > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.coverage-list {
+  margin: 10px 0 14px;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.observation-how {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.observation-how summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.observation-how p {
+  margin: 6px 0 0;
+}
+
+.observation-skip {
+  display: flex;
+  margin: 6px auto 0;
+}
+
 /*
  * Professional summary ------------------------------------------------------
  * A readable record for a vet, trainer or behaviourist. On screen it is a sheet

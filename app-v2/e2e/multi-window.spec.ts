@@ -25,7 +25,9 @@ test("a second window cannot edit or sync, then reads the latest log after hando
   await page.goto("/");
   await other.getByRole("button", { name: "Try this window again" }).click();
   await expect(other.getByRole("heading", { name: "You & Mabel" })).toBeVisible();
-  await expect(other.getByText("Latest track name", { exact: true })).toBeVisible();
+  // Today names the track only when there is more than one; More always does.
+  await other.getByRole("button", { name: "More", exact: true }).click();
+  await expect(other.getByLabel("Track name", { exact: true })).toHaveValue("Latest track name");
   // Back/forward history must not restore a second writable app from a cached page.
   await page.goBack();
   await expect(page.getByRole("heading", { name: waiting })).toBeVisible();

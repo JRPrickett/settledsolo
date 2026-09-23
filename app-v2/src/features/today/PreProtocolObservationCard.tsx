@@ -121,27 +121,23 @@ export function PreProtocolObservationCard({
       </div>
 
       <p className="starting-route-copy">
-        Before any duration training, it can help to observe what actually happens
-        when {dogName} is alone. Confinement, noises outside and incomplete
-        housetraining can all look like distress at being left, and a single
-        observation can help separate them.
+        Watching {dogName} alone once can show whether confinement, noises outside or
+        incomplete housetraining are part of the picture. It is not a test of how long{" "}
+        {dogName} can cope, and not a diagnosis.
       </p>
 
       <div className="starting-observation-note">
-        <strong>How to do it</strong>
-        <p>
-          Use an absence you already know {dogName} can manage comfortably — do not
-          extend it to find a limit — and watch on a camera or spare phone. If you
-          do not know a safe absence yet, skip this step and start with the cautious
-          plan instead. No camera? Step outside the door or into another room only
-          for the same already-safe duration.
-        </p>
+        <strong>Only use an absence you already know is safe.</strong>
+        <p>Never extend it to find a limit.</p>
+        <details className="observation-how">
+          <summary>How to do it</summary>
+          <p>
+            Watch on a camera or spare phone. No camera? Step outside the door or into
+            another room for the same already-safe time. If you do not know a safe
+            absence yet, skip this step and start with the cautious plan instead.
+          </p>
+        </details>
       </div>
-
-      <p className="ceiling-note">
-        This is an optional rule-out step, not a test of how long {dogName} can
-        cope and not a diagnosis.
-      </p>
 
       <button
         className="primary-button start-button"
@@ -149,7 +145,7 @@ export function PreProtocolObservationCard({
       >
         I&apos;ve watched them alone
       </button>
-      <button className="setup-back" type="button" onClick={onSkip}>
+      <button className="text-link-button observation-skip" type="button" onClick={onSkip}>
         Skip this step
       </button>
     </section>
