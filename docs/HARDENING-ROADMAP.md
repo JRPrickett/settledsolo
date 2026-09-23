@@ -68,7 +68,7 @@ Still harden:
 - corrupted/partially valid stored data normalises/falls back safely; **Done: PR #40.**
 - storage-write failure preserves the last durable snapshot and surfaces recovery/backup actions; **Done: PR #52.**
 - backup restore never imports authentication/sync ownership from another account; **Done: PR #40.**
-- add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests;
+- add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests; **Done: `sync-conflicts.spec.ts` (mock account server); live two-device evidence remains under H5.**
 - prove sign-out, local reset and cloud deletion remain distinct operations; **Done: PR #40.**
 
 **Exit:** interruption, concurrency or malformed local state cannot silently discard a completed session.
