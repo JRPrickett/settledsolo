@@ -101,6 +101,7 @@ function InfoPage({
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
           </span>
+          <span>SettledSolo is built and maintained by Jason Prickett, an individual trading as Southwest Websites.</span>
           <span>SettledSolo is a training and record-keeping aid, not a diagnosis.</span>
         </div>
       </footer>
