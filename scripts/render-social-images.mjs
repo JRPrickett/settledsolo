@@ -29,7 +29,7 @@ const MUTED = "#4A5A5F";
 const CARDS = [
   {
     file: "home.png",
-    kicker: "Free dog separation training",
+    kicker: "Free separation anxiety training app",
     headline: "Calm starts with small steps.",
     body: "Gradual alone-time practice with a reliable timer, a private record and evidence-informed guidance."
   },
