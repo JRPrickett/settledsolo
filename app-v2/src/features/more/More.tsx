@@ -41,11 +41,13 @@ export function More({
   onRestoreBackup,
   onResetApp,
   accountPanel,
+  onOpenSummary,
   storageMode = "indexeddb"
 }: {
   data: AppData;
   storageMode?: StorageMode;
   accountPanel?: import("react").ReactNode;
+  onOpenSummary?: () => void;
   onSelectScenario: (id: string) => Promise<void>;
   onCreateScenario: (label: string, startSeconds: number) => Promise<void>;
   onUpdateScenario: (
@@ -407,6 +409,22 @@ export function More({
           </span>
         )}
       </section>
+
+      {onOpenSummary && (
+        <section className="data-tools-card summary-entry-card">
+          <div>
+            <p className="kicker">For your vet or trainer</p>
+            <h2>Share {data.dogName}&apos;s record.</h2>
+            <p>
+              A readable summary of sessions, signs, context and notes to print, save as a
+              PDF or send. It is built on this device.
+            </p>
+          </div>
+          <button type="button" className="secondary-button" onClick={onOpenSummary}>
+            Open a summary to share
+          </button>
+        </section>
+      )}
 
       <section className="data-tools-card">
         <div>

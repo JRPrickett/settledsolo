@@ -34,6 +34,7 @@ export function Today({
   onStart,
   onOpenCuePractice,
   onOpenAccount,
+  onOpenSummary,
   onRecordObservation
 }: {
   data: AppData;
@@ -43,6 +44,7 @@ export function Today({
   onStart: (target: number, warmupSeed: number) => Promise<boolean>;
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
+  onOpenSummary?: () => void;
   onRecordObservation: (
     outcome: "observed" | "skipped",
     findings: PreProtocolFinding[]
@@ -293,6 +295,11 @@ export function Today({
                 training on its own. Keep logging sessions either way; the record is
                 useful to bring to an appointment.
               </p>
+              {onOpenSummary && (
+                <button type="button" className="text-link-button" onClick={onOpenSummary}>
+                  Open a summary to bring to the appointment
+                </button>
+              )}
             </div>
           )}
 
@@ -305,6 +312,11 @@ export function Today({
                 qualified behaviour professional, and use management to avoid another
                 difficult absence where practical.
               </p>
+              {onOpenSummary && (
+                <button type="button" className="text-link-button" onClick={onOpenSummary}>
+                  Open a summary to share with them
+                </button>
+              )}
             </div>
           ) : capReached ? (
             <div className="support-card daily-cap-card">

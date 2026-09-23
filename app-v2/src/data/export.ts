@@ -92,3 +92,62 @@ export function downloadSessionsCsv(data: AppData) {
     "text/csv;charset=utf-8"
   );
 }
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+/** The palette tokens the summary styles use, resolved from the live page. */
+const SUMMARY_TOKENS = ["--ink", "--muted", "--line", "--paper", "--page", "--display", "--rose-soft", "--glow"];
+
+/**
+ * Only the summary's own rules (including its print rules) travel with the file,
+ * read from the app's same-origin stylesheets so the two cannot drift apart.
+ */
+function summaryStyles(): string {
+  const root = getComputedStyle(document.documentElement);
+  const tokens = SUMMARY_TOKENS.map((name) => `${name}: ${root.getPropertyValue(name).trim()};`).join(" ");
+  const rules: string[] = [];
+  for (const sheet of Array.from(document.styleSheets)) {
+    let cssRules: CSSRuleList;
+    try {
+      cssRules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    for (const rule of Array.from(cssRules)) {
+      if (rule.cssText.includes(".summary-")) rules.push(rule.cssText);
+    }
+  }
+  return [
+    `:root { ${tokens} }`,
+    'body { margin: 0; padding: 24px 16px; background: var(--page); color: var(--ink); font-family: "Karla", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }',
+    "h1, h2 { font-family: var(--display); font-weight: 560; }",
+    ...rules
+  ].join("\n");
+}
+
+/**
+ * A standalone copy of the professional summary. It is built from the rendered
+ * summary (so owner text is already escaped) and saved as a file for sharing
+ * where printing is unavailable, such as some installed iPhone web apps.
+ */
+export function downloadSummaryPage(sheet: HTMLElement, title: string) {
+  const html = [
+    "<!doctype html>",
+    '<html lang="en">',
+    "<head>",
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    `<title>${escapeHtml(title)}</title>`,
+    `<style>${summaryStyles()}</style>`,
+    "</head>",
+    `<body>${sheet.outerHTML}</body>`,
+    "</html>"
+  ].join("\n");
+  downloadText(`settledsolo-summary-${dateStamp()}.html`, html, "text/html;charset=utf-8");
+}
