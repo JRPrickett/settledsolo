@@ -63,6 +63,8 @@ test("progress reflects mixed outcomes and observed signals", async ({ page }) =
     buffer: Buffer.from(JSON.stringify(backup))
   });
   await page.getByRole("button", { name: "Restore this backup" }).click();
+  // Restoring ends on Today; wait for it so a later tab switch is not undone.
+  await expect(page.getByRole("heading", { name: "You & Mabel" })).toBeVisible();
   await page.getByRole("button", { name: "Progress" }).click();
 
   const longest = page.locator(".stat-card").filter({ hasText: "Longest relaxed" });

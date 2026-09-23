@@ -113,6 +113,8 @@ test("downloaded backup can restore the exact earlier local state", async ({ pag
   });
   await expect(page.getByText("Ready to restore Mabel")).toBeVisible();
   await page.getByRole("button", { name: "Restore this backup" }).click();
+  // Restoring ends on Today; wait for it so a later tab switch is not undone.
+  await expect(page.getByRole("heading", { name: "You & Mabel" })).toBeVisible();
 
   await page.getByRole("button", { name: "More" }).click();
   await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Separation training");

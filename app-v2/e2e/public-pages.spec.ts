@@ -94,7 +94,7 @@ test("the homepage links to the step-by-step guide, which has its own title and 
   await expect(page).toHaveURL(/\/separation-anxiety-training$/);
   await expect(page.getByRole("heading", { level: 1, name: "How to train a dog with separation anxiety" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "How do you train a dog to be left alone?" })).toBeVisible();
-  await expect(page).toHaveTitle(/How to train a dog with separation anxiety/);
+  await expect(page).toHaveTitle("Separation anxiety training for dogs, step by step | SettledSolo");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     "https://settledsolo.com/separation-anxiety-training"

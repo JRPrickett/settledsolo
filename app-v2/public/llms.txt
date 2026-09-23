@@ -1,6 +1,6 @@
 # SettledSolo
 
-> SettledSolo is a free, offline-first web app and guide for gradual dog separation anxiety (separation-related distress) training. It helps owners build alone time in small steps from a duration their dog already handles calmly, observe what happens, and make the next step easier after any sign of concern. It does not diagnose, prescribe medication or replace a vet or qualified behaviour professional.
+> SettledSolo is a free dog separation anxiety training app (offline-first, installable on iPhone and Android) and guide for gradual dog separation anxiety (separation-related distress) training. It helps owners build alone time in small steps from a duration their dog already handles calmly, observe what happens, and make the next step easier after any sign of concern. It does not diagnose, prescribe medication or replace a vet or qualified behaviour professional.
 
 ## Guides
 

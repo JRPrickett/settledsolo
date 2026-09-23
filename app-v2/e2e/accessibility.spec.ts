@@ -26,7 +26,7 @@ async function expectNoSeriousViolations(page: import("@playwright/test").Page) 
 
 test("public homepage has no serious WCAG A/AA violations", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Calm starts with small steps." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Calm starts with small steps\./ })).toBeVisible();
   await expectNoSeriousViolations(page);
 });
 

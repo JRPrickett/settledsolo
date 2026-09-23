@@ -52,6 +52,10 @@ Not yet merged at the time of writing; check GitHub for its PR state. See `docs/
   own share card (`social/guide.png`). Evidence boundaries in `EVIDENCE-BASE.md`.
 - **Generated sitemap** from the route list with per-page `updated` dates (the static
   `public/sitemap.xml` was removed); `llms.txt` added.
+- **App-search targeting.** Homepage title, h1 kicker, lead copy, a new "Features" section
+  (`APP_FEATURES`) and two FAQs now target "dog separation training app" and "separation anxiety
+  app"; the guide title targets "separation anxiety training for dogs". The query-to-page map is
+  in `SEO.md`.
 - **Owner actions**: Search Console domain verification, sitemap submission and indexing
   requests; Bing Webmaster Tools. AI Overview inclusion cannot be guaranteed; see `SEO.md`.
 

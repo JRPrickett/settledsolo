@@ -4,6 +4,34 @@ import { PublicInstallAction } from "./PublicInstall";
 import { OptionalSupportCard } from "./PublicSupport";
 import { GUIDE_PATH } from "./routes";
 
+/** What the app does today. Keep each item true of the shipped product. */
+const APP_FEATURES = [
+  {
+    title: "A plan that adapts",
+    body: "Each suggested duration starts from what your dog already manages and moves in small steps after calm sessions, with the reason shown."
+  },
+  {
+    title: "A reliable departure timer",
+    body: "Survives locking your phone or switching apps, with an optional reminder to head back before the target."
+  },
+  {
+    title: "Warm-ups and cue practice",
+    body: "Short practice departures before the main one, and at-home practice for keys, shoes and other departure cues."
+  },
+  {
+    title: "An observation log",
+    body: "Record how your dog was, the signs you noticed and any notes, alongside the time you were away."
+  },
+  {
+    title: "Progress you can read",
+    body: "Charts and milestones that follow steady progress rather than streaks or pressure."
+  },
+  {
+    title: "Private and offline",
+    body: "Training stays on your device and works without a connection. Backup, CSV export and optional account sync are built in."
+  }
+];
+
 // Captured from the real app by `npm run product:screens`.
 const PRODUCT_SCREENS = [
   {
@@ -38,7 +66,7 @@ export function PublicSite() {
         <nav aria-label="Public site">
           <div className="marketing-desktop-links">
             <a href="#how-it-works">How it works</a>
-            <a href="#the-session">The session</a>
+            <a href="#features">Features</a>
             <a href={GUIDE_PATH}>Guide</a>
             <a href="/evidence">Evidence</a>
             <a href="/resources">Resources</a>
@@ -47,7 +75,7 @@ export function PublicSite() {
             <summary>Explore</summary>
             <div>
               <a href="#how-it-works">How it works</a>
-              <a href="#the-session">The session</a>
+              <a href="#features">Features</a>
               <a href={GUIDE_PATH}>Training guide</a>
               <a href="/evidence">Evidence</a>
               <a href="/help">Help</a>
@@ -61,10 +89,16 @@ export function PublicSite() {
       <main>
         <section className="marketing-hero">
           <div className="marketing-hero-copy">
-            <h1>Calm starts with small steps.</h1>
+            <h1>
+              <span className="marketing-eyebrow marketing-hero-kicker">
+                Free separation anxiety training app for dogs
+              </span>{" "}
+              Calm starts with small steps.
+            </h1>
             <p className="marketing-lead">
-              A free dog separation anxiety training tool for building comfortable
-              alone time—one observable, manageable departure at a time.
+              SettledSolo is a free dog separation training app. It helps you build
+              comfortable alone time one observable, manageable departure at a time:
+              plan each session, time it reliably and record what your dog actually did.
             </p>
             <div className="marketing-actions">
               <PublicInstallAction />
@@ -104,8 +138,9 @@ export function PublicSite() {
           <div className="marketing-section-heading">
             <h2>A small loop you can trust.</h2>
             <p>
-              SettledSolo turns a complicated, emotional process into one calm
-              decision at a time. There is always permission to make it easier.
+              SettledSolo turns separation anxiety training, a complicated and
+              emotional process, into one calm decision at a time. There is always
+              permission to make it easier.
             </p>
           </div>
 
@@ -132,6 +167,24 @@ export function PublicSite() {
               </div>
             </li>
           </ol>
+        </section>
+
+        <section className="marketing-section marketing-features" id="features">
+          <div className="marketing-section-heading">
+            <h2>Everything a separation training app needs, free.</h2>
+            <p>
+              The core of SettledSolo costs nothing and needs no account. It runs in your
+              browser and installs to your home screen on iPhone and Android.
+            </p>
+          </div>
+          <ul className="marketing-feature-list">
+            {APP_FEATURES.map(({ title, body }) => (
+              <li key={title}>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="marketing-session" id="the-session">

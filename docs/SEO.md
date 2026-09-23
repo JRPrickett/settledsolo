@@ -32,6 +32,18 @@
 - **`llms.txt`** gives a plain-text summary of the site for tools that read it. It is low-cost and
   unproven; it is not a Google ranking signal.
 
+## Target searches and where each is answered
+
+| Search intent | Examples | Page | What targets it |
+| --- | --- | --- | --- |
+| Looking for an app | "dog separation training app", "separation anxiety app", "separation anxiety app for dogs" | `/` | Title "SettledSolo: free dog separation anxiety training app"; the h1 includes "Free separation anxiety training app for dogs" above the tagline; a features section; FAQs "Is there an app for dog separation anxiety?" and "Does SettledSolo work on iPhone and Android?"; `WebApplication` data with `featureList` |
+| Learning how to train | "separation anxiety training for dogs", "how to train a dog with separation anxiety" | `/separation-anxiety-training` | Title "Separation anxiety training for dogs, step by step"; first sentence defines separation anxiety training; question headings |
+| Help and resources | "dog separation anxiety checklist", "separation anxiety FAQ" | `/help`, `/resources` | Existing copy and FAQ data |
+
+Use the phrases naturally and only where they are true. Do not repeat keywords for their own
+sake: Google treats that as spam, and it reads badly. The homepage features list must stay
+true of the shipped app (`APP_FEATURES` in `PublicSite.tsx`).
+
 ## About Google AI Overviews
 
 No site can opt in to, or be guaranteed a place in, AI Overviews. Google says they draw on its

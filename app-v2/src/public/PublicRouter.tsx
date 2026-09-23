@@ -339,9 +339,9 @@ function GuidePage() {
   return (
     <InfoPage title="How to train a dog with separation anxiety">
       <p className="info-lede">
-        Build alone time gradually from a duration your dog already handles calmly, stay
-        below the point where they become worried, and increase only in small steps after
-        calm sessions. Watch what actually happens, go back a step after any sign of
+        Separation anxiety training for dogs means building alone time gradually from a
+        duration your dog already handles calmly, staying below the point where they become
+        worried, and increasing only in small steps after calm sessions. Watch what actually happens, go back a step after any sign of
         concern, and avoid longer absences in between. This approach is called systematic
         desensitisation.
       </p>
@@ -462,7 +462,7 @@ function GuidePage() {
 
       <h2>How SettledSolo helps</h2>
       <p>
-        SettledSolo is a free app for this process. It suggests a small next step from your
+        SettledSolo is a free separation anxiety training app for this process. It suggests a small next step from your
         recent sessions, times each departure reliably, records what you observed and
         explains every suggestion. It works without an account and keeps your training
         record on your device.

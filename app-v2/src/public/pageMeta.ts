@@ -1,5 +1,5 @@
 import { HOME_FAQS, RESOURCE_FAQS, type Faq } from "./faqs";
-import { GUIDE_PATH, type PublicPagePath } from "./routes";
+import { GUIDE_PATH, PUBLIC_PAGE_PATHS, type PublicPagePath } from "./routes";
 
 export const CANONICAL_ORIGIN = "https://settledsolo.com";
 
@@ -25,15 +25,15 @@ const DEFAULT_IMAGE_ALT =
  */
 export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   "/": {
-    title: "Free dog separation anxiety training tool | SettledSolo",
+    title: "SettledSolo: free dog separation anxiety training app",
     description:
-      "Free dog separation anxiety training tool for gradual, observable alone-time practice, with a reliable timer, private history and evidence-informed guidance.",
+      "Free separation anxiety training app for dogs. Plan gradual alone-time sessions, time departures reliably and log what your dog does. No account needed.",
     image: "/social/home.png",
     imageAlt: DEFAULT_IMAGE_ALT,
     updated: "2026-09-23"
   },
   [GUIDE_PATH]: {
-    title: "How to train a dog with separation anxiety: step-by-step guide | SettledSolo",
+    title: "Separation anxiety training for dogs, step by step | SettledSolo",
     description:
       "How to train a dog with separation anxiety: signs to watch for, gradual step-by-step alone-time training, how long it takes and when to get professional help.",
     image: "/social/guide.png",
@@ -209,6 +209,14 @@ export function structuredData(path: PublicPagePath): Record<string, unknown> {
         operatingSystem: "Any (web browser; installable as an app)",
         isAccessibleForFree: true,
         offers: { "@type": "Offer", price: "0", priceCurrency: "GBP" },
+        featureList: [
+          "Adaptive gradual alone-time training plan",
+          "Reliable departure timer with head-back reminders",
+          "Warm-up departures and departure-cue practice",
+          "Observation log of outcomes, stress signs and notes",
+          "Progress charts and milestones",
+          "Works offline; backup, CSV export and optional account sync"
+        ],
         publisher: { "@id": organization["@id"] }
       },
       faqPage(url, HOME_FAQS)
@@ -247,4 +255,14 @@ export function formatReviewDate(iso: string | undefined): string {
   const [year, month, day] = iso.split("-").map(Number);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return `${day} ${months[month - 1]} ${year}`;
+}
+
+/** The sitemap comes from the route list, so a new public page can never be left out. */
+export function sitemapXml(): string {
+  const urls = PUBLIC_PAGE_PATHS.map((path) => {
+    const updated = PAGE_META[path].updated;
+    const lastmod = updated ? `<lastmod>${updated}</lastmod>` : "";
+    return `  <url><loc>${CANONICAL_ORIGIN}${path}</loc>${lastmod}</url>`;
+  });
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
 }

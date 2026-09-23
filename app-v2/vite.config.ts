@@ -26,7 +26,7 @@ export default defineConfig({
         name: "SettledSolo — dog separation training",
         short_name: "SettledSolo",
         description:
-          "Free dog separation anxiety training tool for gradual, observable alone-time practice.",
+          "Free dog separation anxiety training app for gradual, observable alone-time practice.",
         start_url: "/app/",
         scope: "/",
         display: "standalone",
