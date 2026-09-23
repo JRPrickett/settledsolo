@@ -57,10 +57,14 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   Covered by unit tests and `e2e/backup-reminder.spec.ts`.
 - **Roadmaps refreshed.** `HARDENING-ROADMAP.md` marks what PRs #59–#64 and this branch closed,
   and adds a ranked "Suggested further improvements" list (F1–F8).
-- **Support-payments privacy.** When `VITE_SUPPORT_URL` is set, `/privacy` shows an "Optional
-  support payments" section and the support card says who handles payment. The provider is
-  named from the link's host (Ko-fi, Buy Me a Coffee, otherwise generic), and nothing appears
-  when the link is unset. Owner action: set the variable on preview, check, then production.
+- **Support-payments privacy.** `/privacy` has an "Optional support payments" section and the
+  support card says who handles payment, named from the link's host (Ko-fi, Buy Me a Coffee,
+  otherwise generic).
+- **Ko-fi link live (follow-up).** The owner added the Ko-fi URL to `app-v2/.env.example`, but
+  builds never read that template and no `VITE_SUPPORT_URL` GitHub variable existed, so the
+  deployed bundle had an empty link. `https://ko-fi.com/settledsolo` is now the built-in default
+  in `public/support.ts`, matching how `contact.ts` defaults the contact email; the variable still
+  overrides it.
 
 ### 23 September — social share cards, page metadata, adaptive steps and payments plan — merged (PR #64)
 
@@ -746,9 +750,8 @@ Use `docs/HARDENING-ROADMAP.md` as the active implementation roadmap.
 4. ~~Retire legacy product analytics and replace it with registered-account counts.~~ Done: PR #55.
 5. Complete real installed iOS/Android lifecycle checks and real two-device sync/offline/conflict evidence.
 6. ~~Browser-level sync-conflict assertions~~ done (mock server); real two-device evidence remains in step 5.
-7. Set `VITE_CONTACT_EMAIL` (and `VITE_SUPPORT_URL` when a provider is confirmed) as GitHub
-   environment variables, then clear accessibility and final privacy/provider wording (Phase 1 of
-   `docs/PAYMENTS-PLAN.md` adds a Ko-fi line to the privacy notice).
+7. ~~Contact email and Ko-fi link~~ both live as built-in defaults (GitHub variables can override
+   them). Remaining: accessibility and final account/provider wording review.
 8. Start with a deliberately small invited beta and measure adoption/reliability without efficacy claims.
 
 

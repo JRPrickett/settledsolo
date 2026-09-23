@@ -1,4 +1,6 @@
 const configuredSupportUrl = (import.meta.env.VITE_SUPPORT_URL ?? "").trim();
+/** The owner's Ko-fi page; `VITE_SUPPORT_URL` overrides it per deployment. */
+export const DEFAULT_SUPPORT_URL = "https://ko-fi.com/settledsolo";
 
 export function safeSupportUrl(value: string): string | null {
   try {
@@ -23,8 +25,8 @@ export function supportProviderName(url: string): string {
 }
 
 /**
- * Optional support is configured at deploy time so the product never ships a
- * guessed provider account or a broken payment link.
+ * The owner-approved link, unless a deployment configures a different https
+ * link. An invalid override falls back rather than shipping a broken link.
  */
-export const supportUrl = safeSupportUrl(configuredSupportUrl);
-export const supportProvider = supportUrl ? supportProviderName(supportUrl) : null;
+export const supportUrl = safeSupportUrl(configuredSupportUrl) ?? DEFAULT_SUPPORT_URL;
+export const supportProvider = supportProviderName(supportUrl);

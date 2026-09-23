@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeSupportUrl, supportProviderName } from "./support";
+import { DEFAULT_SUPPORT_URL, safeSupportUrl, supportProvider, supportUrl, supportProviderName } from "./support";
 
 describe("optional support link", () => {
   it("accepts only https links", () => {
@@ -14,5 +14,11 @@ describe("optional support link", () => {
     expect(supportProviderName("https://www.Ko-fi.com/settledsolo")).toBe("Ko-fi");
     expect(supportProviderName("https://www.buymeacoffee.com/settledsolo")).toBe("Buy Me a Coffee");
     expect(supportProviderName("https://notko-fi.com/settledsolo")).toBe("our support provider");
+  });
+
+  it("shows the owner's Ko-fi page when no override is configured", () => {
+    expect(safeSupportUrl(DEFAULT_SUPPORT_URL)).toBe(DEFAULT_SUPPORT_URL);
+    expect(supportUrl).toBe(DEFAULT_SUPPORT_URL);
+    expect(supportProvider).toBe("Ko-fi");
   });
 });

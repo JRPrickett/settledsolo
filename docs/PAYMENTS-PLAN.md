@@ -1,7 +1,7 @@
 # SettledSolo payments plan
 
-**Written:** 23 September 2026 · **Status:** recommendation. Implemented: the hidden
-`VITE_SUPPORT_URL` link and its privacy-notice section · **Assumes:** the seller is a UK-based sole trader or small company. If
+**Written:** 23 September 2026 · **Status:** Phase 1 live: the Ko-fi support link and its
+privacy-notice section; nothing paid is implemented · **Assumes:** the seller is a UK-based sole trader or small company. If
 that is wrong, the tax section changes and this plan should be revisited.
 
 Fees and rules below were checked on the date above against provider pages and current guides
@@ -72,9 +72,10 @@ No payments. Measure usefulness and reliability; do not use training outcomes as
 
 ### Phase 1 — optional support (can start any time)
 1. Create a Ko-fi page with a plain description and no perks or reward tiers.
-2. Set its URL as the `VITE_SUPPORT_URL` GitHub environment variable (preview first, then
-   production). The existing "Support SettledSolo" card appears; nothing else changes.
-3. ~~Add the privacy-notice line.~~ Done: when `VITE_SUPPORT_URL` is set, `/privacy` gains an
+2. ~~Wire the link.~~ Done: `https://ko-fi.com/settledsolo` is the built-in default in
+   `app-v2/src/public/support.ts` (a `VITE_SUPPORT_URL` GitHub environment variable overrides
+   it; `.env.example` is only a template and is never read by builds).
+3. ~~Add the privacy-notice line.~~ Done: `/privacy` has an
    "Optional support payments" section and the support card says who handles payment. The
    provider name comes from the link's host (`supportProviderName` in `public/support.ts`:
    Ko-fi, Buy Me a Coffee, otherwise "our support provider"), so the notice cannot name the
@@ -104,7 +105,7 @@ reminders. Decide on evidence, not by default.
 ## Decisions needed from the owner
 
 1. Confirm the seller's country and legal form (sole trader vs limited company).
-2. Phase 1: create the Ko-fi page and set `VITE_SUPPORT_URL` (preview first).
+2. ~~Phase 1: create the Ko-fi page and wire the link.~~ Done.
 3. Phase 2 later: which add-on, which price, and whether to apply to Paddle or wait for Stripe
    Managed Payments availability.
 

@@ -139,7 +139,7 @@ Hardening work:
 Only after the reliability gates above are substantially green:
 
 - add a clear feedback/contact route; **Done: `/contact` and More → Help & feedback. Set the `VITE_CONTACT_EMAIL` GitHub environment variable to show the inbox.**
-- finalise privacy/account/provider wording; **the support-payments privacy section is done and appears only when `VITE_SUPPORT_URL` is set.**
+- finalise privacy/account/provider wording; **the support-payments privacy section is done and the Ko-fi link is live.**
 - replace stale local-only/account-coming-later copy wherever account state can differ;
 - publish the owned resources/FAQ/cheatsheet pages and final SEO metadata; **metadata done: per-page titles, descriptions and share cards served in the HTML (PR #64).**
 - add final real product screenshots and social-share image metadata; **Done: share cards in PR #64; real app screens on the homepage via `npm run product:screens` (release-hardening branch).**
@@ -170,10 +170,8 @@ Do not use training outcomes as an efficacy claim.
 These come from the 21–23 September hardening passes. They are proposals, not merged work. Each
 should stay small, be tested, and follow the release principles above. Ordered by release value.
 
-**F1 — Enable optional support.** ~~Privacy line~~ done: `/privacy` gains an "Optional support
-payments" section, naming the provider, whenever `VITE_SUPPORT_URL` is set. Remaining owner
-action: set `VITE_SUPPORT_URL` on preview, check the homepage card and `/privacy`, then set it on
-production and redeploy.
+**F1 — Enable optional support.** ~~Done.~~ The Ko-fi link is a built-in default (overridable by
+`VITE_SUPPORT_URL`), and `/privacy` has an "Optional support payments" section naming the provider.
 
 **F2 — Update-during-session regression (H4).** Add a PWA-gate spec that installs a build, serves a
 changed service worker while a departure is running, and asserts no update prompt or reload

@@ -1,8 +1,6 @@
 import { supportProvider, supportUrl } from "./support";
 
 export function OptionalSupportCard({ compact = false }: { compact?: boolean }) {
-  if (!supportUrl) return null;
-
   return (
     <section className={`public-support-card${compact ? " compact" : ""}`}>
       <div>
