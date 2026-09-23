@@ -23,7 +23,8 @@
     "check:worker:accounts": "node scripts/check-accounts-worker.mjs",
     "check:e2e": "tsc -p app-v2/tsconfig.e2e.json --noEmit",
     "push:keys": "node scripts/generate-vapid-keys.mjs",
-    "accounts:count": "node scripts/account-stats.mjs"
+    "accounts:count": "node scripts/account-stats.mjs",
+    "social:images": "node scripts/render-social-images.mjs"
   },
   "dependencies": {
     "@fontsource/fraunces": "5.3.0",

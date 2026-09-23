@@ -40,7 +40,9 @@ Current pass:
 ## Tranche 2 — discoverability
 
 - publish canonical titles/descriptions for the home, help, resources and evidence pages;
-- ship the canonical link, Open Graph/Twitter metadata, `robots.txt` and sitemap;
+  **done, and now served in the HTML itself so link previews see them;**
+- ship the canonical link, Open Graph/Twitter metadata, `robots.txt` and sitemap; **done, with
+  branded 1200x630 share cards per key page (`npm run social:images`);**
 - add real product screenshots; the feedback/contact route is done (`/contact`, More → Help & feedback,
   inbox configured by `VITE_CONTACT_EMAIL`);
 - verify the production domain, Search Console coverage and social previews after deployment;

@@ -4,6 +4,7 @@ import App from "./App";
 import { AppErrorBoundary } from "./app/AppErrorBoundary";
 import { SingleWindowGuard } from "./app/SingleWindowGuard";
 import { PublicRouter } from "./public/PublicRouter";
+import { APP_META } from "./public/pageMeta";
 import "@fontsource/fraunces/500.css";
 import "@fontsource/fraunces/600.css";
 import "@fontsource/karla/400.css";
@@ -21,7 +22,7 @@ robots.name = "robots";
 robots.content = isAppRoute ? "noindex,nofollow" : "index,follow";
 
 if (isAppRoute) {
-  document.title = "SettledSolo — training app";
+  document.title = APP_META.title;
 }
 
 createRoot(document.getElementById("root")!).render(

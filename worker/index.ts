@@ -1,7 +1,14 @@
 import { handleAccountApi } from "./accounts/api";
 import type { AccountEnv } from "./accounts/auth";
 import { handlePushApi, type PushEnv } from "./push";
-import { isAppPath, isPublicPagePath } from "../app-v2/src/public/routes";
+import { isAppPath, isPublicPagePath, normalisePublicPath } from "../app-v2/src/public/routes";
+import {
+  APP_META,
+  NOT_FOUND_META,
+  PAGE_META,
+  replaceSeoBlock,
+  seoTags
+} from "../app-v2/src/public/pageMeta";
 import { contentSecurityPolicy } from "./csp";
 
 export { ReturnAlertScheduler } from "./push";
@@ -116,6 +123,35 @@ function notFoundForUnknownPage(response: Response, url: URL): Response {
   return new Response(response.body, { status: 404, headers: response.headers });
 }
 
+/**
+ * Link-preview crawlers read only the served HTML and never run JavaScript, so
+ * write each page's own title, description, canonical URL and share card into
+ * the app shell here rather than leaving every page to preview as the homepage.
+ */
+async function withPageMetadata(response: Response, request: Request, url: URL): Promise<Response> {
+  const isHtml = (response.headers.get("content-type") ?? "").includes("text/html");
+  if (request.method !== "GET" || !isHtml || (response.status !== 200 && response.status !== 404)) {
+    return response;
+  }
+
+  const path = normalisePublicPath(url.pathname);
+  const tags = isAppPath(url.pathname)
+    ? seoTags(APP_META, null)
+    : isPublicPagePath(path)
+      ? seoTags(PAGE_META[path], path)
+      : seoTags(NOT_FOUND_META, null);
+
+  const headers = new Headers(response.headers);
+  // The body changes, so any length or validator from the asset no longer applies.
+  headers.delete("content-length");
+  headers.delete("etag");
+  return new Response(replaceSeoBlock(await response.text(), tags), {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 export async function handleRequest(
   request: Request,
   env: Env,
@@ -143,7 +179,8 @@ export async function handleRequest(
     const redirect = canonicalHostRedirect(url, env);
     if (redirect) return secure(redirect, url, env);
 
-    return secure(notFoundForUnknownPage(await env.ASSETS.fetch(request), url), url, env);
+    const asset = notFoundForUnknownPage(await env.ASSETS.fetch(request), url);
+    return secure(await withPageMetadata(asset, request, url), url, env);
   } catch {
     const unavailable = url.pathname.startsWith("/api/")
       ? Response.json(

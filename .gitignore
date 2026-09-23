@@ -16,3 +16,6 @@ Thumbs.db
 .github/skills/impeccable/scripts/bin/
 
 .wrangler-accounts-*.jsonc
+
+# Local wrangler dev state (miniflare databases and caches)
+.wrangler/
