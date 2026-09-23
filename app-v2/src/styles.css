@@ -5898,3 +5898,28 @@ a:focus-visible {
 .cue-discard {
   margin-top: 12px;
 }
+
+.conflict-versions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.conflict-versions section {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f8f6f1;
+}
+
+.conflict-versions h4 {
+  margin: 0 0 6px;
+}
+
+.conflict-versions ul {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

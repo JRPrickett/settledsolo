@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { conflictTitle, describeSyncValue } from "./conflictSummary";
 import type { AppData } from "../domain/types";
 import type { AccountController } from "./useAccount";
 import { accountRequest, downloadAccountFile } from "./client";
@@ -208,9 +209,13 @@ export function AccountPanel({
                 {account.syncing
                   ? "Syncing…"
                   : sync.conflicts.length
-                    ? `${sync.conflicts.length} changes need your review.`
+                    ? sync.conflicts.length === 1
+                      ? "1 change needs your review."
+                      : `${sync.conflicts.length} changes need your review.`
                     : sync.outbox.length
-                      ? `${sync.outbox.length} changes waiting to sync.`
+                      ? sync.outbox.length === 1
+                        ? "1 change waiting to sync."
+                        : `${sync.outbox.length} changes waiting to sync.`
                       : sync.lastSyncAt
                         ? `Last synced ${new Date(sync.lastSyncAt).toLocaleString()}`
                         : "Ready to sync."}
@@ -223,20 +228,29 @@ export function AccountPanel({
               </button>
               {sync.conflicts.map((conflict) => (
                 <div className="account-conflict" key={conflict.key}>
-                  <h3>A change needs your review</h3>
-                  <p>{conflict.key}</p>
-                  <details>
-                    <summary>Compare both versions</summary>
-                    <h4>This device</h4>
-                    <pre>
-                      {JSON.stringify(conflict.local, null, 2) ?? "Deleted"}
-                    </pre>
-                    <h4>Cloud</h4>
-                    <pre>
-                      {JSON.stringify(conflict.remote.value, null, 2) ??
-                        "Deleted"}
-                    </pre>
-                  </details>
+                  <h3>{conflictTitle(conflict.local, conflict.remote.value)}</h3>
+                  <p>
+                    This changed on this device and on another device before they
+                    could sync. Choose which version to keep.
+                  </p>
+                  <div className="conflict-versions">
+                    <section aria-label="This device’s version">
+                      <h4>This device</h4>
+                      <ul>
+                        {describeSyncValue(conflict.local).map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ul>
+                    </section>
+                    <section aria-label="Cloud version">
+                      <h4>Cloud</h4>
+                      <ul>
+                        {describeSyncValue(conflict.remote.value).map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  </div>
                   <p>
                     Both versions are retained in the conflict archive after you
                     choose.
