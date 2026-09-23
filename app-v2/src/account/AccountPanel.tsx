@@ -156,8 +156,8 @@ export function AccountPanel({
           )}
           <p>
             We use your email to sign you in. Training history is only uploaded
-            after you choose to connect it.{" "}
-            <a href="/privacy">Privacy details</a>
+            after you choose to connect it. Read the{" "}
+            <a href="/terms">Terms of use</a> and <a href="/privacy">Privacy notice</a>.
           </p>
         </form>
       )}
