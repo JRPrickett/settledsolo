@@ -7,14 +7,19 @@ export interface MilestoneRung {
 }
 
 /**
- * Same ladder the legacy app used (30s through 4 hours). Kept as its own
- * ordered list rather than derived from data so the board can show locked
- * rungs that haven't been reached yet.
+ * Twenty rungs from 10 seconds to the 4-hour limit. Early rungs are close
+ * together because many dogs start from a few seconds and small calm wins
+ * matter most there; later rungs follow common real-life absences. Credit is
+ * capped at each session's target, so rungs arrive only as the plan progresses.
+ * Kept as an ordered list so the board can show locked rungs not yet reached.
  */
 export const MILESTONE_LADDER: MilestoneRung[] = [
+  { seconds: 10, label: "10 sec" },
+  { seconds: 15, label: "15 sec" },
   { seconds: 30, label: "30 sec" },
   { seconds: 60, label: "1 min" },
   { seconds: 120, label: "2 min" },
+  { seconds: 180, label: "3 min" },
   { seconds: 300, label: "5 min" },
   { seconds: 600, label: "10 min" },
   { seconds: 900, label: "15 min" },
@@ -22,9 +27,12 @@ export const MILESTONE_LADDER: MilestoneRung[] = [
   { seconds: 1800, label: "30 min" },
   { seconds: 2700, label: "45 min" },
   { seconds: 3600, label: "1 hour" },
+  { seconds: 4500, label: "75 min" },
   { seconds: 5400, label: "90 min" },
   { seconds: 7200, label: "2 hours" },
+  { seconds: 9000, label: "2.5 hours" },
   { seconds: 10800, label: "3 hours" },
+  { seconds: 12600, label: "3.5 hours" },
   { seconds: 14400, label: "4 hours" }
 ];
 

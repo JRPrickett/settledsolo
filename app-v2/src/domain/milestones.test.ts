@@ -186,7 +186,7 @@ describe("target-capped credit", () => {
   it("never earns rungs beyond the target when the owner forgets to return", () => {
     // Target 30s, but the clock ran for 25 minutes before "I'm back".
     const data = appData([scenario({ sessions: [session({ targetSeconds: 30, actualSeconds: 1500 })] })]);
-    expect([...earnedMilestones(data).keys()]).toEqual([30]);
+    expect([...earnedMilestones(data).keys()]).toEqual([10, 15, 30]);
     expect(longestRelaxedSeconds(data)).toBe(30);
     expect(achievementSnapshot(data).totalRelaxedSeconds).toBe(30);
     expect(milestoneBoard(data).next?.seconds).toBe(60);
@@ -196,7 +196,7 @@ describe("target-capped credit", () => {
     const data = appData([
       scenario({ sessions: [session({ targetSeconds: 90, actualSeconds: 70, stoppedEarly: true })] })
     ]);
-    expect([...earnedMilestones(data).keys()]).toEqual([30, 60]);
+    expect([...earnedMilestones(data).keys()]).toEqual([10, 15, 30, 60]);
     expect(longestRelaxedSeconds(data)).toBe(70);
   });
 
@@ -211,8 +211,20 @@ describe("target-capped credit", () => {
       })
     ]);
     const earned = earnedMilestones(data);
-    expect([...earned.keys()]).toEqual([30, 60, 120]);
+    expect([...earned.keys()]).toEqual([10, 15, 30, 60, 120]);
     expect(earned.get(120)?.at).toBe(3);
     expect(earned.get(120)?.actualSeconds).toBe(120);
+  });
+});
+
+describe("milestone ladder", () => {
+  it("has twenty strictly increasing rungs up to the four-hour limit", () => {
+    expect(MILESTONE_LADDER).toHaveLength(20);
+    expect(MILESTONE_LADDER[0].seconds).toBe(10);
+    expect(MILESTONE_LADDER.at(-1)).toEqual({ seconds: 14400, label: "4 hours" });
+    MILESTONE_LADDER.slice(1).forEach((rung, index) => {
+      expect(rung.seconds).toBeGreaterThan(MILESTONE_LADDER[index].seconds);
+    });
+    expect(new Set(MILESTONE_LADDER.map((rung) => rung.label)).size).toBe(20);
   });
 });

@@ -62,6 +62,10 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   `min(actual, target)` (`creditedSeconds`), so forgetting to tap "I'm back" can no longer award
   several rungs in one session. History keeps the real duration; the plan already capped at the
   target. See the evidence-base product rule.
+- **Milestone ladder** grows from 14 to 20 rungs, 10 seconds to 4 hours: 10s, 15s, 30s, 1m, 2m,
+  3m, 5m, 10m, 15m, 20m, 30m, 45m, 1h, 75m, 90m, 2h, 2.5h, 3h, 3.5h, 4h. Early rungs are close
+  together for dogs starting from seconds. Earned rungs are derived from history, so existing
+  users gain the new rungs retroactively with no data migration.
 - **Live timer.** The countdown overflowed the ring on phones ("00:02" ~257px in a ~213px ring,
   and "+00:04" wrapped). The clock is now `m:ss`/`h:mm:ss`, sized from the ring with container
   units and its character count, and never wraps. The ring fills smoothly from the start
