@@ -164,9 +164,9 @@ function PrivacyPage() {
       <p>
         You can export or delete your data in the app. You may also have the right to
         access, correct, erase or restrict your information, object to some uses, or
-        request a copy. For a privacy request, use <a href="/contact">contact and
-        feedback</a>. You can also complain to the
-        <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer"> Information Commissioner&apos;s Office</a>.
+        request a copy. For a privacy request, email{" "}
+        <a href={`mailto:${contactEmail}`}>{contactEmail}</a>. You can also complain
+        to the <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer">Information Commissioner&apos;s Office</a>.
       </p>
     </InfoPage>
   );
