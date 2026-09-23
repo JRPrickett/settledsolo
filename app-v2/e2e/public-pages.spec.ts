@@ -28,11 +28,20 @@ test("More links to help and prefills feedback without training data", async ({ 
   const card = page.getByRole("region", { name: "Stuck, unsure or something broke?" });
   await expect(card.getByRole("link", { name: "Training help" })).toHaveAttribute("href", "/help");
   await expect(card.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+  await expect(card.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
   const href = await card.getByRole("link", { name: "Send feedback" }).getAttribute("href");
   expect(href).toMatch(/^mailto:beta-feedback@example\.test\?/);
   const body = decodeURIComponent(href!.split("body=")[1]);
   expect(body).toContain("App mode: browser tab");
   expect(body).not.toContain("Mabel");
+});
+
+test("terms explain safety and what a future paid offer must disclose", async ({ page }) => {
+  await page.goto("/terms");
+  await expect(page.getByRole("heading", { name: "A training aid, not a diagnosis." })).toBeVisible();
+  await expect(page.getByText(/full price and currency/i)).toBeVisible();
+  await expect(page.getByText(/statutory consumer rights/i)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
 });
 
 test("imported HTML-like text is shown as text and never executes", async ({ page }) => {
