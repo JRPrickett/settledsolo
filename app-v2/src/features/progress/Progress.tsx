@@ -140,9 +140,10 @@ export function Progress({ data }: { data: AppData }) {
         <p className="kicker">What counts as progress</p>
         <h2>Duration is only one signal.</h2>
         <p>
-          Over time the production app will also surface changes in pacing,
-          vocalisation, exit-watching and ability to settle, without pretending those
-          correlations prove a cause.
+          When you save a session, tick the signs you noticed, such as pacing,
+          whining, watching the exit or being unable to settle. They build the
+          observation summary on this page, describing what you saw rather than
+          proving what caused it.
         </p>
       </section>
     </div>
