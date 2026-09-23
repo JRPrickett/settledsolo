@@ -36,11 +36,11 @@ test("More links to help and prefills feedback without training data", async ({ 
   expect(body).not.toContain("Mabel");
 });
 
-test("terms explain safety and what a future paid offer must disclose", async ({ page }) => {
+test("terms explain the app's safety scope and payment basics", async ({ page }) => {
   await page.goto("/terms");
   await expect(page.getByRole("heading", { name: "A training aid, not a diagnosis." })).toBeVisible();
-  await expect(page.getByText(/full price and currency/i)).toBeVisible();
-  await expect(page.getByText(/statutory consumer rights/i)).toBeVisible();
+  await expect(page.getByText(/whether payment is one-off or recurring/i)).toBeVisible();
+  await expect(page.getByText(/consumer rights remain unchanged/i)).toBeVisible();
   await expect(page.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
 });
 
