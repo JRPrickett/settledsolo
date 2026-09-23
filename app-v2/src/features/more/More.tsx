@@ -23,6 +23,7 @@ import {
 
 import type { StorageMode } from "../../data/repository";
 import { HelpFeedbackCard } from "./HelpFeedbackCard";
+import { SupportCard } from "./SupportCard";
 import {
   WALK_BACK_OPTIONS,
   loadWalkBackSeconds,
@@ -557,6 +558,8 @@ export function More({
           not a claim that science has discovered the perfect percentage increase.
         </p>
       </section>
+
+      <SupportCard />
     </div>
   );
 }

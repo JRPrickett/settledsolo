@@ -67,11 +67,10 @@ The core plan, timer, history, export and basic progress view should remain usef
 Monetisation is deliberately staged:
 
 1. **Beta:** no payment wall. Measure whether the product is useful and reliable.
-2. **Optional support:** the privacy notice gains a support-payments section naming the
-   provider whenever the link is configured. The CTA is ready, but remains hidden until the `VITE_SUPPORT_URL` GitHub
-   environment variable (read by both deploy workflows) is
-   populated with the confirmed provider URL. Confirm the account, fees, region, payout
-   details and privacy terms before enabling it in production. It must be optional and
+2. **Optional support:** live. The Ko-fi link (`https://ko-fi.com/settledsolo`) is the
+   built-in default in `public/support.ts`, like the contact email. A `VITE_SUPPORT_URL` GitHub
+   environment variable can override it per deployment. The privacy notice has a
+   support-payments section naming the provider. It must be optional and
    must not interrupt training.
 3. **Paid additions:** consider only after usage evidence and an explicit provider choice.
    Candidate features are richer reports, multiple-dog workspaces, trainer sharing or
