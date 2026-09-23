@@ -1,8 +1,10 @@
 # SettledSolo production hardening roadmap
 
-**Date:** 21 September 2026
+**Date:** 21 September 2026 · **Last reviewed:** 23 September 2026 (through PR #64 plus the open
+release-hardening branch)
 **Phase:** Production hardening  
-**Status:** Accounts active; PRs #52–#55 merged; device/two-device/beta evidence pending
+**Status:** Accounts active; automated hardening H1–H3 and H6 substantially complete (PRs #52–#64);
+real-device, live two-device and small-beta evidence still pending
 **Goal:** Freeze discretionary feature work and make the existing product reliable, recoverable, secure and predictable enough for a small public beta.
 
 The behaviour-quality roadmap in `SA-QUALITY-ROADMAP.md` is complete. This roadmap is deliberately about **how the product behaves under failure, interruption and real use**, not about adding more training features.
@@ -27,8 +29,8 @@ New product features should wait unless they directly close a release blocker fo
 **Release blocker. Do first.**
 
 - Add a dedicated TypeScript check for Playwright E2E specs so malformed browser tests fail in the fast verification job. Done in PR #34.
-- Pin the Node version in `.node-version` and make GitHub workflows consume that file. Cloudflare Workers Builds also supports `.node-version`, so direct builds and GitHub builds can use the same runtime.
-- Use `npm ci --ignore-scripts` in CI and deploy workflows rather than `npm install`, so a stale or inconsistent lockfile fails immediately.
+- Pin the Node version in `.node-version` and make GitHub workflows consume that file. Cloudflare Workers Builds also supports `.node-version`, so direct builds and GitHub builds can use the same runtime. **Done: CI and both deploy workflows use `node-version-file: .node-version`.**
+- Use `npm ci --ignore-scripts` in CI and deploy workflows rather than `npm install`, so a stale or inconsistent lockfile fails immediately. **Done.**
 - Split the large `core-flow.spec.ts` into focused specs (onboarding, session lifecycle, history/data, behaviour guidance, install/public) to reduce merge-conflict risk. **Done: PR #37.**
 - Keep the expensive Chromium/WebKit/PWA job targeted: run it on browser-impacting PRs, on browser-impacting direct pushes to `main`, and on explicit manual full-CI runs. Do not repeat it on the `main` merge push after the same PR already passed.
 - Browser-impacting paths include runtime/frontend/PWA files, E2E specs, root dependency manifests and `.node-version`. Unit-test-only changes under `app-v2/src/**` stay on fast Vitest/type/build verification and do not download browsers.
@@ -47,9 +49,11 @@ Add browser-level proof for flows that exist in the product but are not yet cove
 - Progress screen after a mixture of relaxed / concern / distressed sessions. **Done: PR #38.**
 - Backup **export + restore round-trip**, not restore alone. **Done: PR #38.**
 - Track/scenario settings: duration entry, minutes/seconds handling, warm-up count, shuffle and rest settings. **Done: PR #38.**
-- Navigation after save/recovery so a completed session cannot reappear as active.
+- Navigation after save/recovery so a completed session cannot reappear as active. **Done: `session-lifecycle.spec.ts` (recovered review saves once; a saved return is not undone by an older checkpoint, PR #63).**
 - Error-boundary fallback and successful reload/recovery. **Done: release-hardening PR (22 Sept) — the error screen also downloads a saved-data backup.**
-- Account-aware copy: local-only users and connected users must not be told contradictory things about backup/sync. **History copy fixed in PR #38.**
+- Account-aware copy: local-only users and connected users must not be told contradictory things about backup/sync. **History copy fixed in PR #38; the backup reminder only appears for logs that are not syncing (release-hardening branch).**
+- Discarding a session after a real departure, or a cue-practice set with recorded reps, asks first and defaults to keeping it. **Done: PRs #60 and #61.**
+- A pending notification prompt never delays the departure timer. **Done: PR #59.**
 
 **Exit:** every primary screen and every destructive/data-changing action has at least one realistic browser journey.
 
@@ -71,6 +75,9 @@ Still harden:
 - backup restore never imports authentication/sync ownership from another account; **Done: PR #40.**
 - add browser-level sync conflict resolution for concurrent edit/delete cases, not only model tests; **Done: `sync-conflicts.spec.ts` (mock account server); live two-device evidence remains under H5.**
 - prove sign-out, local reset and cloud deletion remain distinct operations; **Done: PR #40.**
+- divergent IndexedDB/fallback stores cannot revert newer changes on the next load; **Done: PR #63 (`dog-training-app.fallback.savedAt.v1`, newest copy wins).**
+- an interrupted cue-practice set resumes instead of being lost; **Done: PR #61 (`settledsolo.cue-practice.v1`).**
+- local-only owners with real history are reminded to keep an off-device backup; **Done: release-hardening branch (10+ sessions, no sync, no backup in 30 days; 14-day snooze).**
 
 **Exit:** interruption, concurrency or malformed local state cannot silently discard a completed session.
 
@@ -78,11 +85,11 @@ Still harden:
 
 Automated PWA coverage remains necessary but is not enough for installed mobile behaviour.
 
-- Prove update UI is never actionable during a live session or cue-practice session.
+- Prove update UI is never actionable during a live session or cue-practice session. **Structurally true: `App.tsx` returns the live-session and cue-practice views before `PwaUpdateNotice` renders. Still needs a browser regression that simulates a waiting service worker mid-session.**
 - Test old-build/new-service-worker transitions on preview without forcing a live-session reload.
 - Complete installed-iPhone Airplane Mode relaunch and offline save.
 - Replace the looping silent-audio/Media Session workaround with standards-based Web Push for the main return point. **Done: PR #41. Preview deploy auto-provisioned its VAPID pair successfully; physical-device evidence is still required.**
-- Complete iOS notification permission/denial, background delivery/cancellation and duplicate-chime checks.
+- Complete iOS notification permission/denial, background delivery/cancellation and duplicate-chime checks, including the walk-back "Time to head back" lead time added in PR #61.
 - Confirm the installed PWA no longer exposes fake media-player controls in Lock Screen / Control Centre.
 - Complete the Android installed-PWA matrix.
 - Run desktop sanity checks for first run, session, history, backup/restore and track switching.
@@ -119,7 +126,7 @@ Hardening work:
 - add regression assertions for security headers on public, app and API responses; **Done in the passwordless/security hardening PR.**
 - test rejected origin/method/content-type/oversized requests; **Done in the passwordless/security hardening PR.**
 - test that user-provided/imported HTML-like text is rendered as text and cannot execute; **Done: release-hardening PR (22 Sept).**
-- confirm preview/app/API noindex behaviour; unknown public paths now return a real 404 with noindex;
+- confirm preview/app/API noindex behaviour; unknown public paths now return a real 404 with noindex; **404 done in PR #59; per-page metadata is now written by the Worker (PR #64).**
 - keep workflow permissions minimal and secrets out of logs/generated config; **Step-scoped secrets and immutable action revisions added in the passwordless/security hardening PR.**
 - review dependencies and keep lockfile-driven installs reproducible; **Dependabot configuration added; lockfile installs retained.**
 - confirm the retired product-event analytics pipeline has not been reintroduced; **Retirement completed in PR #55; keep this as a regression boundary.**
@@ -132,11 +139,12 @@ Hardening work:
 Only after the reliability gates above are substantially green:
 
 - add a clear feedback/contact route; **Done: `/contact` and More → Help & feedback. Set the `VITE_CONTACT_EMAIL` GitHub environment variable to show the inbox.**
-- finalise privacy/account/provider wording;
+- finalise privacy/account/provider wording; **the privacy notice does not yet mention Ko-fi. Add that line before `VITE_SUPPORT_URL` is set in production (`PAYMENTS-PLAN.md` Phase 1).**
 - replace stale local-only/account-coming-later copy wherever account state can differ;
-- publish the owned resources/FAQ/cheatsheet pages and final SEO metadata;
-- add final real product screenshots and social-share image metadata;
+- publish the owned resources/FAQ/cheatsheet pages and final SEO metadata; **metadata done: per-page titles, descriptions and share cards served in the HTML (PR #64).**
+- add final real product screenshots and social-share image metadata; **Done: share cards in PR #64; real app screens on the homepage via `npm run product:screens` (release-hardening branch).**
 - confirm brand/domain/trademark readiness;
+- choose a payments approach; **Done as a plan: `PAYMENTS-PLAN.md` (Ko-fi support now, merchant-of-record provider later). Nothing paid is implemented.**
 - invite a small beta cohort and record qualitative failures/friction before widening access.
 
 Do not use training outcomes as an efficacy claim.
@@ -147,11 +155,61 @@ Do not use training outcomes as an efficacy claim.
 1. ~~E2E typecheck, reproducible builds, targeted browser CI and spec split.~~ Done: PRs #34–#37.
 2. ~~Critical-flow browser coverage and repository storage/concurrency baseline.~~ Done: PRs #38 and #40.
 3. ~~Storage-failure recovery, stale-tab export identity, single-window ownership and analytics retirement.~~ Done: PRs #52–#55.
-4. Complete installed iOS/Android lifecycle gates, including update/notification/background-return evidence.
+4. Complete installed iOS/Android lifecycle gates, including update/notification/background-return
+   and walk-back reminder evidence.
 5. Complete real two-device sync/offline/conflict and live OTP/rate-limit checks.
-6. Add the remaining browser-level sync conflict/recovery and security/privacy assertions.
-7. Clear public-beta contact/accessibility/assets/provider wording and publish the owned resources/SEO pass.
+6. ~~Browser-level sync conflict/recovery and security/privacy assertions.~~ Done: PRs #59, #61
+   and #63 (mock account server; live evidence stays in step 5).
+7. ~~Contact route, share assets, page metadata and product screenshots.~~ Done: PRs #59, #64 and
+   the release-hardening branch. Still open: the Ko-fi privacy line, final privacy/provider
+   wording, and a manual screen-reader pass (see F3 below).
 8. Begin a deliberately small invited beta, then widen only after reliability/friction evidence is acceptable.
+
+## Suggested further improvements
+
+These come from the 21–23 September hardening passes. They are proposals, not merged work. Each
+should stay small, be tested, and follow the release principles above. Ordered by release value.
+
+**F1 — Ko-fi privacy line (before enabling support).** Owner action, and it blocks production.
+Add one sentence to `/privacy`: Ko-fi and its payment processor handle support payments, and
+SettledSolo never receives card details. Set `VITE_SUPPORT_URL` on preview first, check the card,
+then production.
+
+**F2 — Update-during-session regression (H4).** Add a PWA-gate spec that installs a build, serves a
+changed service worker while a departure is running, and asserts no update prompt or reload
+until the session is saved. This turns today's structural guarantee into an executable one.
+
+**F3 — Manual assistive-technology pass (H7).** axe covers static rules; nobody has yet run a
+session with VoiceOver (iOS) and TalkBack (Android). Check that the live clock does not flood
+announcements, that "I'm back" is reachable at once, and that the review ratings read clearly.
+Record results in `DEVICE-TEST-MATRIX.md`.
+
+**F4 — Visible save-failure recovery at review time (H3).** Storage failure elsewhere is covered,
+but if the final review save throws, `LiveSession.tsx` quietly re-enables Save with no message.
+Show what happened, keep the review on screen, and offer a retry plus a "download this session"
+action. The active-session checkpoint means nothing is lost meanwhile. Add a forced-failure
+browser test.
+
+**F5 — Privacy-safe crash visibility (needs a privacy decision).** Beta testers' errors are
+currently invisible unless reported. Any option must follow `AGENTS.md` §5: no training
+content, names or durations, and only an error type, build hash and screen name. Decide
+whether to use this, or rely on `/contact` feedback alone, before the beta widens.
+
+**F6 — Performance budget in CI (H1).** Add a bundle-size check (and optionally a Lighthouse run
+on the production build) so the homepage imagery and app bundle cannot grow unnoticed. It
+should run in the fast job, not the browser job.
+
+**F7 — Post-deploy social and search checks (H7).** After the next production deploy, re-scrape
+home/help/resources/evidence in the Facebook Sharing Debugger and LinkedIn Post Inspector, and
+confirm Search Console coverage for the public pages only.
+
+**F8 — Beta feedback loop (H7).** Before inviting testers, write a one-page beta brief: what to
+test, how to send feedback (`/contact`), and a short list of friction questions. Log findings
+against these roadmap sections rather than as new features.
+
+Deliberately **not** proposed while hardening is open: new training features, multi-dog
+workspaces, paid add-ons, or engagement mechanics. Revisit them after beta evidence
+(`BETA-ROADMAP.md`, `PAYMENTS-PLAN.md`).
 
 ## Public-beta release gate
 
@@ -174,5 +232,6 @@ A beta candidate is not ready merely because CI is green. It should also satisfy
 operation fails, reports checkpoint-only storage degradation, and puts a saved-training backup
 action on a cross-screen recovery notice. Memory-only storage also suppresses the PWA update
 prompt. Browser regressions cover a stale fallback retaining history/ownership, and full storage
-failure during a session followed by save/export. PR #54 subsequently closed the local multi-window policy/guard. Divergent populated stores (fixed: newer fallback app data now wins, storage-drift PR) across
-visits, cross-device conflicts and real-device release gates remain.
+failure during a session followed by save/export. PR #54 subsequently closed the local multi-window policy/guard. Divergent populated stores across
+visits are fixed (PR #63: newer fallback app data now wins). Live cross-device conflicts and
+real-device release gates remain.

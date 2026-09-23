@@ -55,6 +55,9 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   `settledsolo.backup-reminder-snoozed-until.v1`). Both keys are device-local and never exported,
   synced or restored. Thresholds are product choices, in `app-v2/src/data/backupReminder.ts`.
   Covered by unit tests and `e2e/backup-reminder.spec.ts`.
+- **Roadmaps refreshed.** `HARDENING-ROADMAP.md` marks what PRs #59–#64 and this branch closed,
+  and adds a ranked "Suggested further improvements" list (F1–F8). The most urgent item is F1:
+  the privacy notice must mention Ko-fi before `VITE_SUPPORT_URL` is set in production.
 
 ### 23 September — social share cards, page metadata, adaptive steps and payments plan — merged (PR #64)
 
