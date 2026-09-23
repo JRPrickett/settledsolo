@@ -50,13 +50,12 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
         </p>
       </div>
 
-      <div className="trend-filters" role="tablist" aria-label="Filter duration chart">
+      <div className="trend-filters" role="group" aria-label="Filter duration chart">
         {FILTERS.map((item) => (
           <button
             key={item.value}
             type="button"
-            role="tab"
-            aria-selected={filter === item.value}
+            aria-pressed={filter === item.value}
             className={filter === item.value ? "selected" : ""}
             onClick={() => {
               setFilter(item.value);
@@ -72,7 +71,7 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
         className="trend-chart"
         viewBox={`0 0 100 ${CHART_HEIGHT}`}
         preserveAspectRatio="none"
-        role="img"
+        role="group"
         aria-label={`Duration of ${recent.length} ${filter === "all" ? "recent main departures" : `${OUTCOME_LABEL[filter].toLowerCase()} sessions`}, coloured by outcome`}
       >
         {recent.map((session, index) => {
@@ -114,7 +113,7 @@ export function SessionTrendChart({ sessions }: { sessions: TrainingSession[] })
       </svg>
 
       {activeSession && (
-        <p className="trend-caption">
+        <p className="trend-caption" aria-live="polite">
           <strong>{formatDuration(activeSession.actualSeconds)}</strong> ·{" "}
           {OUTCOME_LABEL[activeSession.outcome]} ·{" "}
           {new Date(activeSession.at).toLocaleDateString(undefined, {
