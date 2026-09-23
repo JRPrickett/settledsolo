@@ -58,6 +58,10 @@ Current pass:
 
 ## Monetisation decision
 
+See `PAYMENTS-PLAN.md` for the provider comparison and recommendation: Ko-fi for optional support
+now, Paddle as merchant of record for any later paid add-ons, with Stripe Managed Payments
+re-evaluated at that point.
+
 The core plan, timer, history, export and basic progress view should remain useful for free.
 Monetisation is deliberately staged:
 

@@ -52,6 +52,11 @@ Not yet merged at the time of writing; check GitHub for its PR state.
   in the served HTML with the requested page's tags (canonical only for public pages, none for
   `/app/` or not-found pages) and drops stale `content-length`/`etag`. The client router uses the
   same module. A Worker test fails if `index.html`'s default block drifts from the home metadata.
+- **Payments plan.** `docs/PAYMENTS-PLAN.md` compares Ko-fi, Buy Me a Coffee, Paddle, Stripe
+  Managed Payments, Lemon Squeezy and standard Stripe for a UK seller. It recommends Ko-fi for
+  optional support now (via `VITE_SUPPORT_URL`), and Paddle as merchant of record for any later
+  paid add-ons, because a UK seller owes EU VAT from the first EU consumer sale. Nothing is
+  implemented; owner decisions are listed there.
 - **After deploying:** re-scrape the home, help, resources and evidence URLs in the Facebook
   Sharing Debugger and LinkedIn Post Inspector (both cache previews), and check an X/Slack/WhatsApp
   preview once.
