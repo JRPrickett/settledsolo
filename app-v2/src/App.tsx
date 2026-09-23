@@ -13,6 +13,11 @@ import {
   type PersistedLiveSession
 } from "./session/sessionPersistence";
 import { PwaUpdateNotice } from "./pwa/PwaUpdateNotice";
+import {
+  clearCueCheckpoint,
+  loadCueCheckpoint,
+  type CueCheckpoint
+} from "./session/cueCheckpoint";
 import { InstallNotice } from "./pwa/InstallNotice";
 import { Setup } from "./features/setup/Setup";
 import { Today } from "./features/today/Today";
@@ -43,6 +48,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   const [liveTarget, setLiveTarget] = useState<number | null>(null);
   const [liveWarmupSeed, setLiveWarmupSeed] = useState<number | null>(null);
   const [cuePracticeOpen, setCuePracticeOpen] = useState(false);
+  const [cueResume, setCueResume] = useState<CueCheckpoint | undefined>(undefined);
   const [restoredState, setRestoredState] =
     useState<PersistedLiveSession["state"] | undefined>(undefined);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -69,6 +75,25 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
         setLiveTarget(active.targetSeconds);
         setLiveWarmupSeed(null);
         setRestoredState(active.state);
+        return;
+      }
+
+      // Resume an unfinished departure-cue set, unless it was already saved just
+      // before the app closed (its checkpoint then predates the saved set).
+      const cue = loadCueCheckpoint();
+      const cueScenario = cue
+        ? loadedData.scenarios.find((scenario) => scenario.id === cue.scenarioId)
+        : undefined;
+      const lastSavedAt = Math.max(
+        0,
+        ...(cueScenario?.cuePractice?.sessions ?? []).map((session) => session.at)
+      );
+      if (cue && cueScenario && loadedData.dogName && cue.savedAt > lastSavedAt) {
+        setData({ ...loadedData, activeScenarioId: cue.scenarioId });
+        setCueResume(cue);
+        setCuePracticeOpen(true);
+      } else if (cue) {
+        clearCueCheckpoint();
       }
     });
 
@@ -124,10 +149,15 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
     return (
       <DepartureCuePracticeView
         data={data}
-        onClose={() => setCuePracticeOpen(false)}
+        resume={cueResume}
+        onClose={() => {
+          setCueResume(undefined);
+          setCuePracticeOpen(false);
+        }}
         onSaved={async (session, nextLevel) => {
           setData(await repository.appendDepartureCueSession(session, nextLevel));
           setStorageMode(repository.storageMode());
+          setCueResume(undefined);
           setCuePracticeOpen(false);
           setScreen("today");
         }}
@@ -279,6 +309,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               setStorageMode(repository.storageMode());
             }}
             onRestoreBackup={async (restored) => {
+              clearCueCheckpoint();
               await repository.clearActiveSession();
               await repository.saveAppData(restored);
               setData(await repository.loadAppData());
@@ -290,6 +321,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               setScreen("today");
             }}
             onResetApp={async () => {
+              clearCueCheckpoint();
               const fresh = await repository.resetAppData();
               setData(fresh);
               setStorageMode(repository.storageMode());

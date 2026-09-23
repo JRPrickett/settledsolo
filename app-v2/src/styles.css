@@ -5894,3 +5894,7 @@ a:focus-visible {
   outline: 3px solid #f2a65a;
   outline-offset: 3px;
 }
+
+.cue-discard {
+  margin-top: 12px;
+}
