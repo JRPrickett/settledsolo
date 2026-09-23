@@ -1,15 +1,15 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (storage-drift fix and browser-CI discipline on `claude/settledsolo-release-hardening-6xkd4v`)
+**Last updated:** 23 September 2026 (social share cards, server-side page metadata and payments plan on `claude/settledsolo-release-hardening-6xkd4v`)
 **Repository:** `JRPrickett/settledsolo`  
-**Reviewed main:** `6ad0909` (through PR #61)
+**Reviewed main:** `2b65d05` (through PR #63)
 
 This is the current-state handover for another agent or contributor picking up SettledSolo. Read `AGENTS.md` first for repository rules.
 
 
 ## Executive status
 
-Main is current through PR #61. PRs #52–#56 closed the
+Main is current through PR #63. PRs #52–#56 closed the
 storage-fallback recovery gap, stale-tab cloud-export identity checks, competing-window protection
 and the legacy product-analytics pipeline. Browser-heavy CI remains targeted to relevant changes.
 
@@ -36,9 +36,40 @@ Separately, `docs/SA-QUALITY-ROADMAP.md` items 1-5 remain complete, with the 22 
 follow-up safety hardening now also applied. The remaining behaviour-quality release gate is
 real-device testing; product heuristics remain explicitly labelled as heuristics.
 
-### 23 September — storage-drift fix and browser-CI discipline (branch `claude/settledsolo-release-hardening-6xkd4v`)
+### 23 September — social share cards and server-side page metadata (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
 Not yet merged at the time of writing; check GitHub for its PR state.
+
+- **Share cards.** Branded 1200x630 PNG cards for home, help, resources and evidence live in
+  `app-v2/public/social/` (other public pages use the home card). `npm run social:images`
+  re-renders them and the 180x180 `apple-touch-icon.png` from HTML with the brand fonts, colours,
+  doorway mark and hero photo (set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to use a local Chromium). The
+  PNGs are committed; CI never renders them. The old share image was a WebP hero photo with no
+  dimensions, and iOS ignored the SVG apple-touch-icon.
+- **Server-side page metadata.** Link-preview crawlers never run JavaScript, so every public page
+  previously shared as the homepage. `app-v2/src/public/pageMeta.ts` is now the single source of
+  each page's title, description, card and alt text; the Worker replaces the `<!--seo-->` block
+  in the served HTML with the requested page's tags (canonical only for public pages, none for
+  `/app/` or not-found pages) and drops stale `content-length`/`etag`. The client router uses the
+  same module. A Worker test fails if `index.html`'s default block drifts from the home metadata.
+- **Training engine refinements (evidence-reviewed).** Steps are now proportional: 10% of the
+  current duration, 1 s minimum, 2 min maximum, replacing fixed tiers that swung from 33% to 0.4%.
+  Rationale: dogs time by ratio and need ~44-94% differences to discriminate durations (Cliff &
+  Jackson 2019), so 10% steps stay imperceptible. A relaxed session with stress signs ticked now
+  holds the plan, and 7+ days without a timed session restarts one step easier (spontaneous
+  recovery). Increases adapt to the last 10 sessions: 5% after any struggle, 10% normally, 15%
+  after 5+ clean relaxed in a row (percentile-schedule shaping, Galbicka 1994); step-downs stay
+  at 10%. All values are labelled heuristics; see `EVIDENCE-BASE.md`.
+- **Payments plan.** `docs/PAYMENTS-PLAN.md` compares Ko-fi, Buy Me a Coffee, Paddle, Stripe
+  Managed Payments, Lemon Squeezy and standard Stripe for a UK seller. It recommends Ko-fi for
+  optional support now (via `VITE_SUPPORT_URL`), and Paddle as merchant of record for any later
+  paid add-ons, because a UK seller owes EU VAT from the first EU consumer sale. Nothing is
+  implemented; owner decisions are listed there.
+- **After deploying:** re-scrape the home, help, resources and evidence URLs in the Facebook
+  Sharing Debugger and LinkedIn Post Inspector (both cache previews), and check an X/Slack/WhatsApp
+  preview once.
+
+### 23 September — storage-drift fix and browser-CI discipline — merged (PR #63)
 
 - **Divergent-store data loss fixed.** After any IndexedDB failure, the repository saves only to
   the localStorage fallback for the rest of that page; on the next load IndexedDB's older record

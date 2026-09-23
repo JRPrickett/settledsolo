@@ -1,15 +1,58 @@
 import type { Recommendation, TrainingSession } from "./types";
-import { hasHighRiskSignals } from "./observedSignals";
+import { hasHighRiskSignals, observedSignalLabel } from "./observedSignals";
 
-export function stepSize(seconds: number): number {
-  if (seconds < 10) return 1;
-  if (seconds < 30) return 2;
-  if (seconds < 60) return 3;
-  if (seconds < 120) return 5;
-  if (seconds < 300) return 10;
-  if (seconds < 600) return 15;
-  if (seconds < 1800) return 30;
-  return 60;
+/** Each step is this fraction of the current duration. */
+export const STEP_FRACTION = 0.1;
+/** Never change a target by more than this in one step. */
+export const MAX_STEP_SECONDS = 120;
+
+/**
+ * The size of one easier or harder step, proportional to the current duration.
+ *
+ * Dogs judge durations by ratio (they bisect intervals at the geometric mean)
+ * and needed roughly a 44-94% difference to tell two durations apart (Cliff &
+ * Jackson 2019). A 10% step is well under that threshold, so each change should
+ * be barely perceptible, which is what systematic desensitisation asks for.
+ * That study covered durations up to 16 seconds and perception rather than
+ * anxiety, so the 10% fraction, the 1-second floor and the 2-minute cap are
+ * SettledSolo product heuristics, not clinically validated values.
+ */
+export function stepSize(seconds: number, fraction = STEP_FRACTION): number {
+  const proportional = Math.round(Math.max(0, seconds) * fraction);
+  return Math.min(MAX_STEP_SECONDS, Math.max(1, proportional));
+}
+
+/** Sessions examined when deciding how big the next increase should be. */
+export const PACE_WINDOW = 10;
+/** Consecutive clean relaxed sessions needed before a larger step. */
+export const CONFIDENT_RUN = 5;
+
+export type ProgressionPace = "cautious" | "standard" | "confident";
+
+export const PACE_FRACTION: Record<ProgressionPace, number> = {
+  cautious: 0.05,
+  standard: STEP_FRACTION,
+  confident: 0.15
+};
+
+/**
+ * How big the next *increase* should be, from how recent sessions went. This
+ * mirrors percentile schedules in shaping (Galbicka 1994), where each next
+ * criterion is set from a window of recent performance: any recent struggle
+ * slows the pace, and a sustained clean run allows a slightly larger step. Even
+ * the confident 15% step stays about a third of dogs' measured
+ * duration-discrimination threshold, and the 2-minute cap still applies.
+ * Step-downs always use the standard step. Window, run length and fractions
+ * are SettledSolo product heuristics.
+ */
+export function progressionPace(sessions: TrainingSession[]): ProgressionPace {
+  const recent = sessions.slice(-PACE_WINDOW);
+  // An early return while relaxed is good handling, not a struggle.
+  const struggled = recent.some(
+    (session) => session.outcome !== "relaxed" || session.signals.length > 0
+  );
+  if (struggled) return "cautious";
+  return relaxedRun(sessions) >= CONFIDENT_RUN ? "confident" : "standard";
 }
 
 function comfortableDuration(session: TrainingSession): number {
@@ -33,15 +76,32 @@ function latestRelaxedBefore(
   return undefined;
 }
 
+/**
+ * A "relaxed" rating with stress signs ticked is not a clean result: the app's
+ * own definition of relaxed excludes pacing, whining or exit-watching for more
+ * than a few seconds. Such a session holds the plan rather than advancing it.
+ */
+function cleanlyRelaxed(session: TrainingSession): boolean {
+  return session.outcome === "relaxed" && !session.stoppedEarly && session.signals.length === 0;
+}
+
 function relaxedRun(sessions: TrainingSession[]): number {
   let count = 0;
   for (let index = sessions.length - 1; index >= 0; index -= 1) {
-    const session = sessions[index];
-    if (session.outcome === "relaxed" && !session.stoppedEarly) count += 1;
+    if (cleanlyRelaxed(sessions[index])) count += 1;
     else break;
   }
   return count;
 }
+
+/**
+ * Days without a timed session after which the next plan steps back. Learned
+ * calm can partly fade with time away ("spontaneous recovery" in the extinction
+ * and exposure literature), so a long break restarts one step easier. The exact
+ * number of days is a SettledSolo product heuristic, not a clinical threshold.
+ */
+export const LONG_BREAK_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function needsSupport(sessions: TrainingSession[]): boolean {
   const recent = sessions.slice(-5);
@@ -77,7 +137,8 @@ function referralSuggested(sessions: TrainingSession[]): boolean {
 
 export function recommendNext(
   sessions: TrainingSession[],
-  configuredStartSeconds: number
+  configuredStartSeconds: number,
+  now = Date.now()
 ): Recommendation {
   const start = Math.max(1, Math.round(configuredStartSeconds || 1));
 
@@ -161,12 +222,39 @@ export function recommendNext(
     };
   }
 
+  const daysSinceLast = Math.floor((now - last.at) / DAY_MS);
+  if (daysSinceLast >= LONG_BREAK_DAYS) {
+    const comfort = comfortableDuration(last);
+    return {
+      targetSeconds: Math.max(start, comfort - stepSize(comfort)),
+      direction: "reduce",
+      reason: `It has been ${daysSinceLast} days since the last timed session. Calm can partly fade after a break, so the plan restarts one step easier and builds back up from there.`,
+      supportFlag,
+      restDayRecommended,
+      referralSuggested: referral,
+      highRiskFlag
+    };
+  }
+
   if (last.stoppedEarly) {
     return {
       targetSeconds: Math.max(start, comfortableDuration(last)),
       direction: "repeat",
       reason:
         "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
+      supportFlag,
+      restDayRecommended,
+      referralSuggested: referral,
+      highRiskFlag
+    };
+  }
+
+  if (last.signals.length > 0) {
+    const noted = last.signals.map((signal) => observedSignalLabel(signal).toLowerCase()).join(", ");
+    return {
+      targetSeconds: last.targetSeconds,
+      direction: "repeat",
+      reason: `It went well overall, but you noted ${noted}. Repeat this duration and wait for a session without those signs before making it harder.`,
       supportFlag,
       restDayRecommended,
       referralSuggested: referral,
@@ -188,11 +276,17 @@ export function recommendNext(
     };
   }
 
-  const increment = stepSize(last.targetSeconds);
+  const pace = progressionPace(sessions);
+  const increment = stepSize(last.targetSeconds, PACE_FRACTION[pace]);
+  const paceReason: Record<ProgressionPace, string> = {
+    cautious: `There was some difficulty in recent sessions, so this step is smaller than usual: ${formatDuration(increment)} (about 5% of the current time).`,
+    standard: `Recent sessions were relaxed, so the next plan adds a small step of ${formatDuration(increment)} (about a tenth of the current time).`,
+    confident: `Your last ${CONFIDENT_RUN} or more sessions were all calm, so this step is a little bigger: ${formatDuration(increment)} (about 15% of the current time).`
+  };
   return {
     targetSeconds: last.targetSeconds + increment,
     direction: "increase",
-    reason: `Recent sessions were relaxed, so the next plan adds a small ${increment}-second step.`,
+    reason: paceReason[pace],
     supportFlag,
     restDayRecommended,
     referralSuggested: referral,

@@ -130,3 +130,58 @@ describe("content security policy", () => {
     expect(csp).toContain("upgrade-insecure-requests");
   });
 });
+
+describe("per-page share metadata in the served HTML", () => {
+  const shell =
+    '<html><head><meta charset="utf-8" />\n    <!--seo-->\n    <title>Home</title>\n    <!--/seo-->\n</head><body><div id="root"></div></body></html>';
+  const env = envWithAssets(async () =>
+    new Response(shell, {
+      headers: { "Content-Type": "text/html", "Content-Length": String(shell.length), ETag: '"abc"' },
+    }),
+  );
+  const fetchPage = (path: string, method = "GET") =>
+    handleRequest(new Request(`https://settledsolo.com${path}`, { method }), env);
+
+  it("gives each public page its own title, card and canonical URL for crawlers", async () => {
+    const help = await (await fetchPage("/help")).text();
+    expect(help).toContain("<title>Help — dog separation anxiety training | SettledSolo</title>");
+    expect(help).toContain('<meta property="og:image" content="https://settledsolo.com/social/help.png" />');
+    expect(help).toContain('<link rel="canonical" href="https://settledsolo.com/help" />');
+    expect(help).not.toContain("<title>Home</title>");
+    expect(help).toContain('<div id="root"></div>');
+
+    const resources = await (await fetchPage("/resources/")).text();
+    expect(resources).toContain('content="https://settledsolo.com/social/resources.png"');
+    expect(resources).toContain('href="https://settledsolo.com/resources"');
+  });
+
+  it("drops stale length and validator headers from the rewritten page", async () => {
+    const response = await fetchPage("/evidence");
+    expect(response.headers.get("content-length")).toBeNull();
+    expect(response.headers.get("etag")).toBeNull();
+    expect(response.headers.get("content-security-policy")).toBeTruthy();
+  });
+
+  it("never gives the app shell or a missing page a canonical URL", async () => {
+    const app = await (await fetchPage("/app/")).text();
+    expect(app).toContain("<title>SettledSolo — training app</title>");
+    expect(app).not.toContain('rel="canonical"');
+
+    const missing = await fetchPage("/no-such-page");
+    expect(missing.status).toBe(404);
+    const body = await missing.text();
+    expect(body).toContain("<title>Page not found — SettledSolo</title>");
+    expect(body).not.toContain('rel="canonical"');
+  });
+
+  it("leaves HEAD requests and non-HTML assets untouched", async () => {
+    const head = await fetchPage("/help", "HEAD");
+    expect(head.headers.get("content-length")).toBe(String(shell.length));
+
+    const image = await handleRequest(
+      new Request("https://settledsolo.com/social/home.png"),
+      envWithAssets(async () => new Response("png-bytes", { headers: { "Content-Type": "image/png" } })),
+    );
+    expect(await image.text()).toBe("png-bytes");
+  });
+});

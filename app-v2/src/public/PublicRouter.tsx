@@ -3,11 +3,8 @@ import { PublicSite } from "./PublicSite";
 import { BrandWordmark } from "../brand/BrandMark";
 import { OptionalSupportCard } from "./PublicSupport";
 import { contactEmail, feedbackMailto } from "./contact";
-import { isPublicPagePath, normalisePublicPath } from "./routes";
-
-const CANONICAL_ORIGIN = "https://settledsolo.com";
-const DEFAULT_DESCRIPTION =
-  "Free dog separation anxiety training tool for gradual, observable alone-time practice, with a reliable timer, private history and evidence-informed guidance.";
+import { isPublicPagePath, normalisePublicPath, type PublicPagePath } from "./routes";
+import { CANONICAL_ORIGIN, PAGE_META } from "./pageMeta";
 
 function setMeta(attribute: "name" | "property", key: string, content: string) {
   let meta = document.head.querySelector<HTMLMetaElement>(
@@ -25,19 +22,26 @@ function setRobots(content: string) {
   setMeta("name", "robots", content);
 }
 
-function setPublicMetadata(title: string, description: string, path: string) {
-  document.title = title;
+/**
+ * Keeps the tab title and tags right during client-side use. Crawlers get the
+ * same values from the Worker, which writes them into the served HTML.
+ */
+function setPublicMetadata(path: PublicPagePath) {
+  const meta = PAGE_META[path];
+  const url = `${CANONICAL_ORIGIN}${path}`;
+  const image = `${CANONICAL_ORIGIN}${meta.image}`;
+  document.title = meta.title;
   setRobots("index,follow");
-  setMeta("name", "description", description);
-  setMeta("property", "og:title", title);
-  setMeta("property", "og:description", description);
-  setMeta("property", "og:url", `${CANONICAL_ORIGIN}${path}`);
-  setMeta("property", "og:site_name", "SettledSolo");
-  setMeta("property", "og:image", `${CANONICAL_ORIGIN}/photos/hero-settled-at-home-v2.webp`);
-  setMeta("property", "og:image:alt", "A relaxed dog resting comfortably at home.");
-  setMeta("name", "twitter:title", title);
-  setMeta("name", "twitter:description", description);
-  setMeta("name", "twitter:image", `${CANONICAL_ORIGIN}/photos/hero-settled-at-home-v2.webp`);
+  setMeta("name", "description", meta.description);
+  setMeta("property", "og:title", meta.title);
+  setMeta("property", "og:description", meta.description);
+  setMeta("property", "og:url", url);
+  setMeta("property", "og:image", image);
+  setMeta("property", "og:image:alt", meta.imageAlt);
+  setMeta("name", "twitter:title", meta.title);
+  setMeta("name", "twitter:description", meta.description);
+  setMeta("name", "twitter:image", image);
+  setMeta("name", "twitter:image:alt", meta.imageAlt);
 
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!canonical) {
@@ -45,7 +49,7 @@ function setPublicMetadata(title: string, description: string, path: string) {
     canonical.rel = "canonical";
     document.head.appendChild(canonical);
   }
-  canonical.href = `${CANONICAL_ORIGIN}${path}`;
+  canonical.href = url;
 }
 
 function PublicNavigation() {
@@ -269,6 +273,21 @@ function EvidencePage() {
         The exact software increments, repetition rules and support flags are conservative
         product heuristics. They are deliberately explainable and are not described as a
         clinically validated dose of training.
+      </p>
+      <h2>How big each step is</h2>
+      <p>
+        Each change is about a tenth of the current time, never more than two minutes.
+        Dogs judge durations by ratio, and in a small timing study they needed a difference
+        of roughly 44% or more to tell two durations apart, so a 10% step should be barely
+        noticeable. The step only moves up after clean relaxed sessions, holds when you note
+        stress signs, and starts a step easier after a week or more away. The pace also
+        follows recent sessions: about 5% after any recent difficulty, 10% normally, and
+        15% after a sustained calm run.
+      </p>
+      <p>
+        <a href="https://doi.org/10.3390/ani9100801" target="_blank" rel="noreferrer">
+          Cliff et al., Animals (2019)
+        </a>
       </p>
       <h2>Frequency and warm-up variation</h2>
       <p>
@@ -561,30 +580,30 @@ export function PublicRouter() {
   }
 
   if (path === "/privacy") {
-    setPublicMetadata("Privacy — SettledSolo", "How SettledSolo handles local training records, optional accounts and sync.", path);
+    setPublicMetadata(path);
     return <PrivacyPage />;
   }
   if (path === "/terms") {
-    setPublicMetadata("Terms — SettledSolo", "The scope, limits and free-core principles for SettledSolo.", path);
+    setPublicMetadata(path);
     return <TermsPage />;
   }
   if (path === "/help") {
-    setPublicMetadata("Help — dog separation anxiety training | SettledSolo", "Practical help for calm, gradual dog separation anxiety training with SettledSolo.", path);
+    setPublicMetadata(path);
     return <HelpPage />;
   }
   if (path === "/resources") {
-    setPublicMetadata("Dog separation anxiety resources | SettledSolo", "Owned FAQs, printable checklists and observation tools for gradual dog separation anxiety training.", path);
+    setPublicMetadata(path);
     return <ResourcesPage />;
   }
   if (path === "/contact") {
-    setPublicMetadata("Contact and feedback — SettledSolo", "How to send beta feedback and manage your SettledSolo data yourself.", path);
+    setPublicMetadata(path);
     return <ContactPage />;
   }
   if (path === "/evidence") {
-    setPublicMetadata("Evidence-informed dog separation training | SettledSolo", "The research, safety boundaries and product heuristics behind SettledSolo.", path);
+    setPublicMetadata(path);
     return <EvidencePage />;
   }
 
-  setPublicMetadata("Free dog separation anxiety training tool | SettledSolo", DEFAULT_DESCRIPTION, "/");
+  setPublicMetadata("/");
   return <PublicSite />;
 }

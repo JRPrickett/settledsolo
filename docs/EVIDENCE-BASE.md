@@ -1,6 +1,6 @@
 # Evidence base and training-engine decisions
 
-Last reviewed: 22 September 2026
+Last reviewed: 23 September 2026
 
 SettledSolo is a training/planning aid, not a diagnostic or veterinary product. This document
 separates what is supported by published evidence from the product heuristics we use to turn
@@ -223,9 +223,10 @@ The production recommendation engine follows these principles:
    One relaxed result is treated as useful evidence, but the app normally asks for another
    comfortable repetition before increasing difficulty.
 
-3. **Small, transparent step sizes**
-   When the app increases duration, it uses simple tiered time increments. These increments are
-   product heuristics chosen for conservatism and usability, not clinically validated values.
+3. **Small, proportional step sizes**
+   When the app changes duration, it moves by about a tenth of the current time (1 second minimum,
+   2 minutes maximum), which stays below dogs' measured duration-discrimination threshold. The
+   exact values are product heuristics, not clinically validated dosages; see "Step size" below.
 
 4. **Concern means reduce difficulty**
    "Some concern" does not trigger an increase. The next target returns toward a recently
@@ -277,6 +278,32 @@ The production recommendation engine follows these principles:
 10. **Explain every recommendation**
    The UI must show why a target was held, increased or reduced.
 
+## Engine refinements, 23 September 2026
+
+Two gaps where the engine did not follow its own principles:
+
+- **Stress signs hold the plan.** A session rated relaxed but with any observed sign ticked
+  (pacing, panting, whining, exit-watching, inability to settle, food refusal and so on) no longer
+  counts towards an increase. The next target repeats, and two clean relaxed sessions are needed
+  before the next step. This follows the core systematic-desensitisation rule of staying below the
+  point where the dog shows signs of anxiety (Butler et al. 2011; signs appear early and are best
+  seen by direct observation, Palestrini et al. 2010). The app's own "Relaxed" definition already
+  excludes these signs lasting more than a few seconds.
+- **A long break restarts one step easier.** After 7 or more days without a timed session, the
+  next target is the last comfortable duration minus one step. Learned calm can partly return to
+  fear with the passage of time: "spontaneous recovery", a well-replicated extinction and exposure
+  finding (Bouton's retrieval model; systematic review in human fear conditioning, Frontiers in
+  Behavioral Neuroscience 2026). This is translated from learning research rather than tested in
+  dogs with separation-related problems, and the 7-day threshold is a product heuristic. It also
+  makes the engine match the resources FAQ, which already told owners to resume "with an easy,
+  familiar step".
+
+Sources:
+- Bouton ME. Context, time, and memory retrieval in the interference paradigms of Pavlovian
+  learning. Psychological Bulletin. 1993;114(1):80-99.
+- A systematic review of spontaneous recovery in human fear conditioning. Frontiers in Behavioral
+  Neuroscience. 2026. https://www.frontiersin.org/journals/behavioral-neuroscience/articles/10.3389/fnbeh.2026.1820847/full
+
 ## Product heuristic: the referral threshold
 
 The referral tier fires when, across the last ten sessions, at least three were distressed, at
@@ -288,22 +315,76 @@ clinical threshold. No source establishes a number of difficult sessions after w
 input is indicated. What the heuristic encodes is only the uncontroversial part: a pattern that
 training alone is not shifting is a reasonable point to widen the circle of help.
 
-## Product heuristics: current step sizes
+## Step size: proportional, below dogs' duration-discrimination threshold
 
-The initial production engine uses human-readable absolute increments:
+**Rule (23 September 2026):** one step is **10% of the current duration, at least 1 second and
+at most 2 minutes** (`stepSize` in `trainingEngine.ts`). The same step is used for increases after
+clean relaxed sessions and for step-downs after concern, distress or a long break.
 
-- under 10 s: +1 s
-- 10-29 s: +2 s
-- 30-59 s: +3 s
-- 1-2 min: +5 s
-- 2-5 min: +10 s
-- 5-10 min: +15 s
-- 10-30 min: +30 s
-- over 30 min: +60 s
+Why proportional, and why about 10%:
 
-These numbers are deliberately modest and easy to understand. They are not presented as a
-scientific formula or clinical dosage. Any future change should be evidence-logged, clearly
-labelled as a product heuristic and covered by regression tests.
+- **Dogs judge durations by ratio.** In a bisection task, dogs split short/long duration pairs at
+  about the geometric mean, as ratio-based timing predicts, consistent with other mammals and
+  birds (Cliff & Jackson 2019). A fixed number of seconds is therefore a large change for a short
+  absence and an imperceptible one for a long absence; a proportional step is the same relative
+  change throughout.
+- **Their duration sense is coarse.** The same six dogs needed roughly a **44-94%** difference
+  (Weber fractions 0.44-0.94) to discriminate durations. A 10% step is well under a quarter of the
+  smallest measured threshold, so each change should be barely perceptible, which is what
+  systematic desensitisation asks for (begin below the threshold of distress and increase in steps
+  small enough not to provoke it).
+- **No published protocol fixes a number.** Butler et al. (2011) used "separations of approximately
+  increasing length", and success was not associated with how consistently owners increased them.
+  That supports a conservative, consistent rule without making any exact percentage a clinical
+  requirement.
+
+**Adaptive pace for increases.** How big an *increase* is depends on the last ten sessions:
+
+| Recent sessions | Increase |
+| --- | --- |
+| Any concern, distress or ticked stress sign in the last 10 | 5% (cautious) |
+| Otherwise, fewer than 5 clean relaxed in a row | 10% (standard) |
+| 5+ clean relaxed in a row and no struggle in the last 10 | 15% (confident) |
+
+Step-downs always use the standard 10%, a relaxed early return is not a struggle, and the 1-second
+floor and 2-minute cap apply at every pace. This mirrors **percentile schedules** in shaping
+(Galbicka 1994), which set each next criterion from a window of recent performance, standardising
+the procedure while staying sensitive to the individual. It also follows the asymmetry of risk in
+desensitisation: overshooting can sensitise and cost weeks, while a slower step only costs time,
+so difficulty slows the pace more than success speeds it. Even the 15% step is about a third of
+the smallest duration difference dogs discriminated. The window, run length and fractions are
+product heuristics.
+
+Limits, stated plainly: Cliff & Jackson tested 0.5-16 second durations and perception rather than
+anxiety, with a small sample and a U-shaped (not perfectly constant) Weber function. Extending the
+ratio principle to hour-long absences is an inference. The **10% fraction, the 1-second floor and
+the 2-minute cap are SettledSolo product heuristics**; the cap is a deliberate safety bound for
+durations far beyond anything tested.
+
+Effect compared with the previous fixed tiers (+1 s to +60 s by band), simulated from 3 seconds
+with the full engine (repeats, step-downs and adaptive pace):
+
+| Reach | Previous tiers, all clean | Now, all clean | Now, concern every 10th session |
+| --- | --- | --- | --- |
+| 1 minute | 29 sessions | 22 | 67 |
+| 5 minutes | 59 | 33 | 125 |
+| 30 minutes | 119 | 49 | 186 |
+| 1 hour | 149 | 64 | 208 |
+| 4 hours | 329 | 154 | 337 |
+
+With concern in one session in five, the plan plateaus rather than creeping upward, which is the
+intended below-threshold behaviour.
+
+The previous tiers swung from a 33% or 20% jump at the fragile start to under 1% per step at two
+hours. The proportional rule removes both the early spikes and the late stall.
+
+Sources:
+- Galbicka G. Shaping in the 21st century: moving percentile schedules into applied settings.
+  Journal of Applied Behavior Analysis. 1994;27(4):739-760. DOI: 10.1901/jaba.1994.27-739
+- Cliff KM, Jackson SM et al. Weber's Law and the Scalar Property of Timing: A Test of Canine
+  Timing. Animals. 2019;9(10):801. DOI: 10.3390/ani9100801
+- Butler R, Sargisson RJ, Elliffe D. Applied Animal Behaviour Science. 2011;129(2-4):136-145.
+  DOI: 10.1016/j.applanim.2010.11.001
 
 ## Product rule: progress credit is capped at the target
 
