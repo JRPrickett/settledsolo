@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppData } from "../../domain/types";
 import { formatDuration } from "../../domain/trainingEngine";
+import { formatAbsenceDuration } from "../../domain/journal";
 import {
   OUTCOME_LABELS,
   SUMMARY_RECENT_WINDOW,
@@ -193,6 +194,9 @@ function TrackSection({ track, includeNotes }: { track: SummaryTrack; includeNot
                     <td className="summary-nowrap">
                       {formatDuration(row.actualSeconds)}
                       {row.stoppedEarly && <span className="summary-sub">came back early</span>}
+                      {row.firstSignSeconds !== null && (
+                        <span className="summary-sub">first sign at {formatDuration(row.firstSignSeconds)}</span>
+                      )}
                     </td>
                     <td>
                       <OutcomeText row={row} />
@@ -221,6 +225,7 @@ function TrackSection({ track, includeNotes }: { track: SummaryTrack; includeNot
                 <p>
                   Planned {formatDuration(row.targetSeconds)} · away {formatDuration(row.actualSeconds)}
                   {row.stoppedEarly ? " (came back early)" : ""}
+                  {row.firstSignSeconds !== null ? ` · first sign at ${formatDuration(row.firstSignSeconds)}` : ""}
                 </p>
                 <p className="summary-list-signs">
                   <SignsText row={row} />
@@ -341,6 +346,41 @@ export function TrainingSummaryView({
         {summary.tracks.map((track) => (
           <TrackSection key={track.id} track={track} includeNotes={includeNotes} />
         ))}
+
+        {(summary.lifeEvents.length > 0 || summary.realAbsences.length > 0) && (
+          <section className="summary-section" aria-labelledby="summary-context">
+            <h2 id="summary-context">Changes and other absences</h2>
+            {summary.lifeEvents.length > 0 && (
+              <>
+                <p className="summary-caption">Life events the owner noted, newest first.</p>
+                <ul className="summary-events">
+                  {summary.lifeEvents.map((event) => (
+                    <li key={event.id}>
+                      <strong>{formatDate(event.at)}</strong> {event.label}
+                      {includeNotes && event.note && <span className="summary-sub">{event.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {summary.realAbsences.length > 0 && (
+              <>
+                <p className="summary-caption">
+                  Unavoidable absences outside training, newest first.
+                </p>
+                <ul className="summary-events">
+                  {summary.realAbsences.map((absence) => (
+                    <li key={absence.id}>
+                      <strong>{formatDate(absence.at)}</strong> {formatAbsenceDuration(absence.durationSeconds)}{" "}
+                      alone, {absence.outcome.toLowerCase()}
+                      {includeNotes && absence.note && <span className="summary-sub">{absence.note}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        )}
 
         <section className="summary-section summary-reading" aria-labelledby="summary-reading">
           <h2 id="summary-reading">How to read this record</h2>

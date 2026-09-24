@@ -42,6 +42,15 @@ const LIFE_EVENT_CATEGORIES = Object.keys(LIFE_EVENT_LABELS) as LifeEventCategor
 const COVER_OPTIONS = Object.keys(COVER_LABELS) as CoverOption[];
 const ABSENCE_OUTCOMES = Object.keys(REAL_ABSENCE_OUTCOME_LABELS) as Array<Outcome | "unknown">;
 
+/** A real absence in hours and minutes, e.g. "3 h 30 min" or "45 min". */
+export function formatAbsenceDuration(seconds: number): string {
+  const totalMinutes = Math.max(1, Math.round(seconds / 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (!hours) return `${minutes} min`;
+  return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
+}
+
 /** The longest real absence that can be logged or planned: one day. */
 export const MAX_JOURNAL_DURATION_SECONDS = 24 * 60 * 60;
 const MAX_ENTRIES = 1000;

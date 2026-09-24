@@ -4,6 +4,7 @@ import { activeScenario } from "../../data/appData";
 import { formatDuration } from "../../domain/trainingEngine";
 import { SESSION_TAG_OPTIONS } from "../../domain/sessionTags";
 import { observedSignalOptions } from "../../domain/observedSignals";
+import type { JournalFocus } from "../journal/JournalView";
 import { SessionForm } from "./SessionForm";
 
 const tagLabel = new Map(SESSION_TAG_OPTIONS.map(({ value, label }) => [value, label]));
@@ -20,10 +21,12 @@ export function History({
   onAddSession,
   onUpdateSession,
   onDeleteSession,
-  onOpenSummary
+  onOpenSummary,
+  onOpenJournal
 }: {
   data: AppData;
   onOpenSummary?: () => void;
+  onOpenJournal?: (focus: JournalFocus) => void;
   onAddSession: (scenarioId: string, session: TrainingSession) => Promise<void>;
   onUpdateSession: (scenarioId: string, session: TrainingSession) => Promise<void>;
   onDeleteSession: (scenarioId: string, sessionId: string) => Promise<void>;
@@ -56,6 +59,11 @@ export function History({
         {onOpenSummary && scenarioHasHistory(data) && (
           <button type="button" className="text-link-button" onClick={onOpenSummary}>
             Open a summary to share with your vet or trainer
+          </button>
+        )}
+        {onOpenJournal && (
+          <button type="button" className="text-link-button" onClick={() => onOpenJournal("absences")}>
+            Absences outside training and changes at home
           </button>
         )}
       </section>
@@ -111,9 +119,15 @@ export function History({
                   </span>
                   {(session.tags.length > 0 ||
                     session.signals.length > 0 ||
+                    session.firstSignSeconds ||
                     session.stopReason ||
                     session.note) && (
                     <div className="history-detail">
+                      {session.firstSignSeconds && (
+                        <span className="history-chip history-chip-stop">
+                          First sign at {formatDuration(session.firstSignSeconds)}
+                        </span>
+                      )}
                       {session.tags.map((tag) => (
                         <span className="history-chip" key={tag}>
                           {tagLabel.get(tag) ?? tag}

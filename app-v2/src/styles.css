@@ -6348,6 +6348,17 @@ a:focus-visible {
   margin-top: 8px;
 }
 
+.summary-events {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.summary-events li + li {
+  margin-top: 6px;
+}
+
 .summary-foot {
   margin-top: 32px;
   padding-top: 14px;
@@ -6411,4 +6422,216 @@ a:focus-visible {
   .summary-section {
     margin-top: 24px;
   }
+}
+
+/* Live session: marking the first sign of concern during the main departure. */
+.first-sign-button {
+  width: min(100%, 420px);
+  min-height: 48px;
+  margin-top: 4px;
+  border: 1px solid rgba(246, 248, 245, .34);
+  border-radius: 999px;
+  background: transparent;
+  color: #f6f8f5;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.first-sign-button:focus-visible,
+.first-sign-note button:focus-visible {
+  outline: 3px solid #f2a65a;
+  outline-offset: 3px;
+}
+
+.first-sign-note {
+  margin: 4px 0 0;
+  color: #f7eedf;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.first-sign-note button {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.review-first-sign {
+  color: var(--ink);
+  text-align: left;
+}
+
+/* Today: plan and log real absences from the coverage card. */
+.coverage-actions {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+
+.coverage-actions .secondary-button {
+  width: 100%;
+}
+
+.coverage-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Today: plateau prompt and the owner-wellbeing link on hard stretches. */
+.plateau-card {
+  background: #efe7d6;
+  color: var(--ink);
+}
+
+.plateau-card p {
+  margin: 6px 0 0;
+}
+
+.plateau-card a.text-link-button {
+  margin-right: 16px;
+}
+
+.wellbeing-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wellbeing-note a {
+  color: var(--ink);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+/* Journal: the week's absence planner, unavoidable absences and home changes. */
+.journal-shell {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 10px 16px calc(40px + env(safe-area-inset-bottom));
+}
+
+.journal-section h2:focus {
+  outline: none;
+}
+
+.journal-section h2:focus-visible {
+  outline: 3px solid rgba(242, 166, 90, .55);
+  outline-offset: 3px;
+}
+
+.journal-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journal-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.journal-list li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.journal-list li > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.journal-list li > div > span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.journal-list button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: #774842;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.journal-uncovered {
+  color: #774842;
+  font-weight: 700;
+}
+
+.journal-empty {
+  margin: 0;
+}
+
+.journal-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.journal-duration {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.journal-duration legend {
+  margin-bottom: 7px;
+  padding: 0;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.track-form .journal-duration label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.track-form .journal-duration input {
+  width: 4.5em;
+  text-align: center;
+}
+
+.journal-form small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.journal-row label,
+.journal-row input {
+  min-width: 0;
 }

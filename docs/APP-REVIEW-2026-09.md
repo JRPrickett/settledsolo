@@ -228,6 +228,10 @@ Frequency is a rough read across the ~50 threads, not a count.
 
 **Later: needs design, and evidence review where noted**
 
+> Status, 24 September 2026: L1–L7 are implemented on `claude/settledsolo-later-items` (see
+> `HANDOVER.md` and the product rules in `EVIDENCE-BASE.md`). Household sharing and multi-dog
+> stay deferred until account sync is proven on real devices.
+
 - **L1. Mark the first sign during a departure.** Records the latency to the first sign, which
   could become the plan's anchor instead of the return time. Engine change, so evidence review
   and tests are needed.

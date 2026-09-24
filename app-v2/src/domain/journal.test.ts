@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanJournal, difficultAbsencesSince, upcomingPlannedAbsences } from "./journal";
+import { cleanJournal, difficultAbsencesSince, formatAbsenceDuration, upcomingPlannedAbsences } from "./journal";
 
 const NOW = new Date(2026, 8, 24, 12).getTime();
 const HOUR = 60 * 60 * 1000;
@@ -40,5 +40,13 @@ describe("journal queries", () => {
 
   it("lists the coming week's planned absences, soonest first", () => {
     expect(upcomingPlannedAbsences(journal, NOW).map((entry) => entry.id)).toEqual(["p1"]);
+  });
+});
+
+describe("formatAbsenceDuration", () => {
+  it("reads in hours and minutes", () => {
+    expect(formatAbsenceDuration(45 * 60)).toBe("45 min");
+    expect(formatAbsenceDuration(3 * 3600)).toBe("3 h");
+    expect(formatAbsenceDuration(3.5 * 3600)).toBe("3 h 30 min");
   });
 });

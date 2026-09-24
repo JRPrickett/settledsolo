@@ -59,7 +59,13 @@ export function SessionForm({
       signals,
       tags,
       stopReason: stoppedEarly ? stopReason.trim().slice(0, 80) : "",
-      note: note.trim().slice(0, 280)
+      note: note.trim().slice(0, 280),
+      // Editing keeps what the form does not show: a marked first sign (still
+      // within the departure) and the warm-up reviews.
+      ...(initial?.firstSignSeconds
+        ? { firstSignSeconds: Math.min(initial.firstSignSeconds, Math.max(1, Math.round(actualSeconds))) }
+        : {}),
+      ...(initial?.practiceReviews ? { practiceReviews: initial.practiceReviews } : {})
     });
   }
 

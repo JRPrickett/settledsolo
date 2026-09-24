@@ -540,6 +540,41 @@ function HelpPage() {
         escape behaviour are reasons to pause timed departures and consider professional
         support, not to push the plan harder.
       </p>
+      <h2 id="when-progress-stalls">When progress stalls</h2>
+      <p>
+        Plateaus are common and are not a sign that you have failed. If the plan has not
+        moved on for a couple of weeks, check whether getting-ready cues still worry your
+        dog, whether some times of day or setups go better than others, and whether real
+        absences outside training are covered. A vet can check for anything medical and
+        talk through whether medication alongside training would help, and a qualified
+        separation-anxiety professional can review your sessions with you.
+      </p>
+      <h2 id="looking-after-yourself">Looking after yourself too</h2>
+      <p>
+        Living with separation anxiety can mean cancelled plans, missed appointments,
+        worry about neighbours and a lot of money spent on cover. Many owners describe
+        feeling trapped, exhausted, guilty and sometimes resentful of a dog they love.
+        Those feelings are common, and they do not make you a bad owner.
+      </p>
+      <ul>
+        <li>
+          A rest day is part of the plan. Skipping training when you or your dog are not
+          up to it will not undo your progress.
+        </li>
+        <li>
+          Cover does not have to be perfect or expensive. Swapping sitting with another
+          owner, a friend who works from home or a short daycare session all count.
+        </li>
+        <li>
+          Watching the camera for a whole absence can raise your own anxiety. Once sessions
+          are going well, try checking briefly instead of watching throughout.
+        </li>
+        <li>
+          Talk to someone. A vet or a qualified behaviour professional can share the load,
+          and if you are struggling with your own mental health, your doctor or a support
+          line can help you too.
+        </li>
+      </ul>
       <a className="marketing-primary info-cta" href="/resources">Read the practical resources</a>
       <a className="marketing-secondary info-cta" href="/app/">Open SettledSolo</a>
     </InfoPage>

@@ -1,6 +1,6 @@
 # SettledSolo handover
 
-**Last updated:** 24 September 2026 (app review merged in PR #68; Next items N1–N5 on `claude/settledsolo-next-items`)
+**Last updated:** 24 September 2026 (app review merged in PR #68; Next items N1–N5 merged in PR #69; Later items L1–L7 on `claude/settledsolo-later-items`)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `ae1e760` (through PR #64 and PR #62)
 
@@ -84,9 +84,43 @@ Not yet merged at the time of writing; check GitHub for its PR state. See `docs/
 - **Owner actions**: Search Console domain verification, sitemap submission and indexing
   requests; Bing Webmaster Tools. AI Overview inclusion cannot be guaranteed; see `SEO.md`.
 
-### 23 September — the review's "Next" items N1–N5 (branch `claude/settledsolo-next-items`)
+### 24 September — the review's "Later" items L1–L7 (branch `claude/settledsolo-later-items`)
 
-Not yet merged at the time of writing; check GitHub for its PR state. These implement the
+Not yet merged at the time of writing; check GitHub for its PR state. These implement the "Later"
+list from `docs/APP-REVIEW-2026-09.md`, at the owner's request. The product rules are in
+`EVIDENCE-BASE.md` ("first sign, real absences, plateaus and trends"), labelled as rules of thumb.
+
+- **Data model.** `TrainingSession.firstSignSeconds` (optional) and a top-level
+  `AppData.journal` of life events, real absences and planned absences (`domain/journal.ts`,
+  cleaned and capped at 1000 entries). Backup restore, CSV export (`first_sign_seconds`) and the
+  sync protocol carry both; the journal syncs as one `journal` record per entry
+  (`journal:primary:<id>`). Older clients ignore the unknown kind. `repository.saveJournal`
+  writes the whole journal locally first.
+- **L1 first sign.** The live main departure has "Mark first sign of concern" (undo while
+  running, remove on review). It is part of the persisted live-session state, so it survives a
+  reload. The engine anchors on the earlier of the return and the first sign and never makes the
+  plan harder because of it. Editing a session in History keeps its first sign and warm-up
+  reviews (the edit form previously dropped the warm-up reviews).
+- **L2–L4 journal.** A "Life around training" screen (`features/journal/JournalView.tsx`) plans
+  the week's absences with cover, logs unavoidable absences with how the dog was, and notes
+  changes at home. It opens from Today's coverage card, which shows how many planned absences
+  lack cover; from History; and from Progress. A difficult unavoidable absence holds or eases
+  Today's plan (`domain/planContext.ts`, `recommendWithJournal`). The summary lists changes and
+  unavoidable absences.
+- **L5 plateau** card on Today, with links to `/help#when-progress-stalls` and the summary.
+- **L6 wellbeing** section on `/help#looking-after-yourself`, linked from Today only on a
+  difficult stretch (support, referral, high-risk, rest day or plateau).
+- **L7 monthly trend** card on Progress (last 30 days against the 30 before).
+- Tests: unit tests for the journal, plan context, engine first-sign rules, session machine,
+  backup and sync; `e2e/life-context.spec.ts` covers all of the above, including axe and 16px
+  inputs.
+- Deferred: household sharing and multi-dog wait on real-device sync evidence. The first-sign
+  button's behaviour when an installed iPhone app is backgrounded is covered by the existing
+  live-session lifecycle gate in `DEVICE-TEST-MATRIX.md`.
+
+### 23 September — the review's "Next" items N1–N5 — merged (PR #69)
+
+These implement the
 "Next" list from `docs/APP-REVIEW-2026-09.md` (added by the review PR, #68). The owner asked for
 them despite the hardening-phase feature pause. One commit per item:
 

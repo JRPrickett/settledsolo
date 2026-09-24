@@ -4,9 +4,11 @@ import type { StorageMode } from "../../data/repository";
 import { activeScenario } from "../../data/appData";
 import {
   buildPracticeDepartures,
-  formatDuration,
-  recommendNext
+  formatDuration
 } from "../../domain/trainingEngine";
+import { plateauSuggested, recommendWithJournal } from "../../domain/planContext";
+import { upcomingPlannedAbsences } from "../../domain/journal";
+import type { JournalFocus } from "../journal/JournalView";
 import {
   DEPARTURE_CUES,
   cuePracticeReadyForDeparture,
@@ -49,6 +51,7 @@ export function Today({
   onOpenCuePractice,
   onOpenAccount,
   onOpenSummary,
+  onOpenJournal,
   onRecordObservation
 }: {
   data: AppData;
@@ -59,6 +62,7 @@ export function Today({
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
   onOpenSummary?: () => void;
+  onOpenJournal?: (focus: JournalFocus) => void;
   onRecordObservation: (
     outcome: "observed" | "skipped",
     findings: PreProtocolFinding[]
@@ -66,8 +70,8 @@ export function Today({
 }) {
   const scenario = activeScenario(data);
   const recommendation = useMemo(
-    () => recommendNext(scenario.sessions, scenario.startSeconds),
-    [scenario]
+    () => recommendWithJournal(scenario.sessions, scenario.startSeconds, data.journal),
+    [scenario, data.journal]
   );
   const cueRecommendation = useMemo(
     () => recommendCueLevel(scenario.cuePractice),
@@ -129,6 +133,39 @@ export function Today({
     [data]
   );
   const guidanceSettled = scenario.sessions.length >= GUIDANCE_COMPACT_AFTER_SESSIONS;
+  const plateau =
+    plateauSuggested(scenario.sessions) &&
+    !recommendation.supportFlag &&
+    !recommendation.referralSuggested &&
+    !recommendation.highRiskFlag &&
+    !showRestDayCard &&
+    !capReached;
+  // Hard stretches are hard on people too; point to the owner-wellbeing help.
+  const showWellbeing =
+    recommendation.supportFlag ||
+    recommendation.referralSuggested ||
+    recommendation.highRiskFlag ||
+    showRestDayCard ||
+    plateau;
+  const [now] = useState(() => Date.now());
+  const planned = upcomingPlannedAbsences(data.journal, now);
+  const uncovered = planned.filter((entry) => entry.cover === "not-covered").length;
+  const journalActions = onOpenJournal && (
+    <div className="coverage-actions">
+      <button type="button" className="secondary-button" onClick={() => onOpenJournal("planner")}>
+        Plan this week&apos;s absences
+      </button>
+      <button type="button" className="text-link-button" onClick={() => onOpenJournal("absences")}>
+        Log an absence you couldn&apos;t avoid
+      </button>
+      {planned.length > 0 && (
+        <p className="coverage-status">
+          {planned.length} planned this week
+          {uncovered > 0 ? ` · ${uncovered} without cover yet` : " · all covered"}
+        </p>
+      )}
+    </div>
+  );
   const coverageCopy = cuePracticeOnly
     ? `While ${data.dogName} is working on departure cues, avoid unnecessary real absences where practical so those cues are not repeatedly followed by a difficult separation.`
     : `Training works best when ${data.dogName} isn't practising anxiety outside of a session too. Try not to leave them alone longer than today's plan for anything else this week, errands included.`;
@@ -338,6 +375,31 @@ export function Today({
             </div>
           )}
 
+          {plateau && (
+            <div className="support-card plateau-card">
+              <strong>Progress has levelled off.</strong>
+              <p>
+                The plan has not moved on for a couple of weeks. That is common and is not a
+                sign you have failed. It is a good moment to look at what else might be going
+                on: whether getting-ready cues still worry {data.dogName}, whether some times
+                or setups go better than others, and whether absences outside training are
+                covered.
+              </p>
+              <p>
+                A qualified separation-anxiety professional can review your sessions with
+                you, and your vet can check for anything medical.
+              </p>
+              <a className="text-link-button" href="/help#when-progress-stalls">
+                Read more about plateaus
+              </a>
+              {onOpenSummary && (
+                <button type="button" className="text-link-button" onClick={onOpenSummary}>
+                  Open a summary to share
+                </button>
+              )}
+            </div>
+          )}
+
           {recommendation.highRiskFlag ? (
             <div className="support-card referral-card" role="alert">
               <strong>Pause timed departures.</strong>
@@ -393,6 +455,13 @@ export function Today({
               </p>
             </>
           )}
+
+          {showWellbeing && (
+            <p className="wellbeing-note">
+              This is hard on people too.{" "}
+              <a href="/help#looking-after-yourself">Looking after yourself</a>
+            </p>
+          )}
         </section>
       )}
 
@@ -411,6 +480,7 @@ export function Today({
               ))}
             </ul>
           </details>
+          {journalActions}
         </section>
       ) : (
         <section className="cue-entry-card coverage-card">
@@ -427,6 +497,7 @@ export function Today({
               ))}
             </ul>
           </details>
+          {journalActions}
         </section>
       )}
 
