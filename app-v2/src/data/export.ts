@@ -34,6 +34,7 @@ export function makeSessionsCsv(data: AppData): string {
       "observed_signals",
       "context_tags",
       "warmup_reviews",
+      "first_sign_seconds",
       "note"
     ]
   ];
@@ -53,6 +54,7 @@ export function makeSessionsCsv(data: AppData): string {
         (session.practiceReviews ?? [])
           .map((review) => `${review.actualSeconds}s ${review.outcome}`)
           .join("; "),
+        session.firstSignSeconds === undefined ? "" : String(session.firstSignSeconds),
         session.note
       ]);
     }

@@ -17,6 +17,7 @@ import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 // Derived rather than duplicated: a new signal is accepted by restore automatically.
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 import { clampDailyCap } from "../domain/dailyCap";
+import { cleanJournal } from "../domain/journal";
 
 const outcomes: Outcome[] = ["relaxed", "concern", "distressed"];
 
@@ -116,6 +117,14 @@ function cleanPracticeReviews(
   return reviews.length ? reviews : undefined;
 }
 
+/** A marked first sign must fall within the departure it belongs to. */
+function cleanFirstSign(value: unknown, actualSeconds: unknown): number | undefined {
+  if (value == null) return undefined;
+  const seconds = Math.round(finiteNumber(value, NaN));
+  if (!Number.isFinite(seconds) || seconds < 1) return undefined;
+  return Math.min(seconds, Math.max(1, Math.round(finiteNumber(actualSeconds, seconds))));
+}
+
 function cleanSession(value: unknown, index: number): TrainingSession | null {
   if (!isRecord(value)) return null;
 
@@ -136,7 +145,8 @@ function cleanSession(value: unknown, index: number): TrainingSession | null {
     tags: cleanTags(value.tags),
     stopReason: String(value.stopReason || "").slice(0, 80),
     note: String(value.note || "").slice(0, 2000),
-    practiceReviews: cleanPracticeReviews(value.practiceReviews)
+    practiceReviews: cleanPracticeReviews(value.practiceReviews),
+    firstSignSeconds: cleanFirstSign(value.firstSignSeconds, value.actualSeconds)
   };
 }
 
@@ -259,8 +269,14 @@ export function sanitiseImportedAppData(value: unknown): AppData {
     dailyCap:
       value.dailyCap == null
         ? undefined
-        : clampDailyCap(finiteNumber(value.dailyCap, 2))
+        : clampDailyCap(finiteNumber(value.dailyCap, 2)),
+    journal: cleanedJournal(value.journal)
   };
+}
+
+function cleanedJournal(value: unknown): AppData["journal"] {
+  const journal = cleanJournal(value);
+  return journal.length ? journal : undefined;
 }
 
 export function parseBackupText(text: string): AppData {

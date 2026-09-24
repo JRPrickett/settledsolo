@@ -251,6 +251,35 @@ describe("regression below the starting duration", () => {
   });
 });
 
+describe("a marked first sign of concern", () => {
+  it("anchors an easier plan below the first sign rather than the return", () => {
+    const result = recommendNext(
+      [
+        session({ targetSeconds: 60, actualSeconds: 60 }),
+        session({ targetSeconds: 66, actualSeconds: 66, outcome: "concern", firstSignSeconds: 30 })
+      ],
+      5
+    );
+    expect(result).toMatchObject({ targetSeconds: 27, direction: "reduce" });
+  });
+
+  it("holds a relaxed session at the first sign instead of stepping up", () => {
+    const result = recommendNext([session(), session(), session({ firstSignSeconds: 20 })], 5);
+    expect(result).toMatchObject({ targetSeconds: 20, direction: "repeat" });
+    expect(result.reason).toContain("first sign");
+  });
+
+  it("never makes a plan harder than without the mark", () => {
+    for (const outcome of ["relaxed", "concern", "distressed"] as const) {
+      for (const firstSignSeconds of [1, 10, 29, 30, 45]) {
+        const history = [session(), session({ outcome, firstSignSeconds })];
+        const without = recommendNext([session(), session({ outcome })], 5);
+        expect(recommendNext(history, 5).targetSeconds).toBeLessThanOrEqual(without.targetSeconds);
+      }
+    }
+  });
+});
+
 describe("stepSize", () => {
   it.each([
     [3, 1],

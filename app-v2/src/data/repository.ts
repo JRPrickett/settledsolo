@@ -1,10 +1,12 @@
 import { applyReply, connect, reconcile, resolveConflict } from "../account/syncState";
+import { cleanJournal } from "../domain/journal";
 import type { SyncOperation, SyncReply } from "../account/protocol";
 import type {
   AppData,
   DepartureCueSession,
   Scenario,
   StartingPath,
+  JournalEntry,
   TrainingSession
 } from "../domain/types";
 import {
@@ -81,6 +83,8 @@ export interface AppRepository {
   saveActiveSession(session: PersistedLiveSession): Promise<void>;
   clearActiveSession(): Promise<void>;
   resetAppData(): Promise<AppData>;
+  /** Replaces the journal of life events, unavoidable absences and planned cover. */
+  saveJournal(journal: JournalEntry[]): Promise<AppData>;
   storageMode(): StorageMode;
 }
 
@@ -263,8 +267,14 @@ function normaliseAppData(data: AppData): AppData {
     dailyCap:
       data.dailyCap == null
         ? undefined
-        : clampDailyCap(data.dailyCap)
+        : clampDailyCap(data.dailyCap),
+    journal: normaliseJournal(data)
   };
+}
+
+function normaliseJournal(data: AppData): AppData["journal"] {
+  const journal = cleanJournal(data.journal);
+  return journal.length ? journal : undefined;
 }
 
 function safeLocalStorage(): Storage | null {
@@ -476,6 +486,11 @@ function fallbackRepository(initial: AppData): FallbackRepository {
         ...data,
         preProtocolObservation: recordObservation(outcome, findings)
       });
+      persistData();
+      return data;
+    },
+    async saveJournal(journal) {
+      data = normaliseAppData({ ...data, journal });
       persistData();
       return data;
     },
@@ -759,6 +774,13 @@ function createLocalRepository(): AppRepository {
         ...data,
         preProtocolObservation: recordObservation(outcome, findings)
       });
+      await repository.saveAppData(next);
+      return next;
+    },
+
+    async saveJournal(journal) {
+      const data = await repository.loadAppData();
+      const next = normaliseAppData({ ...data, journal });
       await repository.saveAppData(next);
       return next;
     },

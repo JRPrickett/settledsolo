@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { connect, reconcile, applyReply, resolveConflict } from "./syncState";
-import { flatten, valueSchema, type SyncReply } from "./protocol";
+import { flatten, inflate, valueSchema, type SyncReply } from "./protocol";
 import type { AppData, TrainingSession } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
@@ -61,6 +61,44 @@ describe("sync accepts every context tag", () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe("sync carries the journal and first signs", () => {
+  it("flattens each journal entry to its own record and inflates it back", () => {
+    const data: AppData = {
+      ...guest(),
+      journal: [
+        { type: "life-event", id: "moved", at: 10, category: "moved-home", note: "New flat" },
+        { type: "real-absence", id: "dentist", at: 20, durationSeconds: 7200, outcome: "concern", note: "" },
+        { type: "planned-absence", id: "friday", at: 30, durationSeconds: 3600, cover: "walker", note: "" }
+      ]
+    };
+    data.scenarios[0].sessions[0].firstSignSeconds = 3;
+    const values = flatten(data);
+    expect(values["journal:primary:moved"]).toEqual({
+      kind: "journal",
+      dogId: "primary",
+      id: "moved",
+      at: 10,
+      entry: { type: "life-event", category: "moved-home", note: "New flat" }
+    });
+    for (const value of Object.values(values)) expect(valueSchema.safeParse(value).success).toBe(true);
+    const back = inflate(values, { ...guest(), journal: undefined });
+    expect(back.journal).toEqual(data.journal);
+    expect(back.scenarios[0].sessions[0].firstSignSeconds).toBe(3);
+  });
+
+  it("rejects malformed journal records", () => {
+    expect(
+      valueSchema.safeParse({
+        kind: "journal",
+        dogId: "primary",
+        id: "x",
+        at: 1,
+        entry: { type: "real-absence", durationSeconds: 5, outcome: "fine", note: "" }
+      }).success
+    ).toBe(false);
   });
 });
 
