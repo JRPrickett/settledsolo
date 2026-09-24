@@ -9,11 +9,15 @@ import type {
   Scenario,
   SessionTag,
   TrainingSession,
+  JournalEntry,
+  LifeEventCategory,
+  CoverOption,
   DepartureCueSession,
 } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
 import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 import { MAX_DAILY_CAP } from "../domain/dailyCap";
+import { COVER_LABELS, LIFE_EVENT_LABELS, MAX_JOURNAL_DURATION_SECONDS } from "../domain/journal";
 const id = z.string().min(1).max(100);
 const seconds = z.number().int().min(0).max(86400);
 const outcome = z.enum(["relaxed", "concern", "distressed"]);
@@ -77,6 +81,7 @@ const session = z
     stopReason: z.string().max(2000),
     note: z.string().max(10000),
     practiceReviews: z.array(practiceReview).max(4).optional(),
+    firstSignSeconds: seconds.min(1).optional(),
   })
   .strict();
 const cue = z
@@ -91,11 +96,48 @@ const cue = z
     outcome,
   })
   .strict();
+const journalNote = z.string().max(280);
+const journalSeconds = z.number().int().min(60).max(MAX_JOURNAL_DURATION_SECONDS);
+// Dog-level journal entries: life events, unavoidable absences and planned cover.
+const journal = z
+  .object({
+    kind: z.literal("journal"),
+    dogId: id,
+    id,
+    at: z.number().nonnegative(),
+    entry: z.discriminatedUnion("type", [
+      z
+        .object({
+          type: z.literal("life-event"),
+          category: z.enum(Object.keys(LIFE_EVENT_LABELS) as [LifeEventCategory, ...LifeEventCategory[]]),
+          note: journalNote,
+        })
+        .strict(),
+      z
+        .object({
+          type: z.literal("real-absence"),
+          durationSeconds: journalSeconds,
+          outcome: z.enum(["unknown", "relaxed", "concern", "distressed"]),
+          note: journalNote,
+        })
+        .strict(),
+      z
+        .object({
+          type: z.literal("planned-absence"),
+          durationSeconds: journalSeconds,
+          cover: z.enum(Object.keys(COVER_LABELS) as [CoverOption, ...CoverOption[]]),
+          note: journalNote,
+        })
+        .strict(),
+    ]),
+  })
+  .strict();
 export const valueSchema = z.discriminatedUnion("kind", [
   profile,
   scenario,
   session,
   cue,
+  journal,
 ]);
 export type SyncValue = z.infer<typeof valueSchema>;
 export const operationSchema = z
@@ -128,6 +170,8 @@ export const syncRequestSchema = z
 export const keyFor = (value: SyncValue): string =>
   value.kind === "profile"
     ? `profile:${encodeURIComponent(value.dogId)}`
+    : value.kind === "journal"
+      ? `journal:${encodeURIComponent(value.dogId)}:${encodeURIComponent(value.id)}`
     : value.kind === "scenario"
       ? `scenario:${encodeURIComponent(value.id)}`
       : `${value.kind}:${encodeURIComponent(value.scenarioId)}:${encodeURIComponent(value.id)}`;
@@ -168,6 +212,10 @@ export function flatten(data: AppData): Record<string, SyncValue> {
         scenarioId: track.id,
       })),
     );
+  }
+  for (const item of data.journal ?? []) {
+    const { id: entryId, at, ...entry } = item;
+    values.push({ kind: "journal", dogId: "primary", id: entryId, at, entry });
   }
   return Object.fromEntries(
     values.map((value) => [
@@ -226,8 +274,16 @@ export function inflate(
       };
     });
   if (!scenarios.length) return previous; // Wait for a complete profile/track page before replacing the working log.
+  const journalEntries = all
+    .filter((value) => value.kind === "journal" && value.dogId === "primary")
+    .map((value) => {
+      const record = value as Extract<SyncValue, { kind: "journal" }>;
+      return { id: record.id, at: record.at, ...record.entry } as JournalEntry;
+    })
+    .sort((a, b) => a.at - b.at);
   return {
     ...previous,
+    journal: journalEntries.length ? journalEntries : undefined,
     dogName: dog.dogName,
     dailyCap: dog.dailyCap,
     onboarding: dog.onboarding,

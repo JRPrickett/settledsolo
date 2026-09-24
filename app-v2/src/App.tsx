@@ -26,6 +26,7 @@ import { History } from "./features/history/History";
 import { More } from "./features/more/More";
 import { DepartureCuePracticeView } from "./features/cues/DepartureCuePracticeView";
 import { TrainingSummaryView } from "./features/summary/TrainingSummaryView";
+import { JournalView, type JournalFocus } from "./features/journal/JournalView";
 import { LiveSession } from "./features/session/LiveSession";
 import { BrandMark, BrandWordmark } from "./brand/BrandMark";
 import type { Celebration } from "./features/progress/MilestoneBanner";
@@ -56,18 +57,24 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   const inSession = liveTarget !== null || cuePracticeOpen;
   const account = useAccount(repository, setData, inSession);
   const [celebration, setCelebration] = useState<Celebration | null>(null);
-  // The summary opens from part-way down a screen; closing it returns there.
+  // The summary and journal open from part-way down a screen; closing returns there.
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const summaryReturnScroll = useRef<number | null>(null);
+  const [journalFocus, setJournalFocus] = useState<JournalFocus | null>(null);
+  const overlayReturnScroll = useRef<number | null>(null);
   const openSummary = useCallback(() => {
-    summaryReturnScroll.current = window.scrollY;
+    overlayReturnScroll.current = window.scrollY;
     setSummaryOpen(true);
   }, []);
+  const openJournal = useCallback((focus: JournalFocus) => {
+    overlayReturnScroll.current = window.scrollY;
+    setJournalFocus(focus);
+  }, []);
+  const overlayOpen = summaryOpen || journalFocus !== null;
   useEffect(() => {
-    if (summaryOpen || summaryReturnScroll.current === null) return;
-    window.scrollTo(0, summaryReturnScroll.current);
-    summaryReturnScroll.current = null;
-  }, [summaryOpen]);
+    if (overlayOpen || overlayReturnScroll.current === null) return;
+    window.scrollTo(0, overlayReturnScroll.current);
+    overlayReturnScroll.current = null;
+  }, [overlayOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -230,6 +237,20 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
     return <TrainingSummaryView data={data} onClose={() => setSummaryOpen(false)} />;
   }
 
+  if (journalFocus !== null) {
+    return (
+      <JournalView
+        data={data}
+        focus={journalFocus}
+        onClose={() => setJournalFocus(null)}
+        onSave={async (journal) => {
+          setData(await repository.saveJournal(journal));
+          setStorageMode(repository.storageMode());
+        }}
+      />
+    );
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -273,13 +294,15 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
             }}
             onOpenAccount={() => setScreen("more")}
             onOpenSummary={openSummary}
+            onOpenJournal={openJournal}
           />
         )}
-        {screen === "progress" && <Progress data={data} />}
+        {screen === "progress" && <Progress data={data} onOpenJournal={openJournal} />}
         {screen === "history" && (
           <History
             data={data}
             onOpenSummary={openSummary}
+            onOpenJournal={openJournal}
             onAddSession={async (scenarioId, session) => {
               setData(await repository.appendSession(session, scenarioId));
               setStorageMode(repository.storageMode());

@@ -49,20 +49,19 @@ export function progressionPace(sessions: TrainingSession[]): ProgressionPace {
   const recent = sessions.slice(-PACE_WINDOW);
   // An early return while relaxed is good handling, not a struggle.
   const struggled = recent.some(
-    (session) => session.outcome !== "relaxed" || session.signals.length > 0
+    (session) =>
+      session.outcome !== "relaxed" ||
+      session.signals.length > 0 ||
+      session.firstSignSeconds !== undefined
   );
   if (struggled) return "cautious";
   return relaxedRun(sessions) >= CONFIDENT_RUN ? "confident" : "standard";
 }
 
 function comfortableDuration(session: TrainingSession): number {
-  return Math.max(
-    1,
-    Math.min(
-      session.targetSeconds,
-      session.stoppedEarly ? session.actualSeconds : session.targetSeconds
-    )
-  );
+  const returned = session.stoppedEarly ? session.actualSeconds : session.targetSeconds;
+  // A marked first sign caps what counts as comfortable, even in a relaxed session.
+  return Math.max(1, Math.min(session.targetSeconds, returned, firstSign(session) ?? returned));
 }
 
 function latestRelaxedBefore(
@@ -82,7 +81,12 @@ function latestRelaxedBefore(
  * than a few seconds. Such a session holds the plan rather than advancing it.
  */
 function cleanlyRelaxed(session: TrainingSession): boolean {
-  return session.outcome === "relaxed" && !session.stoppedEarly && session.signals.length === 0;
+  return (
+    session.outcome === "relaxed" &&
+    !session.stoppedEarly &&
+    session.signals.length === 0 &&
+    session.firstSignSeconds === undefined
+  );
 }
 
 function relaxedRun(sessions: TrainingSession[]): number {
@@ -99,10 +103,19 @@ function relaxedRun(sessions: TrainingSession[]): number {
  * time they came back; otherwise the full planned duration.
  */
 function difficultyPoint(session: TrainingSession): number {
-  return Math.max(
-    1,
-    session.stoppedEarly ? session.actualSeconds : session.targetSeconds
-  );
+  const returned = session.stoppedEarly ? session.actualSeconds : session.targetSeconds;
+  return Math.max(1, Math.min(returned, firstSign(session) ?? returned));
+}
+
+/**
+ * A marked first sign of concern, when it fell within the departure. It is an
+ * earlier and better-observed difficulty point than the moment the owner got
+ * back, so it can only make a plan easier.
+ */
+function firstSign(session: TrainingSession): number | undefined {
+  const marked = session.firstSignSeconds;
+  if (marked === undefined || !Number.isFinite(marked)) return undefined;
+  return Math.max(1, Math.round(marked));
 }
 
 /**
@@ -273,6 +286,18 @@ export function recommendNext(
       reason: target > comfort
         ? "You returned early while things were still relaxed. That is not a failure, and your starting duration is still a known-comfortable point, so the plan stays there."
         : "You returned early while things were still relaxed. That actual comfortable duration becomes the next anchor instead of being treated as a failure.",
+      supportFlag,
+      restDayRecommended,
+      referralSuggested: referral,
+      highRiskFlag
+    };
+  }
+
+  if (last.signals.length === 0 && firstSign(last) !== undefined) {
+    return {
+      targetSeconds: comfortableDuration(last),
+      direction: "repeat",
+      reason: `It went well overall, but you marked a first sign of concern at ${formatDuration(firstSign(last) ?? 0)}. The next plan stays at that point until a session passes without one.`,
       supportFlag,
       restDayRecommended,
       referralSuggested: referral,

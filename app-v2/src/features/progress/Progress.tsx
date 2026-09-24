@@ -5,10 +5,25 @@ import { formatDuration } from "../../domain/trainingEngine";
 import { observedSignalOptions } from "../../domain/observedSignals";
 import { milestoneBoard } from "../../domain/milestones";
 import { SessionTrendChart } from "./SessionTrendChart";
+import { monthlyTrend } from "../../domain/planContext";
+import { LIFE_EVENT_LABELS, lifeEvents } from "../../domain/journal";
+import type { JournalFocus } from "../journal/JournalView";
 
-export function Progress({ data }: { data: AppData }) {
+function eventDate(at: number): string {
+  return new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+export function Progress({
+  data,
+  onOpenJournal
+}: {
+  data: AppData;
+  onOpenJournal?: (focus: JournalFocus) => void;
+}) {
   const scenario = activeScenario(data);
   const sessions = scenario.sessions;
+  const trend = monthlyTrend(sessions);
+  const events = lifeEvents(data.journal).slice(-5).reverse();
   const insights = progressInsights(sessions);
   const board = milestoneBoard(data);
   const earnedCount = board.earned.size;
@@ -48,6 +63,45 @@ export function Progress({ data }: { data: AppData }) {
       </section>
 
       <SessionTrendChart sessions={sessions} />
+
+      {trend && (
+        <section className="pattern-card month-trend-card" aria-labelledby="month-trend-heading">
+          <div>
+            <p className="kicker">This month</p>
+            <h2 id="month-trend-heading">The last 30 days against the 30 before.</h2>
+            <p>
+              Only {data.dogName}&apos;s own record on this track. It is not a forecast,
+              and a quieter month with more relaxed sessions is still progress.
+            </p>
+          </div>
+          <table className="month-trend">
+            <thead>
+              <tr>
+                <th scope="col"><span className="visually-hidden">Measure</span></th>
+                <th scope="col">Last 30 days</th>
+                <th scope="col">30 days before</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Sessions</th>
+                <td>{trend.current.sessions}</td>
+                <td>{trend.previous.sessions}</td>
+              </tr>
+              <tr>
+                <th scope="row">Relaxed</th>
+                <td>{trend.current.relaxed} of {trend.current.sessions}</td>
+                <td>{trend.previous.relaxed} of {trend.previous.sessions}</td>
+              </tr>
+              <tr>
+                <th scope="row">Longest relaxed</th>
+                <td>{trend.current.longestRelaxedSeconds ? formatDuration(trend.current.longestRelaxedSeconds) : "—"}</td>
+                <td>{trend.previous.longestRelaxedSeconds ? formatDuration(trend.previous.longestRelaxedSeconds) : "—"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      )}
 
       <section className="milestone-card">
         <div>
@@ -134,6 +188,39 @@ export function Progress({ data }: { data: AppData }) {
               </span>
             ))}
           </div>
+        </section>
+      )}
+
+      {(events.length > 0 || onOpenJournal) && (
+        <section className="pattern-card" aria-labelledby="life-events-heading">
+          <div>
+            <p className="kicker">Context</p>
+            <h2 id="life-events-heading">Changes at home.</h2>
+            <p>
+              A move, an illness or a new routine can explain a setback. Noting them keeps
+              the record fair to {data.dogName}.
+            </p>
+          </div>
+          {events.length > 0 && (
+            <ul className="journal-list">
+              {events.map((entry) => (
+                <li key={entry.id}>
+                  <div>
+                    <strong>{LIFE_EVENT_LABELS[entry.category]}</strong>
+                    <span>
+                      {eventDate(entry.at)}
+                      {entry.note && ` · ${entry.note}`}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {onOpenJournal && (
+            <button type="button" className="text-link-button" onClick={() => onOpenJournal("events")}>
+              {events.length ? "Add or edit changes" : "Note a change at home"}
+            </button>
+          )}
         </section>
       )}
 

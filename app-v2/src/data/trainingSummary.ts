@@ -1,12 +1,20 @@
 import type {
   AppData,
+  JournalEntry,
   Outcome,
   Recommendation,
   Scenario,
   StartingPath,
   TrainingSession
 } from "../domain/types";
-import { creditedSeconds, recommendNext } from "../domain/trainingEngine";
+import { creditedSeconds } from "../domain/trainingEngine";
+import { recommendWithJournal } from "../domain/planContext";
+import {
+  LIFE_EVENT_LABELS,
+  REAL_ABSENCE_OUTCOME_LABELS,
+  lifeEvents,
+  realAbsences
+} from "../domain/journal";
 import { hasHighRiskSignals, observedSignalLabel } from "../domain/observedSignals";
 import { SESSION_TAG_OPTIONS } from "../domain/sessionTags";
 import { DEPARTURE_CUES, recommendCueLevel } from "../domain/departureCues";
@@ -64,6 +72,7 @@ export interface SummarySessionRow {
   stopReason: string;
   note: string;
   highRisk: boolean;
+  firstSignSeconds: number | null;
 }
 
 export interface SummaryNextPlan {
@@ -115,6 +124,10 @@ export interface TrainingSummary {
   lastAt: number | null;
   observation: { skipped: boolean; findings: string[]; at: number } | null;
   tracks: SummaryTrack[];
+  /** Life events, newest first. */
+  lifeEvents: Array<{ id: string; at: number; label: string; note: string }>;
+  /** Unavoidable real absences, newest first. */
+  realAbsences: Array<{ id: string; at: number; durationSeconds: number; outcome: string; note: string }>;
 }
 
 function counted(values: string[]): CountedLabel[] {
@@ -147,13 +160,14 @@ function sessionRow(session: TrainingSession): SummarySessionRow {
     warmups: warmupSummary(session),
     stopReason: session.stopReason.trim(),
     note: session.note.trim(),
-    highRisk: hasHighRiskSignals(session.signals)
+    highRisk: hasHighRiskSignals(session.signals),
+    firstSignSeconds: session.firstSignSeconds ?? null
   };
 }
 
-function nextPlan(scenario: Scenario, now: number): SummaryNextPlan | null {
+function nextPlan(scenario: Scenario, journal: JournalEntry[] | undefined, now: number): SummaryNextPlan | null {
   if (!scenario.sessions.length) return null;
-  const recommendation = recommendNext(scenario.sessions, scenario.startSeconds, now);
+  const recommendation = recommendWithJournal(scenario.sessions, scenario.startSeconds, journal, now);
   return {
     targetSeconds: recommendation.targetSeconds,
     direction: DIRECTION_LABELS[recommendation.direction],
@@ -177,7 +191,7 @@ function cuePractice(scenario: Scenario): SummaryCuePractice | null {
   };
 }
 
-function summariseTrack(scenario: Scenario, now: number): SummaryTrack {
+function summariseTrack(scenario: Scenario, journal: JournalEntry[] | undefined, now: number): SummaryTrack {
   const sessions = [...scenario.sessions].sort((a, b) => a.at - b.at);
   const recent = sessions.slice(-SUMMARY_RECENT_WINDOW);
   const outcomes: Record<Outcome, number> = { relaxed: 0, concern: 0, distressed: 0 };
@@ -196,7 +210,7 @@ function summariseTrack(scenario: Scenario, now: number): SummaryTrack {
     longestRelaxedSeconds: sessions
       .filter((session) => session.outcome === "relaxed")
       .reduce((best, session) => Math.max(best, creditedSeconds(session)), 0),
-    next: nextPlan({ ...scenario, sessions }, now),
+    next: nextPlan({ ...scenario, sessions }, journal, now),
     signals: counted(sessions.flatMap((session) => session.signals.map(observedSignalLabel))),
     tags: counted(sessions.flatMap((session) => session.tags.map((tag) => tagLabel.get(tag) ?? tag))),
     highRiskDates: sessions
@@ -209,7 +223,7 @@ function summariseTrack(scenario: Scenario, now: number): SummaryTrack {
 }
 
 export function buildTrainingSummary(data: AppData, now = Date.now()): TrainingSummary {
-  const tracks = data.scenarios.map((scenario) => summariseTrack(scenario, now));
+  const tracks = data.scenarios.map((scenario) => summariseTrack(scenario, data.journal, now));
   const times = data.scenarios.flatMap((scenario) => scenario.sessions.map((session) => session.at));
   const observation = data.preProtocolObservation;
 
@@ -228,6 +242,18 @@ export function buildTrainingSummary(data: AppData, now = Date.now()): TrainingS
           at: observation.completedAt
         }
       : null,
-    tracks
+    tracks,
+    lifeEvents: lifeEvents(data.journal)
+      .map((entry) => ({ id: entry.id, at: entry.at, label: LIFE_EVENT_LABELS[entry.category], note: entry.note }))
+      .reverse(),
+    realAbsences: realAbsences(data.journal)
+      .map((entry) => ({
+        id: entry.id,
+        at: entry.at,
+        durationSeconds: entry.durationSeconds,
+        outcome: REAL_ABSENCE_OUTCOME_LABELS[entry.outcome],
+        note: entry.note
+      }))
+      .reverse()
   };
 }

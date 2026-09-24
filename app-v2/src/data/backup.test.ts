@@ -44,6 +44,28 @@ describe("backup restore", () => {
     );
   });
 
+  it("restores the journal and marked first signs", () => {
+    const data = parseBackupText(envelope({
+      journal: [
+        { type: "life-event", id: "e1", at: 5, category: "medication-change", note: "Started as prescribed" },
+        { type: "real-absence", id: "e2", at: 6, durationSeconds: 3600, outcome: "distressed", note: "" },
+        { type: "nonsense", id: "e3", at: 7 }
+      ],
+      scenarios: [{
+        id: "training",
+        label: "Separation training",
+        startSeconds: 5,
+        sessions: [{
+          id: "s", at: 1, targetSeconds: 60, actualSeconds: 40, outcome: "concern", stoppedEarly: true,
+          signals: [], tags: [], stopReason: "", note: "", firstSignSeconds: 90
+        }]
+      }]
+    }));
+    expect(data.journal?.map((entry) => entry.id)).toEqual(["e1", "e2"]);
+    // A first sign cannot fall after the owner got back.
+    expect(data.scenarios[0].sessions[0].firstSignSeconds).toBe(40);
+  });
+
   it("preserves a recorded pre-protocol observation", () => {
     const data = parseBackupText(
       envelope({

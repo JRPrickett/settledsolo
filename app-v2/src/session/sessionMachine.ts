@@ -23,6 +23,8 @@ export interface LiveSessionState {
   /** Which departure produced the review screen, for interruption-safe copy and saving. */
   reviewKind?: "main" | "practice";
   reviewOutcome?: Outcome | null;
+  /** Seconds into the main departure when the owner marked the first sign of concern. */
+  firstSignSeconds?: number | null;
   warningIssued: boolean;
   targetIssued: boolean;
 }
@@ -36,6 +38,9 @@ export type LiveSessionAction =
   | { type: "MARK_TARGET_ISSUED" }
   /** The owner says they were back sooner than they tapped; only ever lowers the time. */
   | { type: "CORRECT_MAIN_RETURN"; seconds: number }
+  /** The owner saw the first sign of concern during the main departure. */
+  | { type: "MARK_FIRST_SIGN"; now: number }
+  | { type: "CLEAR_FIRST_SIGN" }
   | { type: "RESET" };
 
 export function initialLiveSession(steps: SessionStep[]): LiveSessionState {
@@ -154,8 +159,28 @@ export function liveSessionReducer(
       const measured = Math.max(1, elapsedSeconds(state, state.returnedAt));
       const seconds = Math.round(action.seconds);
       if (!Number.isFinite(seconds) || seconds < 1 || seconds > measured) return state;
-      return { ...state, mainActualSeconds: seconds };
+      // A first sign can never fall after the corrected return.
+      const firstSignSeconds =
+        state.firstSignSeconds == null ? state.firstSignSeconds : Math.min(state.firstSignSeconds, seconds);
+      return { ...state, mainActualSeconds: seconds, firstSignSeconds };
     }
+
+    case "MARK_FIRST_SIGN": {
+      if (
+        state.phase !== "running" ||
+        state.startedAt === null ||
+        state.steps[state.stepIndex]?.kind !== "main" ||
+        state.firstSignSeconds != null
+      ) {
+        return state;
+      }
+      return { ...state, firstSignSeconds: Math.max(1, elapsedSeconds(state, action.now)) };
+    }
+
+    case "CLEAR_FIRST_SIGN":
+      if (state.firstSignSeconds == null) return state;
+      if (state.phase !== "running" && state.phase !== "review") return state;
+      return { ...state, firstSignSeconds: null };
 
     case "NEXT_STEP":
       if (

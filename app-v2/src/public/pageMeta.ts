@@ -47,7 +47,7 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
     image: "/social/help.png",
     headline: "Keep the next step calm and manageable",
     imageAlt: "SettledSolo help: keep the next step calm and manageable.",
-    updated: "2026-09-23"
+    updated: "2026-09-24"
   },
   "/resources": {
     title: "Dog separation anxiety resources | SettledSolo",

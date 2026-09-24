@@ -49,6 +49,11 @@ export interface TrainingSession {
   note: string;
   /** Outcomes recorded for the short departures that preceded the main one. */
   practiceReviews?: PracticeDepartureReview[];
+  /**
+   * Seconds into the main departure when the owner saw the first sign of
+   * concern, if they marked one. Absent when nothing was marked.
+   */
+  firstSignSeconds?: number;
 }
 
 export interface PracticeDepartureReview {
@@ -101,6 +106,54 @@ export interface Recommendation {
   highRiskFlag: boolean;
 }
 
+/** Owner-entered context that is not a training session. */
+export type LifeEventCategory =
+  | "moved-home"
+  | "health"
+  | "household-change"
+  | "routine-change"
+  | "frightening-event"
+  | "medication-change"
+  | "other";
+
+export type CoverOption =
+  | "sitter-or-daycare"
+  | "walker"
+  | "partner-or-friend"
+  | "bring-along"
+  | "not-covered";
+
+export interface LifeEventEntry {
+  type: "life-event";
+  id: string;
+  at: number;
+  category: LifeEventCategory;
+  note: string;
+}
+
+/** A real absence outside training that could not be avoided. */
+export interface RealAbsenceEntry {
+  type: "real-absence";
+  id: string;
+  at: number;
+  durationSeconds: number;
+  /** How the dog was, when the owner knows. */
+  outcome: Outcome | "unknown";
+  note: string;
+}
+
+/** A planned real absence and who covers it (the coverage planner). */
+export interface PlannedAbsenceEntry {
+  type: "planned-absence";
+  id: string;
+  at: number;
+  durationSeconds: number;
+  cover: CoverOption;
+  note: string;
+}
+
+export type JournalEntry = LifeEventEntry | RealAbsenceEntry | PlannedAbsenceEntry;
+
 export interface AppData {
   /** Private local sync metadata; never sent to analytics or imported from a backup. */
   sync?: import("../account/syncState").SyncState;
@@ -113,4 +166,6 @@ export interface AppData {
   scenarios: Scenario[];
   /** Main departures allowed per day, counted across every scenario. Defaults to 2 and is capped at 3. */
   dailyCap?: number;
+  /** Life events, unavoidable absences and planned cover, newest last. */
+  journal?: JournalEntry[];
 }

@@ -134,3 +134,32 @@ describe("correcting a late 'I'm back' tap", () => {
     expect(liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 10 })).toBe(state);
   });
 });
+
+describe("marking the first sign of concern", () => {
+  const steps = [{ kind: "main" as const, targetSeconds: 60 }];
+  const running = liveSessionReducer(initialLiveSession(steps), { type: "START_STEP", now: 0 });
+
+  it("records the seconds into the main departure once, and can be undone", () => {
+    const marked = liveSessionReducer(running, { type: "MARK_FIRST_SIGN", now: 25_400 });
+    expect(marked.firstSignSeconds).toBe(25);
+    expect(liveSessionReducer(marked, { type: "MARK_FIRST_SIGN", now: 40_000 }).firstSignSeconds).toBe(25);
+    expect(liveSessionReducer(marked, { type: "CLEAR_FIRST_SIGN" }).firstSignSeconds).toBeNull();
+  });
+
+  it("only applies to a running main departure", () => {
+    const idle = initialLiveSession(steps);
+    expect(liveSessionReducer(idle, { type: "MARK_FIRST_SIGN", now: 1_000 })).toBe(idle);
+    const warmup = liveSessionReducer(
+      initialLiveSession([{ kind: "practice", targetSeconds: 10 }, ...steps]),
+      { type: "START_STEP", now: 0 }
+    );
+    expect(liveSessionReducer(warmup, { type: "MARK_FIRST_SIGN", now: 1_000 })).toBe(warmup);
+  });
+
+  it("never lets a corrected return fall before the first sign", () => {
+    let state = liveSessionReducer(running, { type: "MARK_FIRST_SIGN", now: 50_000 });
+    state = liveSessionReducer(state, { type: "RETURN", now: 100_000 });
+    state = liveSessionReducer(state, { type: "CORRECT_MAIN_RETURN", seconds: 40 });
+    expect(state).toMatchObject({ mainActualSeconds: 40, firstSignSeconds: 40 });
+  });
+});

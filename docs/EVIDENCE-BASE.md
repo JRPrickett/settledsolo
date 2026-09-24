@@ -468,6 +468,41 @@ can compare sessions. Adding a tag is not a recommendation to do that thing. Add
   (owners describe progress that only holds when one of two people leaves). Separate training
   tracks remain the way to train those routines apart; the tag records the circumstance.
 
+## Product rules: first sign, real absences, plateaus and trends
+
+Added 24 September 2026 from the app review's "Later" items (`docs/APP-REVIEW-2026-09.md`). Each
+follows an evidence-supported principle; the exact thresholds are SettledSolo **rules of thumb**,
+not clinically validated values.
+
+- **First sign of concern (L1).** During the main departure the owner can mark the moment they
+  first saw concern. Principle: systematic desensitisation works below the point where distress
+  starts, and direct observation is the best available measure. Rule of thumb: the plan anchors
+  on the earlier of the return and the first sign (`difficultyPoint`), comfortable duration is
+  capped at the first sign, and a session rated relaxed but with a marked sign repeats at the
+  comfortable duration instead of stepping up. A marked sign can only make the plan easier or
+  hold it, never harder (property-tested). Marking is optional and never required to save.
+- **Unavoidable real absences (L2).** Practitioner guidance treats every absence as exposure, not
+  only training sessions. Rule of thumb: an absence since the last session rated "some concern"
+  holds the plan at the last target; "distressed" steps one step easier and suggests a rest day.
+  A relaxed or "not sure" absence changes nothing. A real absence never makes the plan harder
+  (`recommendWithJournal`).
+- **Changes at home (L3).** Owner-entered context only (move, illness, household or routine change,
+  a frightening event, vet medication started or changed). It does not change the plan.
+  SettledSolo records a medication change as context and gives no dosing or drug information.
+- **Absence planner (L4).** Lists the coming week's absences and who covers each one, to support
+  the management principle of avoiding unplanned over-threshold absences. It does not change
+  the plan.
+- **Plateau prompt (L5).** Rule of thumb: at least 10 sessions over at least 14 days on a track,
+  with the latest target no higher than the target 10 sessions earlier. The prompt says a plateau
+  is common and not failure, suggests checking cues, times and cover, and mentions a qualified
+  professional and the vet. It is suppressed while support, referral, high-risk, rest-day or
+  daily-ceiling guidance shows. It never blocks training or raises difficulty.
+- **Owner wellbeing (L6).** Help content on burnout, guilt and rest days, linked from Today only
+  when a difficult stretch is showing. No clinical claims.
+- **Monthly trend (L7).** The last 30 days against the 30 before, for the dog's own record on one
+  track: sessions, relaxed sessions and longest relaxed (credited up to target). Never a forecast
+  or a comparison with other dogs.
+
 ## Public guide: `/separation-anxiety-training`
 
 The public step-by-step guide (added 23 September 2026) restates guidance already in the app,

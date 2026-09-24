@@ -293,6 +293,10 @@ export function LiveSession({
         practiceReviews:
           state.practiceReviews && state.practiceReviews.length > 0
             ? state.practiceReviews
+            : undefined,
+        firstSignSeconds:
+          !reviewIsPractice && state.firstSignSeconds != null
+            ? Math.min(state.firstSignSeconds, state.mainActualSeconds)
             : undefined
       });
     } catch {
@@ -462,6 +466,15 @@ export function LiveSession({
                 </>
               )}
             </div>
+          )}
+          {!reviewIsPractice && state.firstSignSeconds != null && (
+            <p className="first-sign-note review-first-sign">
+              First sign of concern marked at {formatDuration(state.firstSignSeconds)}. The next
+              plan stays below it.{" "}
+              <button type="button" onClick={() => dispatch({ type: "CLEAR_FIRST_SIGN" })}>
+                Remove
+              </button>
+            </p>
           )}
           <h1>
             {reviewIsPractice
@@ -756,6 +769,23 @@ export function LiveSession({
             <p className="live-elapsed">
               {formatDuration(elapsed)} away · target {formatDuration(step.targetSeconds)}
             </p>
+            {step.kind === "main" &&
+              (state.firstSignSeconds == null ? (
+                <button
+                  type="button"
+                  className="first-sign-button"
+                  onClick={() => dispatch({ type: "MARK_FIRST_SIGN", now: Date.now() })}
+                >
+                  Mark first sign of concern
+                </button>
+              ) : (
+                <p className="first-sign-note" role="status">
+                  First sign marked at {formatDuration(state.firstSignSeconds)}.{" "}
+                  <button type="button" onClick={() => dispatch({ type: "CLEAR_FIRST_SIGN" })}>
+                    Undo
+                  </button>
+                </p>
+              ))}
             <button
               className="return-button"
               onClick={() => dispatch({ type: "RETURN", now: Date.now() })}
