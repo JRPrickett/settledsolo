@@ -38,7 +38,7 @@ export const HOME_FAQS: Faq[] = [
   {
     question: "Is the generated target a clinical prescription?",
     answer:
-      "No. SettledSolo uses evidence-supported behavioural principles, while its exact software step sizes are conservative product heuristics. The reason for each recommendation is shown in plain English."
+      "No. SettledSolo uses evidence-supported behavioural principles, while its exact software step sizes are cautious rules of thumb, not clinical rules. The reason for each recommendation is shown in plain English."
   },
   {
     question: "When should I ask a professional for help?",

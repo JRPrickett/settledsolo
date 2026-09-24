@@ -572,7 +572,7 @@ export function More({
         <h2>Every recommendation should be explainable.</h2>
         <p>
           The new engine is based on gradual systematic desensitisation and observed
-          behaviour. Its exact software step sizes are conservative product heuristics,
+          behaviour. Its exact software step sizes are cautious rules of thumb,
           not a claim that science has discovered the perfect percentage increase.
         </p>
       </section>

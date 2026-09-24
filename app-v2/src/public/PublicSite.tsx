@@ -248,7 +248,7 @@ export function PublicSite() {
             <article>
               <span>Where the product stands</span>
               <h3>Independent, transparent and honest about its limits.</h3>
-              <p>SettledSolo explains which ideas come from evidence and which are its own conservative planning heuristics.</p>
+              <p>SettledSolo explains which ideas come from evidence and which are its own cautious rules of thumb.</p>
             </article>
           </div>
           <a className="marketing-text-link" href="/evidence">Read the evidence notes <ArrowIcon /></a>

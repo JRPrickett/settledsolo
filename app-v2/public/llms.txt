@@ -7,7 +7,7 @@
 - [How to train a dog with separation anxiety](https://settledsolo.com/separation-anxiety-training): signs, step-by-step gradual training, how long it takes, crates, and when to get professional help.
 - [Training help](https://settledsolo.com/help): keeping each session calm and manageable.
 - [Resources and FAQs](https://settledsolo.com/resources): printable cheat sheet, setback checklist, observation log and common questions.
-- [Evidence](https://settledsolo.com/evidence): the research behind the approach, and which numbers are product heuristics rather than clinical rules.
+- [Evidence](https://settledsolo.com/evidence): the research behind the approach, and which numbers are SettledSolo's own rules of thumb rather than clinical rules.
 
 ## App
 

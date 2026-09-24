@@ -59,7 +59,7 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   },
   "/evidence": {
     title: "Evidence-informed dog separation training | SettledSolo",
-    description: "The research, safety boundaries and product heuristics behind SettledSolo.",
+    description: "The research, safety boundaries and rules of thumb behind SettledSolo.",
     image: "/social/evidence.png",
     headline: "Principles first. False precision never.",
     imageAlt: "SettledSolo evidence: principles first, false precision never.",

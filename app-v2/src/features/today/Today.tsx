@@ -244,7 +244,7 @@ export function Today({
               <strong>Starting observation</strong>
               <p>
                 Three seconds is a deliberately cautious SettledSolo starting
-                heuristic because you do not yet have an observed comfortable
+                point (a rule of thumb) because you do not yet have an observed comfortable
                 absence. If possible, watch on a camera and return sooner at the
                 first sign of concern.
               </p>
