@@ -36,7 +36,7 @@
 
 | Search intent | Examples | Page | What targets it |
 | --- | --- | --- | --- |
-| Looking for an app | "dog separation training app", "separation anxiety app", "separation anxiety app for dogs" | `/` | Title "SettledSolo: free dog separation anxiety training app"; the h1 includes "Free separation anxiety training app for dogs" above the tagline; a features section; FAQs "Is there an app for dog separation anxiety?" and "Does SettledSolo work on iPhone and Android?"; `WebApplication` data with `featureList` |
+| Looking for an app | "dog separation training app", "separation anxiety app", "separation anxiety app for dogs" | `/` | Title "SettledSolo: free dog separation anxiety training app"; the h1 includes "Free separation anxiety training app for dogs" above the tagline; a features section; FAQs "Is there an app for dog separation anxiety?", "How is SettledSolo different from other separation anxiety apps?" and "Does SettledSolo work on iPhone and Android?"; `WebApplication` data with `featureList` |
 | Learning how to train | "separation anxiety training for dogs", "how to train a dog with separation anxiety" | `/separation-anxiety-training` | Title "Separation anxiety training for dogs, step by step"; first sentence defines separation anxiety training; question headings |
 | Help and resources | "dog separation anxiety checklist", "separation anxiety FAQ" | `/help`, `/resources` | Existing copy and FAQ data |
 

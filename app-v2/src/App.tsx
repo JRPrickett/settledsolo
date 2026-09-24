@@ -1,7 +1,7 @@
 import { StorageNotice } from "./components/StorageNotice";
 import { AccountPanel } from "./account/AccountPanel";
 import { useAccount } from "./account/useAccount";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppData } from "./domain/types";
 import { activeScenario } from "./data/appData";
 import {
@@ -25,6 +25,7 @@ import { Progress } from "./features/progress/Progress";
 import { History } from "./features/history/History";
 import { More } from "./features/more/More";
 import { DepartureCuePracticeView } from "./features/cues/DepartureCuePracticeView";
+import { TrainingSummaryView } from "./features/summary/TrainingSummaryView";
 import { LiveSession } from "./features/session/LiveSession";
 import { BrandMark, BrandWordmark } from "./brand/BrandMark";
 import type { Celebration } from "./features/progress/MilestoneBanner";
@@ -55,6 +56,18 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
   const inSession = liveTarget !== null || cuePracticeOpen;
   const account = useAccount(repository, setData, inSession);
   const [celebration, setCelebration] = useState<Celebration | null>(null);
+  // The summary opens from part-way down a screen; closing it returns there.
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const summaryReturnScroll = useRef<number | null>(null);
+  const openSummary = useCallback(() => {
+    summaryReturnScroll.current = window.scrollY;
+    setSummaryOpen(true);
+  }, []);
+  useEffect(() => {
+    if (summaryOpen || summaryReturnScroll.current === null) return;
+    window.scrollTo(0, summaryReturnScroll.current);
+    summaryReturnScroll.current = null;
+  }, [summaryOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -213,6 +226,10 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
     );
   }
 
+  if (summaryOpen) {
+    return <TrainingSummaryView data={data} onClose={() => setSummaryOpen(false)} />;
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -255,12 +272,14 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
               setCuePracticeOpen(true);
             }}
             onOpenAccount={() => setScreen("more")}
+            onOpenSummary={openSummary}
           />
         )}
         {screen === "progress" && <Progress data={data} />}
         {screen === "history" && (
           <History
             data={data}
+            onOpenSummary={openSummary}
             onAddSession={async (scenarioId, session) => {
               setData(await repository.appendSession(session, scenarioId));
               setStorageMode(repository.storageMode());
@@ -279,6 +298,7 @@ export default function App({ singleWindowCompatibility = false }: { singleWindo
           <More
             accountPanel={<AccountPanel data={data} account={account} />}
             data={data}
+            onOpenSummary={openSummary}
             storageMode={storageMode}
             onSelectScenario={async (id) => {
               setData(await repository.setActiveScenario(id));

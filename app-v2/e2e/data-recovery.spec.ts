@@ -131,7 +131,9 @@ test("a validated backup can replace local data after confirmation", async ({ pa
   await page.getByRole("button", { name: "Restore this backup" }).click();
 
   await expect(page.getByRole("heading", { name: "You & Ruby" })).toBeVisible();
-  await expect(page.getByText("Home alone")).toBeVisible();
+  // Today names the track only when there is more than one; More always does.
+  await page.getByRole("button", { name: "More" }).click();
+  await expect(page.getByLabel("Track name", { exact: true })).toHaveValue("Home alone");
 
   await page.getByRole("button", { name: "History" }).click();
   await expect(page.getByText("Relaxed")).toBeVisible();

@@ -41,11 +41,13 @@ export function More({
   onRestoreBackup,
   onResetApp,
   accountPanel,
+  onOpenSummary,
   storageMode = "indexeddb"
 }: {
   data: AppData;
   storageMode?: StorageMode;
   accountPanel?: import("react").ReactNode;
+  onOpenSummary?: () => void;
   onSelectScenario: (id: string) => Promise<void>;
   onCreateScenario: (label: string, startSeconds: number) => Promise<void>;
   onUpdateScenario: (
@@ -408,6 +410,22 @@ export function More({
         )}
       </section>
 
+      {onOpenSummary && (
+        <section className="data-tools-card summary-entry-card">
+          <div>
+            <p className="kicker">For your vet or trainer</p>
+            <h2>Share {data.dogName}&apos;s record.</h2>
+            <p>
+              A readable summary of sessions, signs, context and notes to print, save as a
+              PDF or send. It is built on this device.
+            </p>
+          </div>
+          <button type="button" className="secondary-button" onClick={onOpenSummary}>
+            Open a summary to share
+          </button>
+        </section>
+      )}
+
       <section className="data-tools-card">
         <div>
           <p className="kicker">Your data</p>
@@ -554,7 +572,7 @@ export function More({
         <h2>Every recommendation should be explainable.</h2>
         <p>
           The new engine is based on gradual systematic desensitisation and observed
-          behaviour. Its exact software step sizes are conservative product heuristics,
+          behaviour. Its exact software step sizes are cautious rules of thumb,
           not a claim that science has discovered the perfect percentage increase.
         </p>
       </section>

@@ -9,13 +9,21 @@ import { SessionForm } from "./SessionForm";
 const tagLabel = new Map(SESSION_TAG_OPTIONS.map(({ value, label }) => [value, label]));
 const signalLabel = new Map(observedSignalOptions.map(({ value, label }) => [value, label]));
 
+function scenarioHasHistory(data: AppData): boolean {
+  return data.scenarios.some(
+    (scenario) => scenario.sessions.length > 0 || (scenario.cuePractice?.sessions.length ?? 0) > 0
+  );
+}
+
 export function History({
   data,
   onAddSession,
   onUpdateSession,
-  onDeleteSession
+  onDeleteSession,
+  onOpenSummary
 }: {
   data: AppData;
+  onOpenSummary?: () => void;
   onAddSession: (scenarioId: string, session: TrainingSession) => Promise<void>;
   onUpdateSession: (scenarioId: string, session: TrainingSession) => Promise<void>;
   onDeleteSession: (scenarioId: string, sessionId: string) => Promise<void>;
@@ -45,6 +53,11 @@ export function History({
         <p className="kicker">History</p>
         <h1>Your training record.</h1>
         <p>Stored locally on this device. If you connect an account, your training data can also sync between your devices.</p>
+        {onOpenSummary && scenarioHasHistory(data) && (
+          <button type="button" className="text-link-button" onClick={onOpenSummary}>
+            Open a summary to share with your vet or trainer
+          </button>
+        )}
       </section>
 
       {adding ? (

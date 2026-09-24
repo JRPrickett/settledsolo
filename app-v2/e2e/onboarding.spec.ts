@@ -57,6 +57,23 @@ test("mobile form controls remain at least 16px to prevent iOS focus zoom", asyn
   await expectNoSub16pxFormControls(page);
 });
 
+test("setup asks for a vet check first after sudden onset, age or illness, and reassures new homes", async ({ page }) => {
+  await page.goto("/app/");
+  await page.getByLabel("Your dog's name").fill("Mabel");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByText(/started suddenly, or Mabel is older or has been unwell/)).toBeVisible();
+  await expect(page.getByText(/Medical problems can cause or add to distress/)).toBeVisible();
+
+  await page.getByRole("button", { name: /^Stays relaxed/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: /^Not yet/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByText("New to your home?", { exact: true })).toBeVisible();
+  await expect(page.getByText(/some worry when left may be settling in/)).toBeVisible();
+});
+
 test("each setup step and the first Today screen open at the top on a small phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   const scrollY = () => page.evaluate(() => Math.round(window.scrollY));
@@ -197,7 +214,7 @@ test("onboarding uses a clearly-labelled micro departure when no comfortable abs
   await page.getByRole("button", { name: "Continue" }).click();
 
   await expect(page.getByRole("heading", { name: "Start with a 3-second observation." })).toBeVisible();
-  await expect(page.getByText(/conservative SettledSolo heuristic/)).toBeVisible();
+  await expect(page.getByText(/cautious SettledSolo rule of thumb/)).toBeVisible();
   await page.getByRole("button", { name: "Use this starting plan" }).click();
 
   await expect(page.getByText("Starting observation", { exact: true })).toBeVisible();

@@ -59,7 +59,7 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   },
   "/evidence": {
     title: "Evidence-informed dog separation training | SettledSolo",
-    description: "The research, safety boundaries and product heuristics behind SettledSolo.",
+    description: "The research, safety boundaries and rules of thumb behind SettledSolo.",
     image: "/social/evidence.png",
     headline: "Principles first. False precision never.",
     imageAlt: "SettledSolo evidence: principles first, false precision never.",
@@ -214,6 +214,7 @@ export function structuredData(path: PublicPagePath): Record<string, unknown> {
           "Reliable departure timer with head-back reminders",
           "Warm-up departures and departure-cue practice",
           "Observation log of outcomes, stress signs and notes",
+          "Printable training summary to share with a vet or trainer",
           "Progress charts and milestones",
           "Works offline; backup, CSV export and optional account sync"
         ],

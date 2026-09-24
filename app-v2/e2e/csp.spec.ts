@@ -42,5 +42,16 @@ test("public pages and a full training session run without CSP violations", asyn
   }
   await collect();
 
+  // The professional summary, including its downloadable copy.
+  await page.getByRole("navigation", { name: "Main navigation" }).getByRole("button", { name: "More" }).click();
+  await page.getByRole("button", { name: "Open a summary to share" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: /separation training record/ })).toBeVisible();
+  await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("button", { name: "Download as a file" }).click()
+  ]);
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await collect();
+
   expect(collected).toEqual([]);
 });

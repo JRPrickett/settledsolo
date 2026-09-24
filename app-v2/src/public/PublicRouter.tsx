@@ -287,8 +287,8 @@ function EvidencePage() {
       </p>
       <h2>What the app adds</h2>
       <p>
-        The exact software increments, repetition rules and support flags are conservative
-        product heuristics. They are deliberately explainable and are not described as a
+        The exact software increments, repetition rules and support flags are cautious
+        rules of thumb chosen by SettledSolo. They are deliberately explainable and are not described as a
         clinically validated dose of training.
       </p>
       <h2>How big each step is</h2>
@@ -417,8 +417,8 @@ function GuidePage() {
       <h2>How much should I increase the time each session?</h2>
       <p>
         In small steps. No increment has been clinically validated. SettledSolo uses about
-        10% of the current duration, never more than two minutes, as its own product
-        heuristic. In a small timing study, dogs needed a difference of roughly 44% or more
+        10% of the current duration, never more than two minutes, as its own rule of
+        thumb. In a small timing study, dogs needed a difference of roughly 44% or more
         to tell two durations apart (Cliff et al., 2019), so a 10% step should be barely
         noticeable. Hold the duration or go back after any sign of concern.
       </p>
@@ -552,7 +552,7 @@ function ResourcesPage() {
       <p>
         These are SettledSolo&apos;s own plain-language notes for planning calm alone-time
         practice. They combine the evidence listed on the <a href="/evidence">evidence
-        page</a> with cautious product heuristics. They are not a diagnosis, a
+        page</a> with cautious rules of thumb of our own. They are not a diagnosis, a
         replacement for veterinary care or a promise of a particular result.
       </p>
       <section className="resource-downloads" aria-labelledby="downloads-heading">

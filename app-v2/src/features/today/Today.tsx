@@ -19,8 +19,22 @@ import {
 } from "../../domain/preProtocolObservation";
 import { PreProtocolObservationCard } from "./PreProtocolObservationCard";
 import { AccountNotice } from "../../components/AccountNotice";
+import { backupReminderDue, loadBackupReminderState } from "../../data/backupReminder";
 import { MilestoneBanner } from "../progress/MilestoneBanner";
 import type { Achievement, EarnedMilestone } from "../../domain/milestones";
+
+/**
+ * Once a track has this many sessions the owner has seen the standing guidance,
+ * so it collapses to one line that still opens in place. A product choice.
+ */
+const GUIDANCE_COMPACT_AFTER_SESSIONS = 5;
+
+const COVERAGE_OPTIONS = [
+  "Daycare or an in-home pet sitter",
+  "A dog walker for a midday break",
+  "Trading off with a partner, housemate or neighbour",
+  "Bringing them to work, or working from home that day"
+];
 
 function newWarmupSeed(): number {
   return Math.floor(Math.random() * 0x7fffffff) || Date.now();
@@ -34,6 +48,7 @@ export function Today({
   onStart,
   onOpenCuePractice,
   onOpenAccount,
+  onOpenSummary,
   onRecordObservation
 }: {
   data: AppData;
@@ -43,6 +58,7 @@ export function Today({
   onStart: (target: number, warmupSeed: number) => Promise<boolean>;
   onOpenCuePractice: () => void;
   onOpenAccount: () => void;
+  onOpenSummary?: () => void;
   onRecordObservation: (
     outcome: "observed" | "skipped",
     findings: PreProtocolFinding[]
@@ -107,6 +123,15 @@ export function Today({
       ? "Repeated calm practice at the most departure-like doorway cue suggests it is reasonable to try one very brief departure."
       : recommendation.reason;
   const lastSession = scenario.sessions.at(-1);
+  // A due backup reminder stays near the plan; the everyday storage note sits last.
+  const backupReminderShowing = useMemo(
+    () => backupReminderDue(data, loadBackupReminderState()),
+    [data]
+  );
+  const guidanceSettled = scenario.sessions.length >= GUIDANCE_COMPACT_AFTER_SESSIONS;
+  const coverageCopy = cuePracticeOnly
+    ? `While ${data.dogName} is working on departure cues, avoid unnecessary real absences where practical so those cues are not repeatedly followed by a difficult separation.`
+    : `Training works best when ${data.dogName} isn't practising anxiety outside of a session too. Try not to leave them alone longer than today's plan for anything else this week, errands included.`;
 
   return (
     <div className="screen-stack">
@@ -229,7 +254,7 @@ export function Today({
               <strong>Starting observation</strong>
               <p>
                 Three seconds is a deliberately cautious SettledSolo starting
-                heuristic because you do not yet have an observed comfortable
+                point (a rule of thumb) because you do not yet have an observed comfortable
                 absence. If possible, watch on a camera and return sooner at the
                 first sign of concern.
               </p>
@@ -305,6 +330,11 @@ export function Today({
                 training on its own. Keep logging sessions either way; the record is
                 useful to bring to an appointment.
               </p>
+              {onOpenSummary && (
+                <button type="button" className="text-link-button" onClick={onOpenSummary}>
+                  Open a summary to bring to the appointment
+                </button>
+              )}
             </div>
           )}
 
@@ -317,6 +347,11 @@ export function Today({
                 qualified behaviour professional, and use management to avoid another
                 difficult absence where practical.
               </p>
+              {onOpenSummary && (
+                <button type="button" className="text-link-button" onClick={onOpenSummary}>
+                  Open a summary to share with them
+                </button>
+              )}
             </div>
           ) : capReached ? (
             <div className="support-card daily-cap-card">
@@ -361,55 +396,70 @@ export function Today({
         </section>
       )}
 
-      <section className="quiet-card session-summary-card">
-        <div>
-          <p className="kicker">Your training track</p>
-          <h2>{scenario.label}</h2>
-          <p className="quiet-copy">A separate history for this routine.</p>
-        </div>
-        <div className="mini-stat">
-          <strong>{scenario.sessions.length}</strong>
-          <span>sessions logged</span>
-        </div>
-      </section>
+      {backupReminderShowing && (
+        <AccountNotice data={data} storageMode={storageMode} onOpenAccount={onOpenAccount} />
+      )}
 
-      <AccountNotice data={data} storageMode={storageMode} onOpenAccount={onOpenAccount} />
-
-      <section className="cue-entry-card coverage-card">
-        <div>
-          <p className="kicker">While you&apos;re actively training</p>
-          <h2>Cover real absences, not just training sessions.</h2>
-          <p>
-            {cuePracticeOnly
-              ? `While ${data.dogName} is working on departure cues, avoid unnecessary real absences where practical so those cues are not repeatedly followed by a difficult separation.`
-              : `Training works best when ${data.dogName} isn't practising anxiety outside of a session too. Try not to leave them alone longer than today's plan for anything else this week — errands included.`}
-          </p>
-        </div>
-        <details className="coverage-options">
-          <summary>Ways to cover a real absence</summary>
-          <ul>
-            <li>Daycare or an in-home pet sitter</li>
-            <li>A dog walker for a midday break</li>
-            <li>Trading off with a partner, housemate or neighbour</li>
-            <li>Bringing them to work, or working from home that day</li>
-          </ul>
-        </details>
-      </section>
+      {guidanceSettled ? (
+        <section className="cue-entry-card coverage-card coverage-compact">
+          <details>
+            <summary>Cover real absences while you train</summary>
+            <p>{coverageCopy}</p>
+            <ul className="coverage-list">
+              {COVERAGE_OPTIONS.map((option) => (
+                <li key={option}>{option}</li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      ) : (
+        <section className="cue-entry-card coverage-card">
+          <div>
+            <p className="kicker">While you&apos;re actively training</p>
+            <h2>Cover real absences, not just training sessions.</h2>
+            <p>{coverageCopy}</p>
+          </div>
+          <details className="coverage-options">
+            <summary>Ways to cover a real absence</summary>
+            <ul>
+              {COVERAGE_OPTIONS.map((option) => (
+                <li key={option}>{option}</li>
+              ))}
+            </ul>
+          </details>
+        </section>
+      )}
 
       {!cuePracticeOnly && (
         <section className="cue-entry-card">
           <div>
             <p className="kicker">Before you can leave</p>
-            <h2>Does getting ready to go already cause worry?</h2>
-            <p>
-              Practise departure cues without actually leaving, so keys, shoes and the
-              door become less predictive.
-            </p>
+            <h2>Do keys, shoes or the door still cause worry?</h2>
+            <p>Practise those cues without leaving, so they stop predicting an absence.</p>
           </div>
           <button className="secondary-button" onClick={onOpenCuePractice}>
             Departure cue practice
           </button>
         </section>
+      )}
+
+      {/* The track name only matters once there is more than one routine. */}
+      {data.scenarios.length > 1 && (
+        <section className="quiet-card session-summary-card">
+          <div>
+            <p className="kicker">Your training track</p>
+            <h2>{scenario.label}</h2>
+            <p className="quiet-copy">A separate history for this routine.</p>
+          </div>
+          <div className="mini-stat">
+            <strong>{scenario.sessions.length}</strong>
+            <span>sessions logged</span>
+          </div>
+        </section>
+      )}
+
+      {!backupReminderShowing && (
+        <AccountNotice data={data} storageMode={storageMode} onOpenAccount={onOpenAccount} />
       )}
     </div>
   );

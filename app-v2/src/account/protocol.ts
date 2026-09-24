@@ -7,10 +7,12 @@ import type {
   AppData,
   ObservedSignal,
   Scenario,
+  SessionTag,
   TrainingSession,
   DepartureCueSession,
 } from "../domain/types";
 import { OBSERVED_SIGNAL_VALUES } from "../domain/observedSignals";
+import { SESSION_TAG_VALUES } from "../domain/sessionTags";
 import { MAX_DAILY_CAP } from "../domain/dailyCap";
 const id = z.string().min(1).max(100);
 const seconds = z.number().int().min(0).max(86400);
@@ -20,8 +22,10 @@ const practiceReview = z.object({
   actualSeconds: seconds.min(1),
   outcome,
 });
-// Derived from the domain list so a new observed signal cannot be rejected here.
+// Derived from the domain lists so a new observed signal or context tag cannot be
+// rejected here.
 const signalValues = OBSERVED_SIGNAL_VALUES as [ObservedSignal, ...ObservedSignal[]];
+const tagValues = SESSION_TAG_VALUES as [SessionTag, ...SessionTag[]];
 const profile = z
   .object({
     kind: z.literal("profile"),
@@ -68,21 +72,8 @@ const session = z
       .array(z.enum(signalValues))
       .max(signalValues.length),
     tags: z
-      .array(
-        z.enum([
-          "morning",
-          "afternoon",
-          "evening",
-          "not-walked-yet",
-          "after-a-walk",
-          "before-food",
-          "after-food",
-          "radio-or-tv-on",
-          "crated-confined",
-          "free-roam",
-        ]),
-      )
-      .max(10),
+      .array(z.enum(tagValues))
+      .max(tagValues.length),
     stopReason: z.string().max(2000),
     note: z.string().max(10000),
     practiceReviews: z.array(practiceReview).max(4).optional(),

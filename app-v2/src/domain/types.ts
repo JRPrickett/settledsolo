@@ -28,9 +28,13 @@ export type SessionTag =
   | "after-a-walk"
   | "before-food"
   | "after-food"
+  | "food-left"
+  | "remote-feeder"
   | "radio-or-tv-on"
+  | "noise-disturbance"
   | "crated-confined"
-  | "free-roam";
+  | "free-roam"
+  | "someone-home";
 
 export interface TrainingSession {
   id: string;

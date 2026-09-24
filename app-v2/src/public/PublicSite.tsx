@@ -8,19 +8,19 @@ import { GUIDE_PATH } from "./routes";
 const APP_FEATURES = [
   {
     title: "A plan that adapts",
-    body: "Each suggested duration starts from what your dog already manages and moves in small steps after calm sessions, with the reason shown."
+    body: "Each suggested duration starts from what your dog already manages, moves in small steps after calm sessions and never gets harder after a difficult one. The reason is always shown."
   },
   {
     title: "A reliable departure timer",
-    body: "Survives locking your phone or switching apps, with an optional reminder to head back before the target."
+    body: "Keeps accurate time while you watch your camera app, lock your phone or switch apps, with an optional reminder to head back before the target."
   },
   {
     title: "Warm-ups and cue practice",
     body: "Short practice departures before the main one, and at-home practice for keys, shoes and other departure cues."
   },
   {
-    title: "An observation log",
-    body: "Record how your dog was, the signs you noticed and any notes, alongside the time you were away."
+    title: "A record you can share",
+    body: "Log how your dog was, the signs you noticed and any notes, then print a readable summary for your vet or trainer."
   },
   {
     title: "Progress you can read",
@@ -105,7 +105,7 @@ export function PublicSite() {
               <a className="marketing-secondary" href="#how-it-works">See how it works</a>
             </div>
             <ul className="marketing-hero-assurances" aria-label="What to expect">
-              <li>No account required</li>
+              <li>No account or subscription</li>
               <li>No streaks or pressure</li>
               <li>Your training stays on your device</li>
             </ul>
@@ -248,7 +248,7 @@ export function PublicSite() {
             <article>
               <span>Where the product stands</span>
               <h3>Independent, transparent and honest about its limits.</h3>
-              <p>SettledSolo explains which ideas come from evidence and which are its own conservative planning heuristics.</p>
+              <p>SettledSolo explains which ideas come from evidence and which are its own cautious rules of thumb.</p>
             </article>
           </div>
           <a className="marketing-text-link" href="/evidence">Read the evidence notes <ArrowIcon /></a>

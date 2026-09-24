@@ -1,6 +1,6 @@
 # SettledSolo handover
 
-**Last updated:** 23 September 2026 (app review, regression-floor fix and UX fixes on `claude/settledsolo-review-positioning-pzyrln`)
+**Last updated:** 24 September 2026 (app review merged in PR #68; Next items N1–N5 on `claude/settledsolo-next-items`)
 **Repository:** `JRPrickett/settledsolo`  
 **Reviewed main:** `ae1e760` (through PR #64 and PR #62)
 
@@ -38,7 +38,7 @@ real-device testing; product heuristics remain explicitly labelled as heuristics
 
 ### 23 September — app review: competitors, owner needs, one plan fix and UX fixes (branch `claude/settledsolo-review-positioning-pzyrln`)
 
-Not yet merged at the time of writing; check GitHub for its PR state. The review itself is
+Merged in PR #68. The review itself is
 `docs/APP-REVIEW-2026-09.md`. It compares the BRB app, Separation Buddy and Calm My Dog, maps
 about 50 recent Reddit/forum threads to what the app covers, and ends with a ranked roadmap. Only
 the fixes below are implemented; everything in its roadmap (N1–N5, L1–L7) is a proposal.
@@ -83,6 +83,39 @@ Not yet merged at the time of writing; check GitHub for its PR state. See `docs/
   in `SEO.md`.
 - **Owner actions**: Search Console domain verification, sitemap submission and indexing
   requests; Bing Webmaster Tools. AI Overview inclusion cannot be guaranteed; see `SEO.md`.
+
+### 23 September — the review's "Next" items N1–N5 (branch `claude/settledsolo-next-items`)
+
+Not yet merged at the time of writing; check GitHub for its PR state. These implement the
+"Next" list from `docs/APP-REVIEW-2026-09.md` (added by the review PR, #68). The owner asked for
+them despite the hardening-phase feature pause. One commit per item:
+
+- **N2 context tags.** "Food or chew left", "Remote treat feeder used", "Noise or disturbance" and
+  "Someone else was home". Tag labels are now a complete `Record` (a missing label fails to
+  compile). The sync schema's hard-coded tag enum and `max(10)` would have rejected every new
+  tag; both now derive from `SESSION_TAG_VALUES`. Evidence-base rule: tags describe, they do not
+  prescribe (including a note on the remote-feeder FRIDA protocol).
+- **N3 setup copy.** The safety check adds "see your vet first" for sudden onset, older, unwell
+  or in-pain dogs (Merck Veterinary Manual: rule out medical causes). The plan step adds a "New
+  to your home?" note, labelled as product guidance. Copy only; routing and stored data are
+  unchanged.
+- **N1 professional summary.** More, History and the vet/high-risk cards on Today open a readable
+  record built from local data (`data/trainingSummary.ts`, `features/summary/`). It covers each
+  track's plan, outcomes, signs, context, cue practice and the 20 most recent sessions. Notes are
+  optional. It prints as a document (a table in print, a list on phones), and "Download as a
+  file" saves a standalone HTML copy whose styles are copied from the app's `.summary-` rules.
+  Nothing leaves the device. The production CSP gate now opens it and downloads the file.
+  Printing from an installed iPhone web app is unverified: add it to the device matrix.
+- **N4 Today declutter.** The coverage card collapses to one line after a track's fifth session.
+  The track card shows only when there are two or more routines. The everyday storage note moves
+  last (a due backup reminder stays under the plan). The observation card is shorter, with its
+  safety rule still visible. No action was removed.
+- **N5 positioning copy.** Features, a home FAQ ("How is SettledSolo different…"), the hero
+  assurance, `featureList`, `llms.txt` and `SEO.md` now state what SettledSolo does that
+  competitors' reviews complain about, without naming anyone. Claims describe shipped behaviour
+  only.
+
+PR #68 has merged; `main` was merged into this branch and the full Chromium suite re-run.
 
 ### 23 September — real product screenshots and backup reminder (branch `claude/settledsolo-release-hardening-6xkd4v`)
 
