@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BrandMark } from "../../brand/BrandMark";
 import type { StartingPath } from "../../domain/types";
 import {
@@ -39,6 +39,11 @@ export function Setup({
   const [durationUnit, setDurationUnit] = useState<"seconds" | "minutes">(
     "seconds"
   );
+
+  // Continue sits at the bottom of long steps; start each new question at its heading.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   const numericDuration = Number.parseInt(durationValue, 10);
   const durationSeconds =

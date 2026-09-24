@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { completeSetup } from "./helpers";
 
 async function expectNoSub16pxFormControls(
   page: import("@playwright/test").Page
@@ -71,6 +72,78 @@ test("setup asks for a vet check first after sudden onset, age or illness, and r
 
   await expect(page.getByText("New to your home?", { exact: true })).toBeVisible();
   await expect(page.getByText(/some worry when left may be settling in/)).toBeVisible();
+});
+
+test("each setup step and the first Today screen open at the top on a small phone", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  const scrollY = () => page.evaluate(() => Math.round(window.scrollY));
+
+  await page.goto("/app/");
+  await page.getByLabel("Your dog's name").fill("Mabel");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByRole("heading", { name: "What happens when you get ready to go?" })).toBeVisible();
+  await expect.poll(scrollY).toBe(0);
+
+  // Continue sits below the fold, so the owner has scrolled before moving on.
+  await page.getByRole("button", { name: /^Stays relaxed/ }).click();
+  const next = page.getByRole("button", { name: "Continue" });
+  await next.scrollIntoViewIfNeeded();
+  expect(await scrollY()).toBeGreaterThan(0);
+  await next.click();
+  await expect(page.getByRole("heading", { name: /^Have you already seen Mabel/ })).toBeVisible();
+  await expect.poll(scrollY).toBe(0);
+
+  await page.getByRole("button", { name: /^Yes/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByLabel("Comfortable duration")).toBeVisible();
+  await expect.poll(scrollY).toBe(0);
+
+  await page.getByLabel("Comfortable duration").fill("45");
+  await page.getByRole("button", { name: "See my starting plan" }).click();
+  await expect(page.getByRole("heading", { name: "Start from known comfort." })).toBeVisible();
+  await expect.poll(scrollY).toBe(0);
+
+  const usePlan = page.getByRole("button", { name: "Use this starting plan" });
+  await usePlan.scrollIntoViewIfNeeded();
+  expect(await scrollY()).toBeGreaterThan(0);
+  await usePlan.click();
+  await expect(page.getByRole("button", { name: "Start today's session" })).toBeAttached();
+  await expect.poll(scrollY).toBe(0);
+  await expect(page.getByText("Today's plan", { exact: true })).toBeInViewport();
+});
+
+async function buttonWordsBrokenAcrossLines(page: import("@playwright/test").Page) {
+  return page.locator("button:visible").evaluateAll((buttons) => {
+    const broken: string[] = [];
+    for (const button of buttons) {
+      const walker = document.createTreeWalker(button, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        for (const match of (node.textContent ?? "").matchAll(/\S+/g)) {
+          const range = document.createRange();
+          range.setStart(node, match.index ?? 0);
+          range.setEnd(node, (match.index ?? 0) + match[0].length);
+          const lineTops = new Set(
+            [...range.getClientRects()]
+              .filter((rect) => rect.width > 0)
+              .map((rect) => Math.round(rect.top))
+          );
+          if (lineTops.size > 1) broken.push(`${button.textContent?.trim()}: "${match[0]}"`);
+        }
+      }
+    }
+    return broken;
+  });
+}
+
+test("button labels never break mid-word on a narrow phone", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await completeSetup(page, 45);
+  await expect(page.getByRole("button", { name: "Account & backup" })).toBeVisible();
+  expect(await buttonWordsBrokenAcrossLines(page)).toEqual([]);
+
+  await page.getByRole("button", { name: "More" }).click();
+  await expect(page.getByRole("heading", { name: /training settings/i })).toBeVisible();
+  expect(await buttonWordsBrokenAcrossLines(page)).toEqual([]);
 });
 
 test("setup accepts an observed comfortable duration and converts minutes to seconds", async ({ page }) => {

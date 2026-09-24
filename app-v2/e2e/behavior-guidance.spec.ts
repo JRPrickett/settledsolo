@@ -173,6 +173,68 @@ test("a high-risk observation pauses timed training immediately", async ({ page 
 
   await expect(page.getByText("Pause timed departures.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Start today's session" })).toBeHidden();
+  // The plan headline says training is paused rather than offering a departure length.
+  await expect(page.getByRole("heading", { level: 1, name: "Paused" })).toBeVisible();
+  await expect(page.getByText("main departure", { exact: true })).toBeHidden();
+  await expect(page.getByText("Why this plan?")).toBeHidden();
+});
+
+test("after a regression below the starting duration, the plan follows the dog down", async ({ page }) => {
+  await completeSetup(page, 1);
+  await page.getByRole("button", { name: "More" }).click();
+
+  // Started from a known-comfortable 2 minutes, then distress 40 seconds into a shorter session.
+  const backup = {
+    schemaVersion: 1,
+    exportedAt: "2026-09-18T00:00:00.000Z",
+    appData: {
+      dogName: "Mabel",
+      activeScenarioId: "training",
+      scenarios: [{
+        id: "training",
+        label: "Home alone",
+        startSeconds: 120,
+        sessions: [
+          {
+            id: "comfortable",
+            at: Date.UTC(2026, 8, 19, 12, 0, 0),
+            targetSeconds: 120,
+            actualSeconds: 120,
+            outcome: "relaxed",
+            stoppedEarly: false,
+            signals: [],
+            tags: [],
+            stopReason: "",
+            note: ""
+          },
+          {
+            id: "regressed",
+            at: Date.UTC(2026, 8, 20, 12, 0, 0),
+            targetSeconds: 95,
+            actualSeconds: 40,
+            outcome: "distressed",
+            stoppedEarly: true,
+            signals: ["barking-howling"],
+            tags: [],
+            stopReason: "",
+            note: ""
+          }
+        ]
+      }]
+    }
+  };
+
+  await page.getByLabel("Choose backup file").setInputFiles({
+    name: "regression.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup))
+  });
+  await page.getByRole("button", { name: "Restore this backup" }).click();
+
+  // One step below the 40-second distress point, not back up to the 2-minute start.
+  await expect(page.getByRole("heading", { level: 1, name: "36s" })).toBeVisible();
+  await expect(page.getByText("Easier today", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "2:00" })).toBeHidden();
 });
 
 test("persistent difficulty without progress suggests involving a vet, without prescribing", async ({ page }) => {

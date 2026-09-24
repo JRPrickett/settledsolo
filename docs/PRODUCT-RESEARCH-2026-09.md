@@ -5,6 +5,10 @@ Research pass covering two questions: what do real separation-anxiety dog owners
 reviews). Findings are grounded in actual thread/review text, not paraphrase from memory or
 general knowledge — see the sourcing note at the end of each section.
 
+A follow-up review on 23 September 2026 (`docs/APP-REVIEW-2026-09.md`) adds the BRB app, Separation
+Buddy and Calm My Dog in detail, a fresh pass over the past year's threads, a UX audit and a ranked
+roadmap.
+
 This complements `docs/EVIDENCE-BASE.md` (what the science and practitioner community support)
 and `docs/ACCOUNT-SYNC.md` (backend architecture). None of the product implications below have
 been implemented — this is the research record; implementation choices should be made
