@@ -152,6 +152,105 @@ describe("recommendNext", () => {
   });
 });
 
+describe("regression below the starting duration", () => {
+  // An owner who started from a known-comfortable 2 minutes, before the dog regressed.
+  const start = 120;
+
+  it("stays below early distress instead of returning to the longer starting duration", () => {
+    const result = recommendNext(
+      [
+        session({ targetSeconds: 120, actualSeconds: 120 }),
+        session({ targetSeconds: 95, actualSeconds: 40, outcome: "distressed", stoppedEarly: true })
+      ],
+      start
+    );
+    expect(result).toMatchObject({ targetSeconds: 36, direction: "reduce" });
+  });
+
+  it("stays below early concern instead of returning to the longer starting duration", () => {
+    const result = recommendNext(
+      [
+        session({ targetSeconds: 120, actualSeconds: 120 }),
+        session({ targetSeconds: 120, actualSeconds: 30, outcome: "concern", stoppedEarly: true })
+      ],
+      start
+    );
+    expect(result).toMatchObject({ targetSeconds: 27, direction: "reduce" });
+  });
+
+  it("steps below the starting duration when it caused distress", () => {
+    const result = recommendNext(
+      [session({ targetSeconds: 120, actualSeconds: 120, outcome: "distressed" })],
+      start
+    );
+    expect(result).toMatchObject({ targetSeconds: 108, direction: "reduce" });
+    expect(result.reason).toContain("even at the starting duration");
+  });
+
+  it("steps below the starting duration after concern at it", () => {
+    const result = recommendNext(
+      [session({ targetSeconds: 120, actualSeconds: 120, outcome: "concern" })],
+      start
+    );
+    expect(result).toMatchObject({ targetSeconds: 108, direction: "reduce" });
+  });
+
+  it("keeps following the observed sessions after a regression", () => {
+    const afterDistress = [
+      session({ targetSeconds: 60, actualSeconds: 30, outcome: "distressed", stoppedEarly: true })
+    ];
+    // A relaxed early return does not jump back up to the starting duration...
+    expect(
+      recommendNext([...afterDistress, session({ targetSeconds: 27, actualSeconds: 20, stoppedEarly: true })], start)
+    ).toMatchObject({ targetSeconds: 20, direction: "repeat" });
+
+    // ...and nor does a long break.
+    const day = 24 * 60 * 60 * 1000;
+    const now = Date.UTC(2026, 8, 23, 12);
+    expect(
+      recommendNext(
+        [
+          session({ at: now - 20 * day, targetSeconds: 60, actualSeconds: 30, outcome: "distressed", stoppedEarly: true }),
+          session({ at: now - 10 * day, targetSeconds: 27, actualSeconds: 27 })
+        ],
+        start,
+        now
+      )
+    ).toMatchObject({ targetSeconds: 24, direction: "reduce" });
+  });
+
+  it("still treats an uncontradicted starting duration as known comfort", () => {
+    const result = recommendNext(
+      [session({ targetSeconds: 120, actualSeconds: 20, stoppedEarly: true })],
+      start
+    );
+    expect(result).toMatchObject({ targetSeconds: 120, direction: "repeat" });
+    expect(result.reason).toContain("starting duration is still a known-comfortable point");
+  });
+
+  it("never offers a target at or above where concern or distress was observed", () => {
+    const outcomes = ["concern", "distressed"] as const;
+    for (const configuredStart of [3, 30, 120, 600]) {
+      for (const priorRelaxed of [null, 10, 120, 900]) {
+        for (const outcome of outcomes) {
+          for (const stoppedEarly of [true, false]) {
+            for (const targetSeconds of [2, 5, 45, 120, 300, 1200]) {
+              const actualSeconds = stoppedEarly ? Math.max(1, Math.round(targetSeconds / 3)) : targetSeconds;
+              const history = [
+                ...(priorRelaxed === null ? [] : [session({ targetSeconds: priorRelaxed, actualSeconds: priorRelaxed })]),
+                session({ targetSeconds, actualSeconds, outcome, stoppedEarly })
+              ];
+              const observed = stoppedEarly ? actualSeconds : targetSeconds;
+              const { targetSeconds: next } = recommendNext(history, configuredStart);
+              expect(next >= 1 && (next < observed || next === 1)).toBe(true);
+            }
+          }
+        }
+      }
+    }
+  });
+});
+
 describe("stepSize", () => {
   it.each([
     [3, 1],

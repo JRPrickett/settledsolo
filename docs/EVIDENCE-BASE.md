@@ -233,8 +233,14 @@ The production recommendation engine follows these principles:
    demonstrated comfortable duration or takes one conservative step down.
 
 5. **Distress means return to known comfort**
-   A distressed session returns to the most recent known relaxed duration. If there is no such
-   session, the configured starting duration is used.
+   A distressed session returns to the most recent known relaxed duration, and always stays below
+   the point where distress was observed. If there is no such session, the configured starting
+   duration is used, unless the distress happened at or below it.
+
+   The configured starting duration is the owner's observation from before training, so it only
+   acts as a floor while no session has shown concern or distress at or below it. Once one has,
+   the logged sessions are the better evidence and easier plans follow them down (never below one
+   second). See "Product rule: the starting duration is not a floor after regression" below.
 
 6. **Early return is good handling, not failure**
    If the owner returns early while the dog is still relaxed, the actual duration is treated as a
@@ -385,6 +391,22 @@ Sources:
   Timing. Animals. 2019;9(10):801. DOI: 10.3390/ani9100801
 - Butler R, Sargisson RJ, Elliffe D. Applied Animal Behaviour Science. 2011;129(2-4):136-145.
   DOI: 10.1016/j.applanim.2010.11.001
+
+## Product rule: the starting duration is not a floor after regression
+
+Found in the 23 September 2026 app review (`docs/APP-REVIEW-2026-09.md`). Every easier plan used
+to be floored at the track's configured starting duration. A dog that regressed below it (common
+after a move, illness, a new baby or a frightening absence) was therefore offered that longer
+starting duration again straight after distress. For example, a 2-minute start, then distress at
+40 seconds, produced a 2-minute plan labelled "Easier today". That contradicted principles 4 and 5
+and the rule that distress never increases difficulty.
+
+Now the starting duration is trusted as a floor only while no concern or distress has been
+logged at or below it. After that, reductions are bounded only by the observed sessions (one step
+below the difficulty point, or the most recent relaxed duration if lower) and one second. A
+relaxed early return or a long break can no longer jump a regressed plan back up to the starting
+duration either. This is not a new clinical threshold. It removes a floor so the plan follows the
+dog's observed behaviour, and it can only make a plan easier.
 
 ## Product rule: progress credit is capped at the target
 

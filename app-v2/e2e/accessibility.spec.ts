@@ -97,4 +97,15 @@ test("an early, difficult return keeps the review accessible", async ({ page }) 
   await page.getByRole("button", { name: /Distressed/ }).click();
   await expect(page.getByText("Why did you come back early?")).toBeVisible();
   await expectNoSeriousViolations(page);
+
+  // Selection is exposed to assistive technology, not only shown by colour.
+  await expect(page.getByRole("button", { name: /^Distressed/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Relaxed/ })).toHaveAttribute("aria-pressed", "false");
+  const pacing = page.getByRole("button", { name: "Pacing", exact: true });
+  await expect(pacing).toHaveAttribute("aria-pressed", "false");
+  await pacing.click();
+  await expect(pacing).toHaveAttribute("aria-pressed", "true");
+  const confined = page.getByRole("button", { name: "Crated / confined", exact: true });
+  await confined.click();
+  await expect(confined).toHaveAttribute("aria-pressed", "true");
 });

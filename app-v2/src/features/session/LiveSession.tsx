@@ -494,6 +494,7 @@ export function LiveSession({
               <button
                 key={value}
                 className={`outcome-button ${outcome === value ? "selected" : ""}`}
+                aria-pressed={outcome === value}
                 onClick={() => setOutcome(value)}
               >
                 <strong>{label}</strong>
@@ -509,6 +510,7 @@ export function LiveSession({
                 {observedSignalOptions.map(({ value, label }) => (
                   <button
                     className={signals.includes(value) ? "selected" : ""}
+                    aria-pressed={signals.includes(value)}
                     key={value}
                     onClick={() => toggleSignal(value)}
                   >
@@ -554,6 +556,7 @@ export function LiveSession({
               {SESSION_TAG_OPTIONS.map(({ value, label }) => (
                 <button
                   className={tags.includes(value) ? "selected" : ""}
+                  aria-pressed={tags.includes(value)}
                   key={value}
                   onClick={() => toggleTag(value)}
                 >
