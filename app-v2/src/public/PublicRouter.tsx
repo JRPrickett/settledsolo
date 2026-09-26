@@ -6,7 +6,7 @@ import { OptionalSupportCard } from "./PublicSupport";
 import { contactEmail, feedbackMailto } from "./contact";
 import { supportProvider } from "./support";
 import { GUIDE_PATH, isPublicPagePath, normalisePublicPath, type PublicPagePath } from "./routes";
-import { CANONICAL_ORIGIN, formatReviewDate, PAGE_META } from "./pageMeta";
+import { CANONICAL_ORIGIN, PAGE_META } from "./pageMeta";
 
 function setMeta(attribute: "name" | "property", key: string, content: string) {
   let meta = document.head.querySelector<HTMLMetaElement>(
@@ -344,11 +344,6 @@ function GuidePage() {
         worried, and increasing only in small steps after calm sessions. Watch what actually happens, go back a step after any sign of
         concern, and avoid longer absences in between. This approach is called systematic
         desensitisation.
-      </p>
-      <p className="info-note">
-        Written by SettledSolo&apos;s maker from the published research listed at the end.
-        Last reviewed {formatReviewDate(PAGE_META[GUIDE_PATH].updated)}. General information, not a diagnosis
-        or individual veterinary or behavioural advice.
       </p>
 
       <h2>What is separation anxiety in dogs?</h2>
