@@ -35,6 +35,16 @@ describe("worker security boundary", () => {
     expect(response.headers.get("x-robots-tag")).toBeNull();
   });
 
+  it("sends www to the apex domain with a permanent redirect", async () => {
+    const response = await handleRequest(
+      new Request("https://www.settledsolo.com/help?x=1"),
+      envWithAssets(async () => new Response("unused")),
+    );
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get("location")).toBe("https://settledsolo.com/help?x=1");
+  });
+
   it("keeps app and API responses private and rejects static writes", async () => {
     const env = envWithAssets(async () =>
       new Response("<html>app</html>", {

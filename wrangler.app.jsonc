@@ -8,6 +8,10 @@
     {
       "pattern": "settledsolo.com",
       "custom_domain": true
+    },
+    {
+      "pattern": "www.settledsolo.com",
+      "custom_domain": true
     }
   ],
   "compatibility_flags": [

@@ -1,6 +1,6 @@
 # SettledSolo search and AI-answer visibility
 
-**Last updated:** 23 September 2026
+**Last updated:** 28 September 2026
 
 ## What the site now does
 
@@ -19,6 +19,12 @@
   - home: `WebApplication` (free, `price: 0`) and `FAQPage` for the homepage FAQs;
   - resources: `FAQPage`;
   - guide, help and evidence: `Article` with author and `dateModified`.
+  The author and the organisation's founder use the same `@id` as Jason Prickett's person node on
+  southwestwebsites.co.uk (`https://southwestwebsites.co.uk/about#jason-prickett`), so search
+  engines can tell they are the same person.
+- **www.** `wrangler.app.jsonc` routes `www.settledsolo.com` to the Worker as a custom domain
+  (Cloudflare creates its DNS record on deploy), and the Worker 301s it to the apex. Before this,
+  `www.settledsolo.com` had no DNS record and failed to load.
   The FAQ text comes from `app-v2/src/public/faqs.ts`, which also renders the visible FAQs, so
   the markup always matches the page. JSON-LD is a data block, not a script, so the CSP is
   unchanged (the production CSP gate covers every public page).

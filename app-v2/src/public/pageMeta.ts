@@ -43,7 +43,8 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   },
   "/help": {
     title: "Help — dog separation anxiety training | SettledSolo",
-    description: "Practical help for calm, gradual dog separation anxiety training with SettledSolo.",
+    description:
+      "Practical help for dog separation anxiety training: start from what your dog already handles, manage absences, use a camera, and know when to pause or get help.",
     image: "/social/help.png",
     headline: "Keep the next step calm and manageable",
     imageAlt: "SettledSolo help: keep the next step calm and manageable.",
@@ -52,14 +53,15 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   "/resources": {
     title: "Dog separation anxiety resources | SettledSolo",
     description:
-      "Owned FAQs, printable checklists and observation tools for gradual dog separation anxiety training.",
+      "Free printable dog separation anxiety resources: a one-session cheat sheet, a setback checklist, an observation log and answers to common training questions.",
     image: "/social/resources.png",
     imageAlt: "SettledSolo resources: free printable checklists, an observation log and FAQs.",
     updated: "2026-09-23"
   },
   "/evidence": {
     title: "Evidence-informed dog separation training | SettledSolo",
-    description: "The research, safety boundaries and rules of thumb behind SettledSolo.",
+    description:
+      "The research behind SettledSolo: systematic desensitisation, watching your dog, managing absences, and which numbers are rules of thumb, not clinical rules.",
     image: "/social/evidence.png",
     headline: "Principles first. False precision never.",
     imageAlt: "SettledSolo evidence: principles first, false precision never.",
@@ -67,7 +69,8 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
   },
   "/contact": {
     title: "Contact and feedback — SettledSolo",
-    description: "How to send beta feedback and manage your SettledSolo data yourself.",
+    description:
+      "Send feedback on the SettledSolo beta, see how to manage your training data yourself, and find where to get help if your dog is struggling now.",
     image: "/social/home.png",
     imageAlt: DEFAULT_IMAGE_ALT,
     updated: "2026-09-23"
@@ -159,6 +162,14 @@ export function replaceSeoBlock(html: string, tags: string): string {
 
 export const AUTHOR_NAME = "Jason Prickett";
 
+/** The same person as on southwestwebsites.co.uk, so search engines can connect the two sites. */
+const AUTHOR = {
+  "@type": "Person",
+  "@id": "https://southwestwebsites.co.uk/about#jason-prickett",
+  name: AUTHOR_NAME,
+  url: "https://southwestwebsites.co.uk/about"
+};
+
 function faqPage(url: string, faqs: Faq[]) {
   return {
     "@type": "FAQPage",
@@ -185,7 +196,7 @@ export function structuredData(path: PublicPagePath): Record<string, unknown> {
     name: "SettledSolo",
     url: `${CANONICAL_ORIGIN}/`,
     logo: `${CANONICAL_ORIGIN}/apple-touch-icon.png`,
-    founder: { "@type": "Person", name: AUTHOR_NAME }
+    founder: AUTHOR
   };
   const website = {
     "@type": "WebSite",
@@ -235,7 +246,7 @@ export function structuredData(path: PublicPagePath): Record<string, unknown> {
       image: `${CANONICAL_ORIGIN}${meta.image}`,
       inLanguage: "en-GB",
       dateModified: meta.updated,
-      author: { "@type": "Person", name: AUTHOR_NAME },
+      author: AUTHOR,
       publisher: { "@id": organization["@id"] },
       isAccessibleForFree: true
     });
