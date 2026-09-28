@@ -12,6 +12,9 @@ test("production config targets the live SettledSolo Worker", () => {
   assertWorkerIdentity("production", config);
   assert.equal(config.routes?.[0]?.pattern, "settledsolo.com");
   assert.equal(config.routes?.[0]?.custom_domain, true);
+  // www must reach the Worker so it can 301 to the apex.
+  assert.equal(config.routes?.[1]?.pattern, "www.settledsolo.com");
+  assert.equal(config.routes?.[1]?.custom_domain, true);
   assert.equal(config.workers_dev, false);
   assert.equal(config.preview_urls, false);
 });
