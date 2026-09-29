@@ -753,7 +753,7 @@ textarea:focus-visible {
   max-width: 12ch;
   font-size: clamp(35px, 9.5vw, 52px);
   line-height: 1;
-  letter-spacing: -.05em;
+  letter-spacing: -.04em;
 }
 
 .lead {
@@ -2160,9 +2160,7 @@ a:focus-visible {
 }
 
 .setup-shell {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(242,166,90,.14), transparent 24rem),
-    var(--page);
+  background: var(--page);
 }
 
 .setup-card {
@@ -2229,10 +2227,8 @@ a:focus-visible {
 .setup-progress {
   flex: none;
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 760;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .setup-options {
@@ -2360,9 +2356,9 @@ a:focus-visible {
   gap: 4px;
   margin-top: 14px;
   padding: 13px 14px;
-  border-left: 3px solid var(--glow);
+  border: 1px solid rgba(242,166,90,.35);
   background: rgba(242,166,90,.07);
-  border-radius: 0 13px 13px 0;
+  border-radius: 13px;
 }
 
 .setup-camera-note strong {
@@ -2744,15 +2740,6 @@ a:focus-visible {
   color: #F7EEDF;
 }
 
-.marketing-eyebrow {
-  margin: 0 0 13px;
-  color: var(--sage-strong);
-  text-transform: uppercase;
-  letter-spacing: .15em;
-  font-size: 11px;
-  font-weight: 700;
-}
-
 .marketing-hero h1,
 .marketing-section h2,
 .marketing-preview-copy h2,
@@ -2767,11 +2754,7 @@ a:focus-visible {
   margin: 0;
   font-size: clamp(54px, 7.6vw, 92px);
   line-height: .93;
-  letter-spacing: -.045em;
-}
-
-.marketing-hero .marketing-eyebrow {
-  color: #A8C0AD;
+  letter-spacing: -.04em;
 }
 
 .marketing-lead {
@@ -2893,8 +2876,8 @@ a:focus-visible {
   letter-spacing: -.04em;
 }
 
-.marketing-section-heading > p:not(.marketing-eyebrow),
-.marketing-preview-copy > p:not(.marketing-eyebrow) {
+.marketing-section-heading > p,
+.marketing-preview-copy > p {
   color: var(--muted);
   font-size: 15px;
   line-height: 1.65;
@@ -2936,9 +2919,13 @@ a:focus-visible {
 .marketing-hero h1 .marketing-hero-kicker {
   display: block;
   max-width: 34ch;
+  margin: 0 0 16px;
+  color: #A8C0AD;
   font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.5;
-  letter-spacing: .15em;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
 }
 
 .marketing-features {
@@ -3313,11 +3300,11 @@ a:focus-visible {
 
 .info-page > h1 {
   margin: 0;
-  max-width: 11ch;
+  max-width: 16ch;
   font-family: var(--display);
-  font-size: clamp(48px, 8vw, 78px);
-  line-height: .96;
-  letter-spacing: -.045em;
+  font-size: clamp(40px, 6vw, 60px);
+  line-height: 1;
+  letter-spacing: -.035em;
 }
 
 .info-page-copy {
@@ -3909,8 +3896,8 @@ a:focus-visible {
   text-wrap: balance;
 }
 
-.marketing-section-heading > p:not(.marketing-eyebrow),
-.marketing-preview-copy > p:not(.marketing-eyebrow) {
+.marketing-section-heading > p,
+.marketing-preview-copy > p {
   margin-top: 20px;
   font-size: 16px;
 }
@@ -3984,10 +3971,7 @@ a:focus-visible {
   gap: clamp(46px, 7vw, 88px);
   border-radius: 36px;
   color: #F7EEDF;
-  background:
-    radial-gradient(circle at 86% 14%, rgba(138,174,144,.12), transparent 20rem),
-    radial-gradient(ellipse at 72% 100%, rgba(242,166,90,.13), transparent 28rem),
-    var(--ink);
+  background: var(--ink);
   box-shadow: 0 30px 70px rgba(21,36,44,.16);
 }
 
@@ -4109,14 +4093,8 @@ a:focus-visible {
 .marketing-session-visual figcaption {
   margin-top: 22px;
   text-align: center;
-  color: rgba(247,238,223,.52);
-  font-size: 11px;
-  letter-spacing: .04em;
-}
-
-.marketing-session-visual figcaption span {
-  margin: 0 7px;
-  color: var(--glow);
+  color: rgba(247,238,223,.74);
+  font-size: 13px;
 }
 
 .marketing-reassurance {
@@ -4175,13 +4153,6 @@ a:focus-visible {
 .marketing-proof-list article {
   padding-top: 19px;
   border-top: 1px solid rgba(21,36,44,.13);
-}
-
-.marketing-proof-list article > span {
-  color: var(--sage-strong);
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: .04em;
 }
 
 .marketing-proof-list h3 {
@@ -5531,15 +5502,15 @@ a:focus-visible {
 
 .resource-downloads h2,
 .public-support-card h2 {
-  margin: 0;
+  margin: 0 0 12px;
   font-family: var(--display);
   font-size: clamp(27px, 5vw, 40px);
   line-height: 1;
   letter-spacing: -.04em;
 }
 
-.resource-downloads p:not(.marketing-eyebrow),
-.public-support-card p:not(.marketing-eyebrow) {
+.resource-downloads p,
+.public-support-card p {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
@@ -5570,14 +5541,6 @@ a:focus-visible {
   transform: translateY(-2px);
   border-color: rgba(21,36,44,.18);
   box-shadow: 0 10px 24px rgba(21,36,44,.08);
-}
-
-.resource-download > span {
-  color: var(--sage-strong);
-  font-size: 10px;
-  font-weight: 760;
-  letter-spacing: .08em;
-  text-transform: uppercase;
 }
 
 .resource-download strong {
@@ -5614,10 +5577,6 @@ a:focus-visible {
 
 .public-support-card > div {
   max-width: 58ch;
-}
-
-.public-support-card .marketing-eyebrow {
-  margin-bottom: 10px;
 }
 
 .public-support-card .marketing-primary {

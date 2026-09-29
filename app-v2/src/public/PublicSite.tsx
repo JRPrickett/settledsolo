@@ -90,7 +90,7 @@ export function PublicSite() {
         <section className="marketing-hero">
           <div className="marketing-hero-copy">
             <h1>
-              <span className="marketing-eyebrow marketing-hero-kicker">
+              <span className="marketing-hero-kicker">
                 Free separation anxiety training app for dogs
               </span>{" "}
               Calm starts with small steps.
@@ -122,8 +122,8 @@ export function PublicSite() {
               fetchPriority="high"
             />
             <figcaption className="marketing-scene-copy">
-              <span>Observe comfort, not just the clock.</span>
-              <strong>Leave gently. Watch closely. Return early.</strong>
+              <span>Watch how your dog is, not only the clock.</span>
+              <strong>Come back before worry builds.</strong>
             </figcaption>
           </figure>
         </section>
@@ -136,11 +136,11 @@ export function PublicSite() {
 
         <section className="marketing-section" id="how-it-works">
           <div className="marketing-section-heading">
-            <h2>A small loop you can trust.</h2>
+            <h2>How it works</h2>
             <p>
-              SettledSolo turns separation anxiety training, a complicated and
-              emotional process, into one calm decision at a time. There is always
-              permission to make it easier.
+              Separation anxiety training is slow and can be emotional. SettledSolo
+              breaks it into one decision at a time, and you can always make the next
+              step easier.
             </p>
           </div>
 
@@ -171,7 +171,7 @@ export function PublicSite() {
 
         <section className="marketing-section marketing-features" id="features">
           <div className="marketing-section-heading">
-            <h2>Everything a separation training app needs, free.</h2>
+            <h2>What the free app does</h2>
             <p>
               The core of SettledSolo costs nothing and needs no account. It runs in your
               browser and installs to your home screen on iPhone and Android.
@@ -189,11 +189,11 @@ export function PublicSite() {
 
         <section className="marketing-session" id="the-session">
           <div className="marketing-preview-copy">
-            <h2>A quiet guide for the moment you actually leave.</h2>
+            <h2>For the minutes you are away</h2>
             <p>
-              Before you go, you get a gentle plan. While you are away, the screen
-              pares back to what matters. When you return, a few quick observations
-              shape the next step.
+              Before you go, the app shows today&apos;s plan. While you are away, the
+              screen shows the time and a large button for coming back. When you
+              return, a few quick questions about your dog shape the next step.
             </p>
             <ul className="marketing-outcomes">
               <li><strong>Know why</strong><span>Every suggested duration comes with a clear reason.</span></li>
@@ -211,7 +211,7 @@ export function PublicSite() {
                 </div>
               ))}
             </div>
-            <figcaption>Plan <span>/</span> observe <span>/</span> adapt</figcaption>
+            <figcaption>From the app: today&apos;s plan, a live session and the review afterwards.</figcaption>
           </figure>
         </section>
 
@@ -221,34 +221,32 @@ export function PublicSite() {
             <h2>You do not need to prove anything today.</h2>
             <p>
               One calm repetition is useful. If your dog looks worried, come back.
-              Progress is not how long you stay away—it is how safe the experience feels.
+              Progress is more than a longer time: what matters is that being alone
+              feels safe to your dog.
             </p>
           </div>
         </section>
 
         <section className="marketing-section marketing-evidence">
           <div className="marketing-section-heading">
-            <h2>Evidence-aware. Honest about the gaps.</h2>
+            <h2>What the evidence supports, and where it stops</h2>
             <p>
-              Good guidance should make its foundations clear without pretending
-              that every dog follows the same formula.
+              The approach follows published research where it exists, and says so
+              plainly where the app is using its own rule of thumb instead.
             </p>
           </div>
           <div className="marketing-proof-list">
             <article>
-              <span>What guides the app</span>
-              <h3>Gradual exposure and direct observation.</h3>
+              <h3>Built on gradual exposure and watching your dog</h3>
               <p>The method starts below meaningful worry and changes according to what you observe.</p>
             </article>
             <article>
-              <span>What the app will not claim</span>
-              <h3>A perfect formula or a clinical prescription.</h3>
+              <h3>No clinical prescription or fixed formula</h3>
               <p>Step sizes are conservative planning suggestions. You can always make them easier.</p>
             </article>
             <article>
-              <span>Where the product stands</span>
-              <h3>Independent, transparent and honest about its limits.</h3>
-              <p>SettledSolo explains which ideas come from evidence and which are its own cautious rules of thumb.</p>
+              <h3>Clear about which parts are rules of thumb</h3>
+              <p>The evidence page separates published findings from SettledSolo&apos;s own cautious choices.</p>
             </article>
           </div>
           <a className="marketing-text-link" href="/evidence">Read the evidence notes <ArrowIcon /></a>
@@ -256,7 +254,7 @@ export function PublicSite() {
 
         <section className="marketing-section marketing-faq" id="faq">
           <div className="marketing-section-heading">
-            <h2>Questions worth asking before you begin.</h2>
+            <h2>Common questions</h2>
           </div>
           <div className="faq-list">
             {HOME_FAQS.map(({ question, answer }) => (

@@ -110,8 +110,8 @@ function InfoPage({
             <a href="/resources">Resources</a>
             <a href="/evidence">Evidence</a>
           </span>
-          <span>SettledSolo is built and maintained by Jason Prickett, an individual trading as Southwest Websites.</span>
           <span>SettledSolo is a training and record-keeping aid, not a diagnosis.</span>
+          <a className="marketing-builder-link" href="https://southwestwebsites.co.uk">Built by South West Websites.</a>
         </div>
       </footer>
     </div>
@@ -234,7 +234,7 @@ function TermsPage() {
 
 function EvidencePage() {
   return (
-    <InfoPage title="Principles first. False precision never.">
+    <InfoPage title="The evidence behind SettledSolo, and its limits.">
       <p>
         SettledSolo is built around gradual systematic desensitisation: begin with an
         absence mild enough not to evoke meaningful distress, observe the dog, and adapt
@@ -578,7 +578,7 @@ function HelpPage() {
 
 function ResourcesPage() {
   return (
-    <InfoPage title="Dog separation anxiety resources you can use.">
+    <InfoPage title="Dog separation anxiety resources">
       <p>
         These are SettledSolo&apos;s own plain-language notes for planning calm alone-time
         practice. They combine the evidence listed on the <a href="/evidence">evidence
@@ -587,8 +587,7 @@ function ResourcesPage() {
       </p>
       <section className="resource-downloads" aria-labelledby="downloads-heading">
         <div>
-          <p className="marketing-eyebrow">Free downloads</p>
-          <h2 id="downloads-heading">Keep the useful reminders close by.</h2>
+          <h2 id="downloads-heading">Free printable downloads</h2>
           <p>
             These are SettledSolo&apos;s own printable pages for the fridge, notebook or
             training bag. They are designed to support observation without turning every
@@ -597,22 +596,19 @@ function ResourcesPage() {
         </div>
         <div className="resource-download-grid">
           <a className="resource-download" href="/resources/settledsolo-session-cheatsheet.pdf" download>
-            <span>PDF download</span>
             <strong>One-session cheat sheet</strong>
             <p>Five reminders for choosing, observing and closing a manageable session.</p>
-            <b>Download the cheat sheet <span aria-hidden="true">↗</span></b>
+            <b>Download the cheat sheet (PDF) <span aria-hidden="true">↗</span></b>
           </a>
           <a className="resource-download" href="/resources/settledsolo-setback-checklist.pdf" download>
-            <span>PDF download</span>
             <strong>Setback checklist</strong>
             <p>A calm sequence for reviewing a difficult session and choosing a smaller next step.</p>
-            <b>Download the checklist <span aria-hidden="true">↗</span></b>
+            <b>Download the checklist (PDF) <span aria-hidden="true">↗</span></b>
           </a>
           <a className="resource-download" href="/resources/settledsolo-observation-log.pdf" download>
-            <span>PDF download</span>
             <strong>Observation log</strong>
             <p>A printable five-session log for duration, context, first signs and recovery.</p>
-            <b>Download the log <span aria-hidden="true">↗</span></b>
+            <b>Download the log (PDF) <span aria-hidden="true">↗</span></b>
           </a>
         </div>
       </section>

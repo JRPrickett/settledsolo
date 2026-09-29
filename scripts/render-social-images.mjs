@@ -54,7 +54,7 @@ const CARDS = [
   {
     file: "evidence.png",
     kicker: "Evidence",
-    headline: "Principles first. False precision never.",
+    headline: "The evidence behind SettledSolo, and its limits.",
     body: "The research, safety boundaries and product heuristics behind SettledSolo."
   }
 ];
