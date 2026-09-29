@@ -53,8 +53,7 @@ export function History({
   return (
     <div className="screen-stack">
       <section className="page-heading">
-        <p className="kicker">History</p>
-        <h1>Your training record.</h1>
+        <h1>Your training record</h1>
         <p>Stored locally on this device. If you connect an account, your training data can also sync between your devices.</p>
         {onOpenSummary && scenarioHasHistory(data) && (
           <button type="button" className="text-link-button" onClick={onOpenSummary}>
@@ -71,8 +70,8 @@ export function History({
       {adding ? (
         <section className="settings-card">
           <div>
-            <p className="kicker">Log a past session</p>
-            <h2>Add an absence completed without the timer running.</h2>
+            <h2>Log a past session</h2>
+            <p>An absence you completed without the timer running.</p>
           </div>
           <SessionForm
             onCancel={() => setAdding(false)}

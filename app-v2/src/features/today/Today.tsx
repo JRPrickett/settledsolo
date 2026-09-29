@@ -485,8 +485,7 @@ export function Today({
       ) : (
         <section className="cue-entry-card coverage-card">
           <div>
-            <p className="kicker">While you&apos;re actively training</p>
-            <h2>Cover real absences, not just training sessions.</h2>
+            <h2>Cover real absences while you train</h2>
             <p>{coverageCopy}</p>
           </div>
           <details className="coverage-options">
@@ -504,7 +503,6 @@ export function Today({
       {!cuePracticeOnly && (
         <section className="cue-entry-card">
           <div>
-            <p className="kicker">Before you can leave</p>
             <h2>Do keys, shoes or the door still cause worry?</h2>
             <p>Practise those cues without leaving, so they stop predicting an absence.</p>
           </div>

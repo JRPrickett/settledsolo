@@ -37,12 +37,12 @@ async function restoreSessions(page: import("@playwright/test").Page, count: num
 
 test("a new track shows the full guidance; an established one collapses it to a line", async ({ page }) => {
   await completeSetup(page, 30);
-  await expect(page.getByRole("heading", { name: "Cover real absences, not just training sessions." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cover real absences while you train" })).toBeVisible();
   // One routine: the track card adds nothing yet.
   await expect(page.getByText("Your training track")).toBeHidden();
 
   await restoreSessions(page, 5);
-  await expect(page.getByRole("heading", { name: "Cover real absences, not just training sessions." })).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Cover real absences while you train" })).toBeHidden();
   const coverage = page.getByText("Cover real absences while you train", { exact: true });
   await expect(coverage).toBeVisible();
   await expect(page.getByText("A dog walker for a midday break")).toBeHidden();

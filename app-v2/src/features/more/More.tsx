@@ -121,8 +121,7 @@ export function More({
   return (
     <div className="screen-stack">
       <section className="page-heading">
-        <p className="kicker">More</p>
-        <h1>{data.dogName}'s training settings.</h1>
+        <h1>{data.dogName}&apos;s training settings</h1>
       </section>
 
       {accountPanel}
@@ -169,8 +168,7 @@ export function More({
 
       <section className="settings-card">
         <div>
-          <p className="kicker">Current training track</p>
-          <h2>Keep routines separate when they genuinely differ.</h2>
+          <h2>Current training track</h2>
           <p>
             Edit this track's name or known-comfortable starting point without
             touching its history.
@@ -262,10 +260,10 @@ export function More({
 
       <section className="settings-card">
         <div>
-          <p className="kicker">Daily ceiling</p>
-          <h2>How many timed sessions per day, at most.</h2>
+          <h2>Daily ceiling</h2>
           <p>
-            Counted across every training track, since it's the same dog. Separation
+            The most timed sessions in one day, counted across every training track,
+            since it&apos;s the same dog. Separation
             training needs comfortable gaps between sessions. More attempts in one day
             are not automatically better. Two is the default; three is the absolute
             maximum and remains a ceiling, not a target. This is a SettledSolo safety
@@ -295,8 +293,7 @@ export function More({
 
       <section className="settings-card">
         <div>
-          <p className="kicker">Another routine</p>
-          <h2>Add a separate training track.</h2>
+          <h2>Add a training track</h2>
           <p>
             Useful when a context really behaves differently, such as a school-run
             departure versus an evening departure. Do not split tracks just to chase
@@ -345,8 +342,7 @@ export function More({
 
       <section className="settings-card">
         <div>
-          <p className="kicker">Return alerts</p>
-          <h2>Know when it is time to head back.</h2>
+          <h2>Return alerts</h2>
           <p>
             Enable a native return alert for the main departure while you watch the
             camera in another app. Foreground chimes stay local, and the timer and
@@ -413,11 +409,10 @@ export function More({
       {onOpenSummary && (
         <section className="data-tools-card summary-entry-card">
           <div>
-            <p className="kicker">For your vet or trainer</p>
-            <h2>Share {data.dogName}&apos;s record.</h2>
+            <h2>Share {data.dogName}&apos;s record</h2>
             <p>
-              A readable summary of sessions, signs, context and notes to print, save as a
-              PDF or send. It is built on this device.
+              A readable summary for your vet or trainer: sessions, signs, context and
+              notes to print, save as a PDF or send. It is built on this device.
             </p>
           </div>
           <button type="button" className="secondary-button" onClick={onOpenSummary}>
@@ -428,8 +423,7 @@ export function More({
 
       <section className="data-tools-card">
         <div>
-          <p className="kicker">Your data</p>
-          <h2>Keep a copy whenever you want.</h2>
+          <h2>Your data</h2>
           <p>
             Export a complete backup or a spreadsheet-friendly session history. These
             exports stay free even if paid features are added later.
@@ -493,8 +487,7 @@ export function More({
 
       <section className="settings-card danger-zone">
         <div>
-          <p className="kicker">Danger zone</p>
-          <h2>Reset SettledSolo and start again.</h2>
+          <h2>Reset SettledSolo</h2>
           <p>
             This permanently deletes {data.dogName}&apos;s local training tracks,
             session history, departure-cue progress and onboarding setup on this
@@ -568,12 +561,11 @@ export function More({
       <HelpFeedbackCard storageMode={storageMode} />
 
       <section className="quiet-card vertical">
-        <p className="kicker">Evidence-aware, not algorithm worship</p>
-        <h2>Every recommendation should be explainable.</h2>
+        <h2>How suggestions are made</h2>
         <p>
-          The new engine is based on gradual systematic desensitisation and observed
-          behaviour. Its exact software step sizes are cautious rules of thumb,
-          not a claim that science has discovered the perfect percentage increase.
+          Suggestions follow gradual systematic desensitisation and what you observe.
+          The exact step sizes are SettledSolo&apos;s own cautious rules of thumb, not a
+          claim that research has found the right increase for every dog.
         </p>
       </section>
 
