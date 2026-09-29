@@ -32,7 +32,7 @@ function IOSInstallGuide({ dialogRef }: { dialogRef: RefObject<HTMLDialogElement
           <li><span>2</span>Tap the three dots, then <strong>Share</strong>.</li>
           <li><span>3</span>Choose <strong>Add to Home Screen</strong>.</li>
         </ol>
-        <small>No App Store, account or payment card needed.</small>
+        <small>It&apos;s this same website, saved as an icon. No App Store, account or payment card, and you can remove it like any other app.</small>
       </div>
 
       <IOSInstallDemo />
