@@ -4,8 +4,7 @@ export function OptionalSupportCard({ compact = false }: { compact?: boolean }) 
   return (
     <section className={`public-support-card${compact ? " compact" : ""}`}>
       <div>
-        <p className="marketing-eyebrow">Optional support</p>
-        <h2>Help keep SettledSolo calm, private and useful.</h2>
+        <h2>Optional support</h2>
         <p>
           The training plan, timer, history and downloads stay available without payment.
           You can make an optional one-off contribution; it does not unlock app features.

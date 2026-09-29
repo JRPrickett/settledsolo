@@ -63,8 +63,8 @@ export const PAGE_META: Record<PublicPagePath, PageMeta> = {
     description:
       "The research behind SettledSolo: systematic desensitisation, watching your dog, managing absences, and which numbers are rules of thumb, not clinical rules.",
     image: "/social/evidence.png",
-    headline: "Principles first. False precision never.",
-    imageAlt: "SettledSolo evidence: principles first, false precision never.",
+    headline: "The evidence behind SettledSolo, and its limits.",
+    imageAlt: "SettledSolo evidence: the research behind the app, and its limits.",
     updated: "2026-09-23"
   },
   "/contact": {
