@@ -34,8 +34,7 @@ export function Progress({
   return (
     <div className="screen-stack">
       <section className="page-heading">
-        <p className="kicker">Progress</p>
-        <h1>Look for comfort, not just longer times.</h1>
+        <h1>Progress</h1>
         <p>
           A shorter relaxed departure can be better progress than a longer difficult one.
         </p>
@@ -67,7 +66,6 @@ export function Progress({
       {trend && (
         <section className="pattern-card month-trend-card" aria-labelledby="month-trend-heading">
           <div>
-            <p className="kicker">This month</p>
             <h2 id="month-trend-heading">The last 30 days against the 30 before.</h2>
             <p>
               Only {data.dogName}&apos;s own record on this track. It is not a forecast,
@@ -110,7 +108,7 @@ export function Progress({
           <p>
             Earned the first time a relaxed session reaches that length, counting no
             more than its planned target, so rungs follow your gradual progression.
-            Counted across every training track — it's the same dog doing all of them.
+            Counted across every training track, since it&apos;s the same dog doing all of them.
           </p>
         </div>
 
@@ -139,7 +137,7 @@ export function Progress({
         ) : (
           <p className="milestone-longest">
             Every milestone logged. These are comfortable durations recorded in the
-            tracks and contexts you have used — not a general measure of what your dog
+            tracks and contexts you have used, not a general measure of what your dog
             can manage everywhere.
           </p>
         )}
@@ -173,8 +171,7 @@ export function Progress({
       {insights.signals.length > 0 && (
         <section className="pattern-card">
           <div>
-            <p className="kicker">Recent observations</p>
-            <h2>What you have actually seen.</h2>
+            <h2>Recent observations</h2>
             <p>
               These are patterns in your last {insights.recentTotal} logged sessions,
               not a diagnosis or proof that a particular context caused the behaviour.
@@ -194,7 +191,6 @@ export function Progress({
       {(events.length > 0 || onOpenJournal) && (
         <section className="pattern-card" aria-labelledby="life-events-heading">
           <div>
-            <p className="kicker">Context</p>
             <h2 id="life-events-heading">Changes at home.</h2>
             <p>
               A move, an illness or a new routine can explain a setback. Noting them keeps
@@ -225,8 +221,7 @@ export function Progress({
       )}
 
       <section className="quiet-card vertical">
-        <p className="kicker">What counts as progress</p>
-        <h2>Duration is only one signal.</h2>
+        <h2>What counts as progress</h2>
         <p>
           When you save a session, tick the signs you noticed, such as pacing,
           whining, watching the exit or being unable to settle. They build the
