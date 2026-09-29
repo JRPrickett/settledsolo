@@ -58,7 +58,7 @@ export function InstallNotice() {
         <span>
           {installEvent
             ? "Your training record only exists on this device right now."
-            : "iOS can clear an uninstalled site's data after a week unused."}
+            : "iOS can clear a website's saved data after a week unused. Installing it avoids that and gives you the full app experience."}
         </span>
         {!installEvent && isIOS() && (
           <details className="install-steps">
