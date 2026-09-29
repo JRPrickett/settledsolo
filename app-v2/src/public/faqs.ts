@@ -21,6 +21,11 @@ export const HOME_FAQS: Faq[] = [
       "Yes. It runs in any modern browser and can be added to your home screen on iPhone or Android, where it opens like an app and works offline. There is nothing to download from an app store."
   },
   {
+    question: "What does installing SettledSolo mean, and is it safe?",
+    answer:
+      "SettledSolo is a progressive web app (PWA): a website that you can add to your home screen, where it opens and works like an app, including offline. Installing it only adds an icon for this same website. Nothing comes from an app store, it cannot see your other apps or files, and it gets no extra permissions; notifications are used only if you turn them on. You can remove it at any time, like any other app. On iPhone, installing is also the best way to keep your training record, because Safari can clear a website's saved data after a week unused."
+  },
+  {
     question: "Is SettledSolo only for dogs already struggling with separation?",
     answer:
       "No. The same calm, gradual approach can also support puppies or newly adopted dogs learning comfortable alone time. Severe or escalating distress should involve professional support."
