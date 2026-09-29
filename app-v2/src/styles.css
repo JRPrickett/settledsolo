@@ -1434,6 +1434,13 @@ textarea:focus-visible {
   margin-top: 3px;
 }
 
+.install-notice .install-reassure {
+  margin: 8px 0 0;
+  color: #6b4d24;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .install-steps {
   margin-top: 8px;
   font-size: 12px;
@@ -4534,9 +4541,11 @@ a:focus-visible {
 
 .ios-install-copy small {
   display: block;
+  max-width: 34ch;
   margin-top: 28px;
-  color: rgba(247,238,223,.48);
-  font-size: 11px;
+  color: rgba(247,238,223,.74);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .ios-install-demo {
@@ -5268,7 +5277,7 @@ a:focus-visible {
 
   .ios-install-copy small {
     margin-top: 12px;
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .ios-install-demo:not(.ios-install-demo--compact) {
@@ -5280,7 +5289,7 @@ a:focus-visible {
 
   .ios-install-demo:not(.ios-install-demo--compact) .ios-guide-phone {
     width: min(100%, 280px);
-    height: clamp(250px, calc(100svh - 340px), 340px);
+    height: clamp(250px, calc(100svh - 380px), 340px);
     border-width: 7px;
     border-radius: 35px;
   }
